@@ -450,6 +450,10 @@ class Validator
                 $param = $param->format('Y-m-d');
             } elseif (is_object($param)) {
                 $param = get_class($param);
+                // Add leading backslash for fully qualified class names
+                if ($param[0] !== '\\') {
+                    $param = '\\' . $param;
+                }
             }
 
             // Use custom label instead of field name if set
@@ -1400,6 +1404,10 @@ class Validator
      */
     protected function validateEquals(string $field, mixed $value, array $params): bool
     {
+        if (!isset($params[0]) || !is_string($params[0])) {
+            throw new \InvalidArgumentException('Field name required for equals validation');
+        }
+
         // Extract the second field value, this accounts for nested array values
         [$field2Value, $multiple] = $this->getPart($this->fields, explode('.', $params[0]));
 
@@ -1421,6 +1429,10 @@ class Validator
      */
     protected function validateDifferent(string $field, mixed $value, array $params): bool
     {
+        if (!isset($params[0]) || !is_string($params[0])) {
+            throw new \InvalidArgumentException('Field name required for different validation');
+        }
+
         // Extract the second field value, this accounts for nested array values
         [$field2Value, $multiple] = $this->getPart($this->fields, explode('.', $params[0]));
 
@@ -1538,6 +1550,14 @@ class Validator
      */
     protected function validateLength(string $field, mixed $value, array $params): bool
     {
+        if (!isset($params[0]) || !is_int($params[0])) {
+            throw new \InvalidArgumentException('Length parameter must be an integer');
+        }
+
+        if (isset($params[1]) && !is_int($params[1])) {
+            throw new \InvalidArgumentException('Maximum length parameter must be an integer');
+        }
+
         $length = $this->stringLength($value);
 
         // Length between
@@ -1573,6 +1593,10 @@ class Validator
      */
     protected function validateLengthBetween(string $field, mixed $value, array $params): bool
     {
+        if (!isset($params[0]) || !is_int($params[0]) || !isset($params[1]) || !is_int($params[1])) {
+            throw new \InvalidArgumentException('Minimum and maximum length parameters must be integers');
+        }
+
         $length = $this->stringLength($value);
 
         return $length !== false && $length >= $params[0] && $length <= $params[1];
@@ -1603,6 +1627,10 @@ class Validator
      */
     protected function validateLengthMin(string $field, mixed $value, array $params): bool
     {
+        if (!isset($params[0]) || !is_int($params[0])) {
+            throw new \InvalidArgumentException('Minimum length parameter must be an integer');
+        }
+
         $length = $this->stringLength($value);
 
         return $length !== false && $length >= $params[0];
@@ -1633,6 +1661,10 @@ class Validator
      */
     protected function validateLengthMax(string $field, mixed $value, array $params): bool
     {
+        if (!isset($params[0]) || !is_int($params[0])) {
+            throw new \InvalidArgumentException('Maximum length parameter must be an integer');
+        }
+
         $length = $this->stringLength($value);
 
         return $length !== false && $length <= $params[0];
@@ -2004,7 +2036,8 @@ class Validator
             return false;
         }
 
-        return $value === array_unique($value, SORT_REGULAR);
+        // Compare counts instead of arrays to avoid key ordering issues
+        return count($value) === count(array_unique($value, SORT_REGULAR));
     }
 
     /**
@@ -2105,6 +2138,7 @@ class Validator
      * - PHP filter_var validation
      * - Dangerous character rejection (prevents XSS/injection)
      * - Local and domain part validation
+     * - Control character and null byte rejection
      *
      * @param  string $field The field name being validated.
      * @param  mixed $value The value to validate.
@@ -2127,8 +2161,13 @@ class Validator
             return false;
         }
 
-        // Reject dangerous characters
-        if (preg_match('/[<>"\'\(\)\[\]]/', $value)) {
+        // Reject dangerous characters (XSS/injection prevention)
+        if (preg_match('/[<>"\'\(\)\[\]\\\\]/', $value)) {
+            return false;
+        }
+
+        // Reject control characters and null bytes
+        if (preg_match('/[\x00-\x1F\x7F]/', $value)) {
             return false;
         }
 
@@ -2141,6 +2180,16 @@ class Validator
         [$local, $domain] = $parts;
 
         if (strlen($local) > 64 || strlen($domain) > 255) {
+            return false;
+        }
+
+        // Reject consecutive dots in local part
+        if (str_contains($local, '..')) {
+            return false;
+        }
+
+        // Reject leading/trailing dots in local part
+        if (str_starts_with($local, '.') || str_ends_with($local, '.')) {
             return false;
         }
 
@@ -2463,12 +2512,12 @@ class Validator
             );
         }
 
-        // Set limits to prevent ReDoS
+        // Set limits to prevent ReDoS (lower limits for better security)
         $oldBacktrackLimit = ini_get('pcre.backtrack_limit');
         $oldRecursionLimit = ini_get('pcre.recursion_limit');
 
-        ini_set('pcre.backtrack_limit', '100000');
-        ini_set('pcre.recursion_limit', '100000');
+        ini_set('pcre.backtrack_limit', '10000');
+        ini_set('pcre.recursion_limit', '10000');
 
         try {
             $result = @preg_match($pattern, $value);
@@ -2611,6 +2660,10 @@ class Validator
      */
     protected function validateDateFormat(string $field, mixed $value, array $params): bool
     {
+        if (!isset($params[0]) || !is_string($params[0])) {
+            throw new \InvalidArgumentException('Date format parameter must be a string');
+        }
+
         if (!is_string($value)) {
             return false;
         }
@@ -2652,8 +2705,17 @@ class Validator
      */
     protected function validateDateBefore(string $field, mixed $value, array $params): bool
     {
+        if (!isset($params[0])) {
+            throw new \InvalidArgumentException('Comparison date required for dateBefore validation');
+        }
+
         $vtime = ($value instanceof \DateTime) ? $value->getTimestamp() : strtotime((string)$value);
         $ptime = ($params[0] instanceof \DateTime) ? $params[0]->getTimestamp() : strtotime((string)$params[0]);
+
+        // If either strtotime() failed, return false
+        if ($vtime === false || $ptime === false) {
+            return false;
+        }
 
         return $vtime < $ptime;
     }
@@ -2690,8 +2752,17 @@ class Validator
      */
     protected function validateDateAfter(string $field, mixed $value, array $params): bool
     {
+        if (!isset($params[0])) {
+            throw new \InvalidArgumentException('Comparison date required for dateAfter validation');
+        }
+
         $vtime = ($value instanceof \DateTime) ? $value->getTimestamp() : strtotime((string)$value);
         $ptime = ($params[0] instanceof \DateTime) ? $params[0]->getTimestamp() : strtotime((string)$params[0]);
+
+        // If either strtotime() failed, return false
+        if ($vtime === false || $ptime === false) {
+            return false;
+        }
 
         return $vtime > $ptime;
     }
@@ -2858,13 +2929,11 @@ class Validator
      * Validate instance of a class
      *
      * Validates that a value is an object and is an instance of a specified class or interface.
-     * Uses PHP's instanceof operator for inheritance-aware checking, with fallback to exact
-     * class name matching via get_class().
+     * Uses PHP's instanceof operator for inheritance-aware checking.
      *
      * Validation checks:
      * 1. Value must be an object (not string, array, scalar, etc.)
-     * 2. Value must be instance of the specified class/interface OR
-     * 3. Value's class must exactly match the specified class name
+     * 2. Value must be instance of the specified class/interface
      *
      * The instanceof check respects inheritance and interface implementation:
      * - If class B extends class A, B is instanceof A
@@ -2886,7 +2955,7 @@ class Validator
      *
      * @return bool True if value is an instance of the specified class, false otherwise.
      *
-     * @throws \InvalidArgumentException If params[0] is not provided
+     * @throws \InvalidArgumentException If params[0] is not provided or is not a valid class/object
      */
     protected function validateInstanceOf(string $field, mixed $value, array $params): bool
     {
@@ -2900,7 +2969,12 @@ class Validator
 
         $expectedClass = is_object($params[0]) ? $params[0]::class : $params[0];
 
-        return $value instanceof $expectedClass || get_class($value) === $expectedClass;
+        if (!is_string($expectedClass)) {
+            throw new \InvalidArgumentException('Expected class name must be a string');
+        }
+
+        // The instanceof operator already handles exact class matches and inheritance
+        return $value instanceof $expectedClass;
     }
 
     /**
@@ -2926,7 +3000,7 @@ class Validator
             $reqParams = is_array($params[0]) ? $params[0] : [$params[0]];
             // Check for the flag indicating if all fields are required
             $allRequired = isset($params[1]) && (bool)$params[1];
-            $emptyFields = 0;
+            $filledFieldsCount = 0;
 
             foreach ($reqParams as $requiredField) {
                 // Check the field is set, not null, and not the empty string
@@ -2936,12 +3010,12 @@ class Validator
                         $conditionallyReq = true;
                         break;
                     }
-                    $emptyFields++;
+                    $filledFieldsCount++;
                 }
             }
 
             // If all required fields are present in strict mode, we're requiring it
-            if ($allRequired && $emptyFields === count($reqParams)) {
+            if ($allRequired && $filledFieldsCount === count($reqParams)) {
                 $conditionallyReq = true;
             }
         }
@@ -2977,7 +3051,7 @@ class Validator
             $reqParams = is_array($params[0]) ? $params[0] : [$params[0]];
             // Check for the flag indicating if all fields are required
             $allEmpty = isset($params[1]) && (bool)$params[1];
-            $filledFields = 0;
+            $emptyFieldsCount = 0;
 
             foreach ($reqParams as $requiredField) {
                 // Check the field is NOT set, null, or the empty string, in which case we are requiring this value be present
@@ -2987,12 +3061,12 @@ class Validator
                         $conditionallyReq = true;
                         break;
                     }
-                    $filledFields++;
+                    $emptyFieldsCount++;
                 }
             }
 
             // If all fields were empty, then we're requiring this in strict mode
-            if ($allEmpty && $filledFields === count($reqParams)) {
+            if ($allEmpty && $emptyFieldsCount === count($reqParams)) {
                 $conditionallyReq = true;
             }
         }

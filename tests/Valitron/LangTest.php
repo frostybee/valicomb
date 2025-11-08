@@ -1,4 +1,8 @@
 <?php
+declare(strict_types=1);
+
+namespace Valitron\Tests;
+
 use Valitron\Validator;
 
 class LangTest extends BaseTestCase
@@ -26,19 +30,19 @@ class LangTest extends BaseTestCase
     {
     	$langDir = $this->getLangDir();
     	Validator::langDir($langDir);
-    	$validator = new Validator(array());
+    	$validator = new Validator([]);
     	$this->assertEquals($langDir, Validator::langDir());
 	}
 
 	public function testDefaultLangShouldBeEn()
 	{
-		$validator = new Validator(array());
+		$validator = new Validator([]);
 		$this->assertEquals('en', Validator::lang());
 	}
 
 	public function testDefaultLangDirShouldBePackageLangDir()
 	{
-		$validator = new Validator(array());
+		$validator = new Validator([]);
 		$this->assertEquals(realpath($this->getLangDir()), realpath(Validator::langDir()));
 	}
 
@@ -46,8 +50,8 @@ class LangTest extends BaseTestCase
 	public function testLangException()
 	{
         try{
-		new Validator(array(), array(), 'en', '/this/dir/does/not/exists');
-        } catch (Exception $exception){
+		new Validator([], [], 'en', '/this/dir/does/not/exists');
+        } catch (\InvalidArgumentException $exception){
             $this->assertInstanceOf("InvalidArgumentException", $exception);
             $this->assertEquals("Fail to load language file '/this/dir/does/not/exists/en.php'", $exception->getMessage());
         }
@@ -55,7 +59,7 @@ class LangTest extends BaseTestCase
 
 
 	public function testLoadingNorwegianLoadsNNVariant(){
-	    $validator = new Validator(array(), array(),'no', $this->getLangDir());
+	    $validator = new Validator([], [],'no', $this->getLangDir());
 	    $validator->rule('required','test');
 	    $validator->validate();
 	    $errors =$validator->errors('test');

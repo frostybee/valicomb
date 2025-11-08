@@ -1,4 +1,8 @@
 <?php
+declare(strict_types=1);
+
+namespace Valitron\Tests;
+
 use Valitron\Validator;
 
 class StaticVsInstanceTest extends BaseTestCase
@@ -6,7 +10,7 @@ class StaticVsInstanceTest extends BaseTestCase
 	public function testInstanceOverrideStaticLang()
 	{
 		Validator::lang('ar');
-		new Validator(array(), array(), 'en');
+		new Validator([], [], 'en');
 		$this->assertEquals(
 		    'ar', Validator::lang(), 'instance defined lang should not replace static global lang'
         );
@@ -22,7 +26,7 @@ class StaticVsInstanceTest extends BaseTestCase
 		$ruleName = 'customRule';
 		$fieldName = 'fieldName';
 		Validator::addRule($ruleName, function() {}, $customMessage);
-		$v = new Validator(array($fieldName => $fieldName));
+		$v = new Validator([$fieldName => $fieldName]);
 		$v->rule($ruleName, $fieldName);
 		$v->validate();
 		$messages = $v->errors();

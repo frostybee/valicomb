@@ -1,4 +1,7 @@
 <?php
+declare(strict_types=1);
+
+namespace Valitron\Tests;
 
 use Valitron\Validator;
 
@@ -6,23 +9,24 @@ class StopOnFirstFailTest extends BaseTestCase
 {
     public function testStopOnFirstFail()
     {
-        $rules = array(
-            'myField1' => array(
-                array('lengthMin', 5, 'message' => 'myField1 must be 5 characters minimum'),
-                array('url', 'message' => 'myField1 is not a valid url'),
-                array('urlActive', 'message' => 'myField1 is not an active url')
-            )
-        );
+        $rules = [
+            'website' => [
+                ['lengthMin', 10, 'message' => 'Website URL must be at least 10 characters'],
+                ['url', 'message' => 'Website must be a valid URL'],
+                ['urlActive', 'message' => 'Website URL must be active']
+            ]
+        ];
 
-        $v = new Validator(array(
-            'myField1' => 'myVal'
-        ));
+        $v = new Validator([
+            'website' => 'short'
+        ]);
 
         $v->mapFieldsRules($rules);
         $v->stopOnFirstFail(true);
         $this->assertFalse($v->validate());
 
         $errors = $v->errors();
-        $this->assertCount(1, $errors['myField1']);
+        // Should only have 1 error (lengthMin), not all 3
+        $this->assertCount(1, $errors['website']);
     }
 }

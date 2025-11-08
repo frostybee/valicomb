@@ -391,4 +391,111 @@ class SecurityTest extends TestCase
         $v3->rule('instanceOf', 'date', \DateTime::class);
         $this->assertFalse($v3->validate());
     }
+
+    /**
+     * Test email validation rejects control characters
+     */
+    public function testEmailRejectsControlCharacters(): void
+    {
+        $emailsWithControlChars = [
+            "test\x00@example.com",     // Null byte
+            "test\x01@example.com",     // Start of heading
+            "test\r\n@example.com",     // CRLF
+            "test\t@example.com",       // Tab
+            "test\x7F@example.com",     // DEL character
+        ];
+
+        foreach ($emailsWithControlChars as $email) {
+            $v = new Validator(['email' => $email]);
+            $v->rule('email', 'email');
+            $this->assertFalse($v->validate(), "Email with control characters should fail");
+        }
+    }
+
+    /**
+     * Test email validation rejects consecutive dots in local part
+     */
+    public function testEmailRejectsConsecutiveDots(): void
+    {
+        $invalidEmails = [
+            'test..user@example.com',
+            'test...user@example.com',
+            'a..b@example.com',
+        ];
+
+        foreach ($invalidEmails as $email) {
+            $v = new Validator(['email' => $email]);
+            $v->rule('email', 'email');
+            $this->assertFalse($v->validate(), "Email with consecutive dots should fail: $email");
+        }
+    }
+
+    /**
+     * Test email validation rejects leading/trailing dots in local part
+     */
+    public function testEmailRejectsLeadingTrailingDots(): void
+    {
+        $invalidEmails = [
+            '.test@example.com',      // Leading dot
+            'test.@example.com',      // Trailing dot
+            '.test.@example.com',     // Both
+        ];
+
+        foreach ($invalidEmails as $email) {
+            $v = new Validator(['email' => $email]);
+            $v->rule('email', 'email');
+            $this->assertFalse($v->validate(), "Email with leading/trailing dots should fail: $email");
+        }
+    }
+
+    /**
+     * Test email validation accepts valid emails
+     */
+    public function testEmailAcceptsValidEmails(): void
+    {
+        $validEmails = [
+            'user@example.com',
+            'test.user@example.com',
+            'test+tag@example.com',
+            'user123@example.co.uk',
+            'a@b.c',
+        ];
+
+        foreach ($validEmails as $email) {
+            $v = new Validator(['email' => $email]);
+            $v->rule('email', 'email');
+            $this->assertTrue($v->validate(), "Valid email should pass: $email");
+        }
+    }
+
+    /**
+     * Test email validation rejects backslash
+     */
+    public function testEmailRejectsBackslash(): void
+    {
+        $v = new Validator(['email' => 'test\\user@example.com']);
+        $v->rule('email', 'email');
+        $this->assertFalse($v->validate(), "Email with backslash should fail");
+    }
+
+    /**
+     * Test containsUnique uses count comparison instead of strict array equality
+     */
+    public function testContainsUniqueUsesCountComparison(): void
+    {
+        // Should pass - all unique values
+        $v1 = new Validator(['tags' => ['php', 'javascript', 'python']]);
+        $v1->rule('containsUnique', 'tags');
+        $this->assertTrue($v1->validate(), "Array with unique values should pass");
+
+        // Should fail - has duplicates
+        $v2 = new Validator(['tags' => ['php', 'javascript', 'php']]);
+        $v2->rule('containsUnique', 'tags');
+        $this->assertFalse($v2->validate(), "Array with duplicates should fail");
+
+        // Edge case: numeric keys might be reordered by array_unique
+        $v3 = new Validator(['numbers' => [1, 2, 3, 4, 5]]);
+        $v3->rule('containsUnique', 'numbers');
+        $this->assertTrue($v3->validate(), "Array with unique numbers should pass even if keys reordered");
+    }
 }

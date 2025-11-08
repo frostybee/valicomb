@@ -1,102 +1,106 @@
 <?php
 
+declare(strict_types=1);
+
+namespace Valitron\Tests;
+
 use Valitron\Validator;
 
 class MapRulesTest extends BaseTestCase
 {
     public function testMapSingleFieldRules()
     {
-        $rules = array(
+        $rules = [
             'required',
-            array('lengthMin', 4)
-        );
+            ['lengthMin', 4]
+        ];
 
-        $v = new Validator(array());
-        $v->mapFieldRules('myField', $rules);
+        $v = new Validator([]);
+        $v->mapFieldRules('username', $rules);
         $this->assertFalse($v->validate());
-        $this->assertEquals(2, sizeof($v->errors('myField')));
+        $this->assertEquals(2, count($v->errors('username')));
 
-        $v2 = new Validator(array('myField' => 'myVal'));
-        $v2->mapFieldRules('myField', $rules);
+        $v2 = new Validator(['username' => 'john']);
+        $v2->mapFieldRules('username', $rules);
         $this->assertTrue($v2->validate());
     }
 
     public function testSingleFieldDot()
     {
-        $v = new Valitron\Validator(array(
-            'settings' => array(
-                array('threshold' => 50),
-                array('threshold' => 90)
-            )
-        ));
-        $v->mapFieldRules('settings.*.threshold', array(
-            array('max', 50)
-        ));
+        $v = new Validator([
+            'settings' => [
+                ['threshold' => 50],
+                ['threshold' => 90]
+            ]
+        ]);
+        $v->mapFieldRules('settings.*.threshold', [
+            ['max', 50]
+        ]);
 
         $this->assertFalse($v->validate());
     }
 
     public function testMapMultipleFieldsRules()
     {
-        $rules = array(
-            'myField1' => array(
+        $rules = [
+            'username' => [
                 'required',
-                array('lengthMin', 4)
-            ),
-            'myField2' => array(
+                ['lengthMin', 4]
+            ],
+            'password' => [
                 'required',
-                array('lengthMin', 5)
-            )
-        );
+                ['lengthMin', 8]
+            ]
+        ];
 
-        $v = new Validator(array(
-            'myField1' => 'myVal'
-        ));
+        $v = new Validator([
+            'username' => 'john'
+        ]);
         $v->mapFieldsRules($rules);
 
         $this->assertFalse($v->validate());
-        $this->assertFalse($v->errors('myField1'));
-        $this->assertEquals(2, sizeof($v->errors('myField2')));
+        $this->assertFalse($v->errors('username'));
+        $this->assertEquals(2, count($v->errors('password')));
     }
 
     public function testCustomMessageSingleField()
     {
-        $rules = array(
-            array('lengthMin', 14, 'message' => 'My Custom Error')
-        );
+        $rules = [
+            ['lengthMin', 14, 'message' => 'Credit card number must be at least 14 digits']
+        ];
 
-        $v = new Validator(array(
-            'myField' => 'myVal'
-        ));
-        $v->mapFieldRules('myField', $rules);
+        $v = new Validator([
+            'card_number' => '12345'
+        ]);
+        $v->mapFieldRules('card_number', $rules);
         $this->assertFalse($v->validate());
-        $errors = $v->errors('myField');
-        $this->assertEquals('My Custom Error', $errors[0]);
+        $errors = $v->errors('card_number');
+        $this->assertEquals('Credit card number must be at least 14 digits', $errors[0]);
     }
 
     public function testCustomMessageMultipleFields()
     {
-        $rules = array(
-            'myField1' => array(
-                array('lengthMin', 14, 'message' => 'My Custom Error 1')
-            ),
-            'myField2' => array(
-                array('lengthMin', 14, 'message' => 'My Custom Error 2')
-            )
-        );
+        $rules = [
+            'email' => [
+                ['lengthMin', 14, 'message' => 'Email must be at least 14 characters']
+            ],
+            'phone' => [
+                ['lengthMin', 10, 'message' => 'Phone number must be at least 10 digits']
+            ]
+        ];
 
-        $v = new Validator(array(
-            'myField1' => 'myVal',
-            'myField2' => 'myVal',
-        ));
+        $v = new Validator([
+            'email' => 'test@ex.co',
+            'phone' => '555'
+        ]);
 
         $v->mapFieldsRules($rules);
         $this->assertFalse($v->validate());
 
-        $errors1 = $v->errors('myField1');
-        $this->assertEquals('My Custom Error 1', $errors1[0]);
+        $emailErrors = $v->errors('email');
+        $this->assertEquals('Email must be at least 14 characters', $emailErrors[0]);
 
-        $errors2 = $v->errors('myField2');
-        $this->assertEquals('My Custom Error 2', $errors2[0]);
+        $phoneErrors = $v->errors('phone');
+        $this->assertEquals('Phone number must be at least 10 digits', $phoneErrors[0]);
     }
 }
