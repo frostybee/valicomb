@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Valitron\Tests\Rules;
 
+use InvalidArgumentException;
 use Valitron\Tests\BaseTestCase;
 use Valitron\Validator;
 
@@ -22,8 +23,8 @@ class StringValidationTest extends BaseTestCase
         $v = new Validator(['username' => 'batman123']);
         $v->rules([
             'ascii' => [
-                ['username']
-            ]
+                ['username'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -40,8 +41,8 @@ class StringValidationTest extends BaseTestCase
         $v = new Validator(['username' => '12345 abcdé']);
         $v->rules([
             'ascii' => [
-                ['username']
-            ]
+                ['username'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -59,8 +60,8 @@ class StringValidationTest extends BaseTestCase
         $v = new Validator(['user_email' => 'someone@example.com']);
         $v->rules([
             'email' => [
-                ['user_email']
-            ]
+                ['user_email'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -77,8 +78,8 @@ class StringValidationTest extends BaseTestCase
         $v = new Validator(['user_email' => 'example.com']);
         $v->rules([
             'email' => [
-                ['user_email']
-            ]
+                ['user_email'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -95,8 +96,8 @@ class StringValidationTest extends BaseTestCase
         $v = new Validator(['user_email' => 'some_fake_email_address@gmail.com']);
         $v->rules([
             'emailDNS' => [
-                ['user_email']
-            ]
+                ['user_email'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -113,8 +114,8 @@ class StringValidationTest extends BaseTestCase
         $v = new Validator(['user_email' => 'some_fake_email_address@gmail.zyx']);
         $v->rules([
             'emailDNS' => [
-                ['user_email']
-            ]
+                ['user_email'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -132,8 +133,8 @@ class StringValidationTest extends BaseTestCase
         $v = new Validator(['username' => 'batman']);
         $v->rules([
             'alpha' => [
-                ['username']
-            ]
+                ['username'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -150,8 +151,8 @@ class StringValidationTest extends BaseTestCase
         $v = new Validator(['username' => '123456asdf']);
         $v->rules([
             'alpha' => [
-                ['username']
-            ]
+                ['username'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -169,8 +170,8 @@ class StringValidationTest extends BaseTestCase
         $v = new Validator(['username' => 'batman123']);
         $v->rules([
             'alphaNum' => [
-                ['username']
-            ]
+                ['username'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -187,8 +188,8 @@ class StringValidationTest extends BaseTestCase
         $v = new Validator(['username' => 'batman123-$']);
         $v->rules([
             'alphaNum' => [
-                ['username']
-            ]
+                ['username'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -206,8 +207,8 @@ class StringValidationTest extends BaseTestCase
         $v = new Validator(['username' => 'L337-H4ckZ0rz_123']);
         $v->rules([
             'slug' => [
-                ['username']
-            ]
+                ['username'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -224,8 +225,8 @@ class StringValidationTest extends BaseTestCase
         $v = new Validator(['username' => 'L337-H4ckZ0rz_123 $%^']);
         $v->rules([
             'slug' => [
-                ['username']
-            ]
+                ['username'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -244,8 +245,8 @@ class StringValidationTest extends BaseTestCase
         $v->rules([
             'contains' => [
                 ['username', 'man'],
-                ['username', 'man', true]
-            ]
+                ['username', 'man', true],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -269,8 +270,8 @@ class StringValidationTest extends BaseTestCase
         $v = new Validator(['username' => 'Batman123']);
         $v->rules([
             'contains' => [
-                ['username', 'Man', true]
-            ]
+                ['username', 'Man', true],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -309,8 +310,8 @@ class StringValidationTest extends BaseTestCase
         $v = new Validator(['username' => 'Batman123']);
         $v->rules([
             'regex' => [
-                ['username', '/^[a-zA-Z0-9]{5,10}$/']
-            ]
+                ['username', '/^[a-zA-Z0-9]{5,10}$/'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -327,8 +328,8 @@ class StringValidationTest extends BaseTestCase
         $v = new Validator(['username' => 'Batman_123']);
         $v->rules([
             'regex' => [
-                ['username', '/^[a-zA-Z0-9]{5,10}$/']
-            ]
+                ['username', '/^[a-zA-Z0-9]{5,10}$/'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -371,7 +372,7 @@ class StringValidationTest extends BaseTestCase
     // Parameter Validation Tests
     public function testRegexRequiresStringPattern(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Regex pattern must be provided as string');
 
         $v = new Validator(['field' => 'test']);
@@ -381,7 +382,7 @@ class StringValidationTest extends BaseTestCase
 
     public function testRegexRequiresPattern(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Regex pattern must be provided as string');
 
         $v = new Validator(['field' => 'test']);

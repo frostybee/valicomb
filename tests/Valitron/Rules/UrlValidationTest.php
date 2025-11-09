@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Valitron\Tests\Rules;
 
+use function checkdnsrr;
+use function function_exists;
+use function md5;
+use function time;
+
 use Valitron\Tests\BaseTestCase;
 use Valitron\Validator;
 
@@ -22,8 +27,8 @@ class UrlValidationTest extends BaseTestCase
         $v = new Validator(['website' => 'https://example.com/contact']);
         $v->rules([
             'url' => [
-                ['website']
-            ]
+                ['website'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -40,8 +45,8 @@ class UrlValidationTest extends BaseTestCase
         $v = new Validator(['website' => 'thisisjusttext']);
         $v->rules([
             'url' => [
-                ['website']
-            ]
+                ['website'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -60,8 +65,8 @@ class UrlValidationTest extends BaseTestCase
         $v = new Validator(['website' => 'https://google.com']);
         $v->rules([
             'urlActive' => [
-                ['website']
-            ]
+                ['website'],
+            ],
         ]);
 
         // Skip test if DNS is not available
@@ -91,8 +96,8 @@ class UrlValidationTest extends BaseTestCase
         $v = new Validator(['website' => 'https://example-domain']);
         $v->rules([
             'urlActive' => [
-                ['website']
-            ]
+                ['website'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }

@@ -4,6 +4,79 @@ declare(strict_types=1);
 
 namespace Valitron;
 
+use function array_diff;
+use function array_filter;
+use function array_flip;
+use function array_intersect_key;
+use function array_key_exists;
+use function array_keys;
+use function array_shift;
+use function array_unique;
+use function array_unshift;
+use function basename;
+use function bccomp;
+use function call_user_func;
+use function checkdnsrr;
+use function count;
+use function date_parse_from_format;
+
+use DateTime;
+use DateTimeImmutable;
+use DateTimeInterface;
+
+use function defined;
+use function dirname;
+use function explode;
+use function filter_var;
+use function function_exists;
+use function get_class;
+use function idn_to_ascii;
+use function implode;
+use function in_array;
+use function ini_get;
+use function ini_set;
+
+use InvalidArgumentException;
+
+use function is_array;
+use function is_callable;
+use function is_file;
+use function is_int;
+use function is_null;
+use function is_numeric;
+use function is_object;
+use function is_readable;
+use function is_scalar;
+use function is_string;
+use function ltrim;
+use function mb_check_encoding;
+use function mb_detect_encoding;
+use function mb_strlen;
+use function method_exists;
+use function parse_url;
+use function preg_last_error;
+use function preg_match;
+use function preg_replace;
+use function random_int;
+use function realpath;
+
+use RuntimeException;
+
+use function str_contains;
+use function str_ends_with;
+use function str_replace;
+use function str_starts_with;
+use function stripos;
+use function stristr;
+use function strlen;
+use function strtolower;
+use function strtotime;
+use function substr;
+use function trim;
+use function ucfirst;
+use function ucwords;
+use function vsprintf;
+
 /**
  * Validation Class.
  *
@@ -20,8 +93,10 @@ namespace Valitron;
  * - Type-safe implementation with strict types.
  *
  * @package Valitron
+ *
  * @author  Vance Lucas <vance@vancelucas.com> (original author)
  * @author  frostybee (current maintainer)
+ *
  * @link    http://www.vancelucas.com/
  *
  * @example Basic validation usage:
@@ -39,7 +114,6 @@ namespace Valitron;
  *     $errors = $v->errors();
  * }
  * ```
- *
  * @example Custom error messages and labels:
  * ```php
  * $v = new Validator($data);
@@ -47,7 +121,6 @@ namespace Valitron;
  *   ->message('Please provide a username')
  *   ->label('Username');
  * ```
- *
  * @example Nested array validation:
  * ```php
  * $data = ['user' => ['email' => 'test@example.com']];
@@ -67,7 +140,7 @@ class Validator
      */
     private const ALLOWED_LANGUAGES = [
         'ar', 'cs', 'da', 'de', 'en', 'es', 'fa', 'fi', 'fr', 'hu',
-        'id', 'it', 'ja', 'nl', 'no', 'pl', 'pt', 'ru', 'sv', 'tr', 'uk', 'zh'
+        'id', 'it', 'ja', 'nl', 'no', 'pl', 'pt', 'ru', 'sv', 'tr', 'uk', 'zh',
     ];
 
     /**
@@ -145,21 +218,20 @@ class Validator
      * custom language files. If not provided, defaults to English ('en') and the
      * built-in language directory.
      *
-     * @param  array $data Data to validate (key-value pairs).
-     * @param  array $fields Optional field whitelist (only these fields will be validated).
-     * @param  string|null $lang Language code for error messages (e.g., 'en', 'fr', 'es').
-     * @param  string|null $langDir Custom language file directory path.
+     * @param array $data Data to validate (key-value pairs).
+     * @param array $fields Optional field whitelist (only these fields will be validated).
+     * @param string|null $lang Language code for error messages (e.g., 'en', 'fr', 'es').
+     * @param string|null $langDir Custom language file directory path.
+     *
+     * @throws InvalidArgumentException If language code is not in the allowed list or language file cannot be loaded
      *
      * @return void
-     *
-     * @throws \InvalidArgumentException If language code is not in the allowed list or language file cannot be loaded
      *
      * @example Basic usage:
      * ```php
      * $data = ['email' => 'test@example.com', 'name' => 'John'];
      * $v = new Validator($data);
      * ```
-     *
      * @example With field whitelist:
      * ```php
      * $data = ['email' => 'test@example.com', 'password' => 'secret', 'extra' => 'ignored'];
@@ -170,7 +242,7 @@ class Validator
         array $data = [],
         array $fields = [],
         ?string $lang = null,
-        ?string $langDir = null
+        ?string $langDir = null,
     ) {
         // Filter fields if whitelist provided.
         $this->fields = !empty($fields)
@@ -197,9 +269,7 @@ class Validator
      * @param string|null $lang The language code to load (e.g., 'en', 'fr', 'de').
      * @param string|null $langDir The directory containing language files.
      *
-     * @return void
-     *
-     * @throws \InvalidArgumentException If language code is invalid, directory doesn't exist, file is not readable, or file doesn't return an array
+     * @throws InvalidArgumentException If language code is invalid, directory doesn't exist, file is not readable, or file doesn't return an array
      */
     protected function initializeLanguage(?string $lang, ?string $langDir): void
     {
@@ -209,8 +279,8 @@ class Validator
 
         // Validate language against whitelist.
         if (!in_array($lang, self::ALLOWED_LANGUAGES, true)) {
-            throw new \InvalidArgumentException(
-                "Invalid language '$lang'. Allowed: " . implode(', ', self::ALLOWED_LANGUAGES)
+            throw new InvalidArgumentException(
+                "Invalid language '$lang'. Allowed: " . implode(', ', self::ALLOWED_LANGUAGES),
             );
         }
 
@@ -224,21 +294,21 @@ class Validator
         if ($langDir === false) {
             // Directory doesn't exist - construct expected file path for error message.
             $langFile = $originalLangDir . '/' . $lang . '.php';
-            throw new \InvalidArgumentException("Fail to load language file '$langFile'");
+            throw new InvalidArgumentException("Fail to load language file '$langFile'");
         }
 
         // Build and validate file path.
         $langFile = $langDir . DIRECTORY_SEPARATOR . $lang . '.php';
 
         if (!is_file($langFile) || !is_readable($langFile)) {
-            throw new \InvalidArgumentException("Fail to load language file '$langFile'");
+            throw new InvalidArgumentException("Fail to load language file '$langFile'");
         }
 
         // Load language file.
         $langMessages = include $langFile;
 
         if (!is_array($langMessages)) {
-            throw new \InvalidArgumentException("Language file must return an array");
+            throw new InvalidArgumentException("Language file must return an array");
         }
 
         // Merge with existing messages using array spread.
@@ -253,7 +323,7 @@ class Validator
      *
      * This is a static method that affects all Validator instances globally.
      *
-     * @param  string|null $lang The language code to set (e.g., 'en', 'fr', 'es'), or null to get current language.
+     * @param string|null $lang The language code to set (e.g., 'en', 'fr', 'es'), or null to get current language.
      *
      * @return string The current language code.
      *
@@ -262,7 +332,6 @@ class Validator
      * Validator::lang('fr'); // Set French as default language
      * $v = new Validator($data); // Will use French messages
      * ```
-     *
      * @example Getting current language:
      * ```php
      * $currentLang = Validator::lang(); // Returns 'en' by default
@@ -285,7 +354,7 @@ class Validator
      *
      * This is a static method that affects all Validator instances globally.
      *
-     * @param  string|null $dir The directory path containing language files, or null to get current directory.
+     * @param string|null $dir The directory path containing language files, or null to get current directory.
      *
      * @return string The current language directory path.
      *
@@ -294,7 +363,6 @@ class Validator
      * Validator::langDir('/path/to/custom/lang');
      * $v = new Validator($data); // Will load language files from custom directory
      * ```
-     *
      * @example Getting current language directory:
      * ```php
      * $langDir = Validator::langDir(); // Returns default lang directory
@@ -317,8 +385,6 @@ class Validator
      *
      * @param bool $prepend True to prepend labels to error messages, false to omit them.
      *
-     * @return void
-     *
      * @example With labels prepended (default):
      * ```php
      * $v = new Validator(['email' => 'invalid']);
@@ -326,7 +392,6 @@ class Validator
      * $v->validate();
      * // Error: "Email is not a valid email address"
      * ```
-     *
      * @example With labels disabled:
      * ```php
      * $v = new Validator(['email' => 'invalid']);
@@ -374,7 +439,7 @@ class Validator
      * When called with a field name, returns errors for that specific field only.
      * Returns false if the field has no errors.
      *
-     * @param  string|null $field Optional field name to get errors for a specific field.
+     * @param string|null $field Optional field name to get errors for a specific field.
      *
      * @return array|false Array of error messages, or false if field not found/no errors.
      *
@@ -387,7 +452,6 @@ class Validator
      *     // ['email' => ['Email is required'], 'name' => ['Name is required']]
      * }
      * ```
-     *
      * @example Get errors for specific field:
      * ```php
      * $emailErrors = $v->errors('email');
@@ -419,9 +483,7 @@ class Validator
      *
      * @param string $field The field name to add the error to.
      * @param string $message The error message (supports sprintf placeholders).
-     * @param array  $params Optional parameters for sprintf placeholder replacement.
-     *
-     * @return void
+     * @param array $params Optional parameters for sprintf placeholder replacement.
      *
      * @example Adding a custom error:
      * ```php
@@ -430,7 +492,6 @@ class Validator
      *     $v->error('field_name', 'This field failed custom validation');
      * }
      * ```
-     *
      * @example With parameters:
      * ```php
      * $v->error('age', 'Must be between %d and %d', [18, 65]);
@@ -446,7 +507,7 @@ class Validator
         foreach ($params as $param) {
             if (is_array($param)) {
                 $param = "['" . implode("', '", $param) . "']";
-            } elseif ($param instanceof \DateTime) {
+            } elseif ($param instanceof DateTime) {
                 $param = $param->format('Y-m-d');
             } elseif (is_object($param)) {
                 $param = get_class($param);
@@ -475,7 +536,7 @@ class Validator
      *
      * Supports the fluent interface pattern for chaining.
      *
-     * @param  string $message The custom error message to use.
+     * @param string $message The custom error message to use.
      *
      * @return self Returns $this for method chaining.
      *
@@ -485,7 +546,6 @@ class Validator
      * $v->rule('required', 'email')
      *   ->message('Please provide your email address');
      * ```
-     *
      * @example Chaining with multiple rules:
      * ```php
      * $v->rule('required', 'password')
@@ -507,7 +567,6 @@ class Validator
      * Clears all validation data, errors, rules, and labels from the validator instance.
      * This allows you to reuse the same Validator instance for validating different data.
      *
-     * @return void
      *
      * @example Reusing validator instance:
      * ```php
@@ -537,7 +596,7 @@ class Validator
      * This method should be called immediately after rule() to set its label.
      * Supports the fluent interface pattern for chaining.
      *
-     * @param  string $value The human-readable label to use in error messages.
+     * @param string $value The human-readable label to use in error messages.
      *
      * @return self Returns $this for method chaining.
      *
@@ -548,7 +607,6 @@ class Validator
      *   ->label('Email Address');
      * // Error message: "Email Address is required" instead of "Email address is required"
      * ```
-     *
      * @example Chaining labels:
      * ```php
      * $v->rule('required', 'first_name')
@@ -573,7 +631,7 @@ class Validator
      *
      * This method can be called independently or chained after rule().
      *
-     * @param  array  $labels Associative array where keys are field names and values are labels.
+     * @param array $labels Associative array where keys are field names and values are labels.
      *
      * @return self Returns $this for method chaining.
      *
@@ -587,7 +645,6 @@ class Validator
      *     'phone_number' => 'Phone Number'
      * ]);
      * ```
-     *
      * @example Chaining with rules:
      * ```php
      * $v->rule('required', ['email', 'name'])
@@ -613,9 +670,9 @@ class Validator
      * - Automatic label generation: converts 'field_name' to 'Field Name'
      * - Respect for the prependLabels setting
      *
-     * @param  string $field The field name being validated.
-     * @param  string $message The error message template with placeholders.
-     * @param  array  $params Parameters passed to the validation rule.
+     * @param string $field The field name being validated.
+     * @param string $message The error message template with placeholders.
+     * @param array $params Parameters passed to the validation rule.
      *
      * @return string The processed error message with labels substituted.
      */
@@ -652,8 +709,6 @@ class Validator
      *
      * @param bool $stop True to stop on first failure, false to collect all errors (default).
      *
-     * @return void
-     *
      * @example Stop on first failure:
      * ```php
      * $v = new Validator(['email' => '', 'name' => '']);
@@ -662,7 +717,6 @@ class Validator
      * $v->validate();
      * // Only one error will be collected (email)
      * ```
-     *
      * @example Collect all errors (default):
      * ```php
      * $v = new Validator(['email' => '', 'name' => '']);
@@ -708,8 +762,8 @@ class Validator
      * Checks if a specific validation rule has been applied to a particular field.
      * Useful for conditional validation logic (e.g., checking if 'required' or 'optional' is set).
      *
-     * @param  string  $name  The name of the rule to check for.
-     * @param  string  $field The name of the field to check.
+     * @param string $name The name of the rule to check for.
+     * @param string $field The name of the field to check.
      *
      * @return bool True if the field has the specified rule, false otherwise.
      */
@@ -732,15 +786,13 @@ class Validator
      *
      * @param callable $callback The callback to validate.
      *
-     * @return void
-     *
-     * @throws \InvalidArgumentException If the callback is not callable
+     * @throws InvalidArgumentException If the callback is not callable
      */
     protected static function assertRuleCallback(callable $callback): void
     {
         if (!is_callable($callback)) {
-            throw new \InvalidArgumentException(
-                'Second argument must be a valid callback. Given argument was not callable.'
+            throw new InvalidArgumentException(
+                'Second argument must be a valid callback. Given argument was not callable.',
             );
         }
     }
@@ -757,9 +809,7 @@ class Validator
      * @param callable $callback The validation function that returns true if valid, false otherwise.
      * @param string|null $message Optional custom error message.
      *
-     * @return void
-     *
-     * @throws \InvalidArgumentException If the callback is not valid
+     * @throws InvalidArgumentException If the callback is not valid
      *
      * @example Adding instance-specific rule:
      * ```php
@@ -792,9 +842,7 @@ class Validator
      * @param callable $callback The validation function that returns true if valid, false otherwise.
      * @param string|null $message Optional custom error message (defaults to 'Invalid').
      *
-     * @return void
-     *
-     * @throws \InvalidArgumentException If the callback is not valid
+     * @throws InvalidArgumentException If the callback is not valid
      *
      * @example Registering a custom global rule:
      * ```php
@@ -825,7 +873,7 @@ class Validator
      * Generates a unique name for anonymous/callable validation rules to avoid name collisions.
      * Uses random integers if a name collision is detected.
      *
-     * @param  string|array $fields The field name(s) to base the rule name on.
+     * @param string|array $fields The field name(s) to base the rule name on.
      *
      * @return string A unique rule name (e.g., 'email_rule' or 'email_rule_12345').
      */
@@ -888,9 +936,9 @@ class Validator
      * @param string|array $fields Single field name or array of field names to validate.
      * @param mixed ...$params Optional parameters to pass to the validation rule.
      *
-     * @return self Returns $this for method chaining.
+     * @throws InvalidArgumentException If the rule name is not registered and not a method
      *
-     * @throws \InvalidArgumentException If the rule name is not registered and not a method
+     * @return self Returns $this for method chaining.
      *
      * @example Basic usage with chaining:
      * ```php
@@ -899,7 +947,6 @@ class Validator
      *   ->rule('email', 'email')
      *   ->rule('lengthMax', 'email', 254);
      * ```
-     *
      * @example Custom callable rule:
      * ```php
      * $v->rule(function($field, $value, $params) {
@@ -921,8 +968,8 @@ class Validator
         if (!isset($errors[$rule])) {
             $ruleMethod = 'validate' . ucfirst($rule);
             if (!method_exists($this, $ruleMethod)) {
-                throw new \InvalidArgumentException(
-                    "Rule '$rule' has not been registered with " . static::class . "::addRule()."
+                throw new InvalidArgumentException(
+                    "Rule '$rule' has not been registered with " . static::class . "::addRule().",
                 );
             }
         }
@@ -940,7 +987,7 @@ class Validator
             'rule' => $rule,
             'fields' => (array)$fields,
             'params' => $params,
-            'message' => $message
+            'message' => $message,
         ];
 
         return $this;
@@ -958,8 +1005,6 @@ class Validator
      *
      * @param array $rules Associative array of rules where keys are rule names and values are field configurations.
      *
-     * @return void
-     *
      * @example Basic usage:
      * ```php
      * $v = new Validator($data);
@@ -968,7 +1013,6 @@ class Validator
      *     'email' => 'email'
      * ]);
      * ```
-     *
      * @example With parameters:
      * ```php
      * $v->rules([
@@ -977,7 +1021,6 @@ class Validator
      *     'lengthMin' => [['password', 8]]
      * ]);
      * ```
-     *
      * @example Complex example:
      * ```php
      * $v->rules([
@@ -1012,8 +1055,8 @@ class Validator
      * This is useful for validating multiple datasets with the same validation rules.
      * The original validator instance remains unchanged (immutable pattern).
      *
-     * @param  array $data The new data to validate.
-     * @param  array $fields Optional field whitelist for the new data.
+     * @param array $data The new data to validate.
+     * @param array $fields Optional field whitelist for the new data.
      *
      * @return self A new Validator instance with the new data and cloned validation rules.
      *
@@ -1039,7 +1082,7 @@ class Validator
     }
 
     /**
-     * Convenience method to add validation rule(s) by field
+     * Map multiple validation rules to a single field
      *
      * Allows you to define multiple validation rules for a single field using an array structure.
      * Each rule can include parameters and custom error messages.
@@ -1051,29 +1094,26 @@ class Validator
      * - Optional 'message' key: custom error message
      *
      * @param string $field The field name to apply rules to.
-     * @param array  $rules Array of rule configurations.
-     *
-     * @return void
+     * @param array $rules Array of rule configurations.
      *
      * @example Basic field rules:
      * ```php
      * $v = new Validator($data);
-     * $v->mapFieldRules('email', [
+     * $v->mapOneFieldToRules('email', [
      *     ['required'],
      *     ['email'],
      *     ['lengthMax', 254]
      * ]);
      * ```
-     *
      * @example With custom messages:
      * ```php
-     * $v->mapFieldRules('password', [
+     * $v->mapOneFieldToRules('password', [
      *     ['required', 'message' => 'Password is required'],
      *     ['lengthMin', 8, 'message' => 'Password must be at least 8 characters']
      * ]);
      * ```
      */
-    public function mapFieldRules(string $field, array $rules): void
+    public function mapOneFieldToRules(string $field, array $rules): void
     {
         foreach ($rules as $rule) {
             // Rule must be an array
@@ -1099,23 +1139,21 @@ class Validator
     }
 
     /**
-     * Convenience method to add validation rule(s) for multiple fields
+     * Map validation rules to multiple fields at once
      *
      * Allows you to define validation rules for multiple fields at once using a structured array.
      * This is the most organized way to define all validation rules in one place.
      *
      * The array structure:
      * - Keys: field names
-     * - Values: arrays of rule configurations (see mapFieldRules for format)
+     * - Values: arrays of rule configurations (see mapOneFieldToRules for format)
      *
      * @param array $rules Associative array where keys are field names and values are rule configurations.
-     *
-     * @return void
      *
      * @example Mapping rules for multiple fields:
      * ```php
      * $v = new Validator($data);
-     * $v->mapFieldsRules([
+     * $v->mapManyFieldsToRules([
      *     'email' => [
      *         ['required'],
      *         ['email'],
@@ -1132,10 +1170,10 @@ class Validator
      * ]);
      * ```
      */
-    public function mapFieldsRules(array $rules): void
+    public function mapManyFieldsToRules(array $rules): void
     {
         foreach (array_keys($rules) as $field) {
-            $this->mapFieldRules($field, $rules[$field]);
+            $this->mapOneFieldToRules($field, $rules[$field]);
         }
     }
 
@@ -1291,7 +1329,6 @@ class Validator
      *     $errors = $v->errors();
      * }
      * ```
-     *
      * @example With error handling:
      * ```php
      * $v = new Validator($userData);
@@ -1369,9 +1406,9 @@ class Validator
      *
      * Optional first parameter can enable strict key existence check (field must exist in data).
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed $value The value to validate.
-     * @param  array $params Optional parameters: [0] => bool $checkKeyExists (default: false).
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
+     * @param array $params Optional parameters: [0] => bool $checkKeyExists (default: false).
      *
      * @return bool True if field has a value, false if empty or missing.
      */
@@ -1396,16 +1433,16 @@ class Validator
      * This prevents type juggling attacks and ensures both value and type match.
      * Supports nested fields using dot notation.
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed  $value The value to validate.
-     * @param  array  $params Parameters: [0] => string $fieldToCompare (field name to compare against).
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
+     * @param array $params Parameters: [0] => string $fieldToCompare (field name to compare against).
      *
      * @return bool True if values match exactly (value and type), false otherwise.
      */
     protected function validateEquals(string $field, mixed $value, array $params): bool
     {
         if (!isset($params[0]) || !is_string($params[0])) {
-            throw new \InvalidArgumentException('Field name required for equals validation');
+            throw new InvalidArgumentException('Field name required for equals validation');
         }
 
         // Extract the second field value, this accounts for nested array values
@@ -1421,16 +1458,16 @@ class Validator
      * Ensures two fields have different values using strict comparison (!==).
      * Supports nested fields using dot notation.
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed  $value The value to validate.
-     * @param  array  $params Parameters: [0] => string $fieldToCompare.
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
+     * @param array $params Parameters: [0] => string $fieldToCompare.
      *
      * @return bool True if values are different, false if they match.
      */
     protected function validateDifferent(string $field, mixed $value, array $params): bool
     {
         if (!isset($params[0]) || !is_string($params[0])) {
-            throw new \InvalidArgumentException('Field name required for different validation');
+            throw new InvalidArgumentException('Field name required for different validation');
         }
 
         // Extract the second field value, this accounts for nested array values
@@ -1447,8 +1484,8 @@ class Validator
      * This validation rule implies the field is "required".
      * Acceptable values: 'yes', 'on', 1, '1', true
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed $value The value to validate.
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
      *
      * @return bool True if value represents acceptance, false otherwise.
      */
@@ -1465,8 +1502,8 @@ class Validator
      * Checks if the value is of array type. This is useful for validating
      * structured data, lists, or nested objects that should be arrays.
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed $value The value to validate.
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
      *
      * @return bool True if value is an array, false otherwise.
      */
@@ -1483,8 +1520,8 @@ class Validator
      *
      * This is more permissive than validateInteger() as it accepts decimal values.
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed $value The value to validate.
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
      *
      * @return bool True if value is numeric, false otherwise.
      */
@@ -1499,9 +1536,9 @@ class Validator
      * Validates integer values with optional strict mode. In strict mode, rejects strings with
      * leading zeros (except "0" itself) to prevent octal interpretation issues.
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed $value The value to validate.
-     * @param  array $params Parameters: [0] => bool $strict (default: false).
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
+     * @param array $params Parameters: [0] => bool $strict (default: false).
      *
      * @return bool True if value is a valid integer, false otherwise.
      */
@@ -1542,20 +1579,20 @@ class Validator
      * Important: This counts characters, not bytes. For multibyte encodings like UTF-8,
      * "café" has 4 characters but may be 5 bytes. Non-string values return false.
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed  $value The value to validate (should be a string).
-     * @param  array  $params Length constraint(s): [0] => exact length OR min length, [1] => max length (optional).
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate (should be a string).
+     * @param array $params Length constraint(s): [0] => exact length OR min length, [1] => max length (optional).
      *
      * @return bool True if string length matches constraint(s), false otherwise or if value is not a string.
      */
     protected function validateLength(string $field, mixed $value, array $params): bool
     {
         if (!isset($params[0]) || !is_int($params[0])) {
-            throw new \InvalidArgumentException('Length parameter must be an integer');
+            throw new InvalidArgumentException('Length parameter must be an integer');
         }
 
         if (isset($params[1]) && !is_int($params[1])) {
-            throw new \InvalidArgumentException('Maximum length parameter must be an integer');
+            throw new InvalidArgumentException('Maximum length parameter must be an integer');
         }
 
         $length = $this->stringLength($value);
@@ -1585,16 +1622,16 @@ class Validator
      *
      * Important: Counts characters, not bytes. Non-string values return false.
      *
-     * @param  string  $field The field name being validated.
-     * @param  mixed   $value The value to validate (should be a string).
-     * @param  array   $params Length bounds: [0] => minimum length, [1] => maximum length.
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate (should be a string).
+     * @param array $params Length bounds: [0] => minimum length, [1] => maximum length.
      *
      * @return bool True if string length is between min and max (inclusive), false otherwise or if value is not a string.
      */
     protected function validateLengthBetween(string $field, mixed $value, array $params): bool
     {
         if (!isset($params[0]) || !is_int($params[0]) || !isset($params[1]) || !is_int($params[1])) {
-            throw new \InvalidArgumentException('Minimum and maximum length parameters must be integers');
+            throw new InvalidArgumentException('Minimum and maximum length parameters must be integers');
         }
 
         $length = $this->stringLength($value);
@@ -1628,7 +1665,7 @@ class Validator
     protected function validateLengthMin(string $field, mixed $value, array $params): bool
     {
         if (!isset($params[0]) || !is_int($params[0])) {
-            throw new \InvalidArgumentException('Minimum length parameter must be an integer');
+            throw new InvalidArgumentException('Minimum length parameter must be an integer');
         }
 
         $length = $this->stringLength($value);
@@ -1662,7 +1699,7 @@ class Validator
     protected function validateLengthMax(string $field, mixed $value, array $params): bool
     {
         if (!isset($params[0]) || !is_int($params[0])) {
-            throw new \InvalidArgumentException('Maximum length parameter must be an integer');
+            throw new InvalidArgumentException('Maximum length parameter must be an integer');
         }
 
         $length = $this->stringLength($value);
@@ -1676,7 +1713,7 @@ class Validator
      * Returns the character count of a string, using multibyte-safe mb_strlen() if available,
      * otherwise falls back to strlen(). Returns false if the value is not a string.
      *
-     * @param  mixed $value The value to measure.
+     * @param mixed $value The value to measure.
      *
      * @return int|false The character count, or false if not a string.
      */
@@ -1710,9 +1747,9 @@ class Validator
      * financial calculations, scientific data, or any scenario requiring precise decimal handling.
      * Non-numeric values (strings, arrays, objects) are rejected.
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed  $value The value to validate (should be numeric).
-     * @param  array  $params Minimum threshold: [0] => minimum numeric value.
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate (should be numeric).
+     * @param array $params Minimum threshold: [0] => minimum numeric value.
      *
      * @return bool True if value is numeric and >= minimum, false otherwise.
      */
@@ -1746,9 +1783,9 @@ class Validator
      * financial calculations, scientific data, or any scenario requiring precise decimal handling.
      * Non-numeric values (strings, arrays, objects) are rejected.
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed  $value The value to validate (should be numeric).
-     * @param  array  $params Maximum threshold: [0] => maximum numeric value.
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate (should be numeric).
+     * @param array $params Maximum threshold: [0] => maximum numeric value.
      *
      * @return bool True if value is numeric and <= maximum, false otherwise.
      */
@@ -1784,9 +1821,9 @@ class Validator
      * an array containing exactly two elements: [min, max]. Invalid parameter structures
      * (missing array, wrong element count) will cause validation to fail.
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed $value The value to validate (should be numeric).
-     * @param  array $params Range constraint: [0] => [minimum, maximum] (must be 2-element array).
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate (should be numeric).
+     * @param array $params Range constraint: [0] => [minimum, maximum] (must be 2-element array).
      *
      * @return bool True if value is numeric and between min/max (inclusive), false otherwise or if params invalid.
      */
@@ -1824,9 +1861,9 @@ class Validator
      * - validateIn('id', '5', [[1, 2, 5], true]) → false (strict: string !== int)
      * - validateIn('id', '5', [[1, 2, 5], false]) → true (non-strict: "5" == 5)
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed  $value The value to validate.
-     * @param  array  $params Parameters: [0] => array of allowed values, [1] => bool strict (default: false), [2] => bool forceAsAssociative (default: false).
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
+     * @param array $params Parameters: [0] => array of allowed values, [1] => bool strict (default: false), [2] => bool forceAsAssociative (default: false).
      *
      * @return bool True if value exists in the allowed list, false otherwise.
      */
@@ -1866,9 +1903,9 @@ class Validator
      * - validateListContains('ids', [1, 2, 3], ['3', true]) → false (strict: int !== string)
      * - validateListContains('ids', [1, 2, 3], ['3', false]) → true (non-strict: 3 == "3")
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed  $value The value to validate (should be an array).
-     * @param  array  $params Parameters: [0] => value to search for, [1] => bool strict (default: false), [2] => bool forceAsAssociative (default: false).
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate (should be an array).
+     * @param array $params Parameters: [0] => value to search for, [1] => bool strict (default: false), [2] => bool forceAsAssociative (default: false).
      *
      * @return bool True if the list contains the specified value, false otherwise.
      */
@@ -1907,9 +1944,9 @@ class Validator
      * - validateNotIn('username', 'john', [['admin', 'root', 'guest'], false]) → true
      * - validateNotIn('id', 0, [[0, -1], true]) → false (strict match)
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed  $value The value to validate.
-     * @param  array  $params Parameters: [0] => array of disallowed values, [1] => bool strict (default: false), [2] => bool forceAsAssociative (default: false).
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
+     * @param array $params Parameters: [0] => array of disallowed values, [1] => bool strict (default: false), [2] => bool forceAsAssociative (default: false).
      *
      * @return bool True if value does NOT exist in the disallowed list, false if it does.
      */
@@ -1927,9 +1964,9 @@ class Validator
      * Case-sensitive (default): "Hello World" contains "World" ✓, contains "world" ✗
      * Case-insensitive: "Hello World" contains "world" ✓
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed $value The value to validate.
-     * @param  array  $params Parameters: [0] => string $needle (substring to find), [1] => bool $strict (default: true).
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
+     * @param array $params Parameters: [0] => string $needle (substring to find), [1] => bool $strict (default: true).
      *
      * @return bool True if value contains the substring, false otherwise.
      */
@@ -1974,9 +2011,9 @@ class Validator
      * - validateSubset('color', 'red', [['red', 'blue', 'green']]) → true
      * - validateSubset('color', 'purple', [['red', 'blue', 'green']]) → false
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed  $value The value to validate (scalar, null, or array).
-     * @param  array  $params Allowed values: [0] => array of allowed values, OR entire params is the allowed list.
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate (scalar, null, or array).
+     * @param array $params Allowed values: [0] => array of allowed values, OR entire params is the allowed list.
      *
      * @return bool True if all values are in the allowed list, false otherwise.
      */
@@ -2025,8 +2062,8 @@ class Validator
      * - validateContainsUnique('ids', [1, 2, 3]) → true
      * - validateContainsUnique('ids', [1, 2, 1]) → false (duplicate 1)
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed  $value The value to validate (should be an array).
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate (should be an array).
      *
      * @return bool True if array contains only unique values, false otherwise or if not an array.
      */
@@ -2058,8 +2095,8 @@ class Validator
      *
      * For version-specific validation, use validateIpv4() or validateIpv6().
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed $value The value to validate.
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
      *
      * @return bool True if value is a valid IPv4 or IPv6 address, false otherwise.
      */
@@ -2088,8 +2125,8 @@ class Validator
      *
      * This validation is purely syntactic - it does NOT verify network reachability.
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed  $value The value to validate.
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
      *
      * @return bool True if value is a valid IPv4 address, false otherwise.
      */
@@ -2120,8 +2157,8 @@ class Validator
      *
      * This validation is purely syntactic - it does NOT verify network reachability.
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed  $value The value to validate.
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
      *
      * @return bool True if value is a valid IPv6 address, false otherwise.
      */
@@ -2140,8 +2177,8 @@ class Validator
      * - Local and domain part validation
      * - Control character and null byte rejection
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed $value The value to validate.
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
      *
      * @return bool True if valid email address, false otherwise.
      */
@@ -2251,8 +2288,8 @@ class Validator
      * - Fail in environments without DNS access
      * - Produce false negatives if DNS is temporarily unavailable
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed $value The value to validate.
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
      *
      * @return bool True if email is syntactically valid AND domain has MX records, false otherwise.
      */
@@ -2313,8 +2350,8 @@ class Validator
      * - "javascript:alert(1)" → false (invalid prefix)
      * - "www.example.com" → false (missing scheme)
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed $value The value to validate.
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
      *
      * @return bool True if value is a valid URL with allowed prefix, false otherwise.
      */
@@ -2363,8 +2400,8 @@ class Validator
      * - Produce false negatives if DNS is temporarily unavailable
      * - Not detect if a web server is down (DNS may resolve but server offline)
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed $value The value to validate.
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
      *
      * @return bool True if URL is syntactically valid AND has DNS records, false otherwise.
      */
@@ -2402,8 +2439,8 @@ class Validator
      * Supported: Letters from any language (Latin, Cyrillic, Chinese, Arabic, etc.)
      * Not supported: Numbers, spaces, punctuation, special characters
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed $value The value to validate.
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
      *
      * @return bool True if value contains only alphabetic characters, false otherwise.
      */
@@ -2432,8 +2469,8 @@ class Validator
      * Supported: Letters and numbers from any language
      * Not supported: Spaces, punctuation, special characters, dashes, underscores
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed $value The value to validate.
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
      *
      * @return bool True if value contains only alpha-numeric characters, false otherwise.
      */
@@ -2462,8 +2499,8 @@ class Validator
      * Valid examples: "hello-world", "my_slug_123", "product-name", "user_name"
      * Invalid examples: "hello world" (space), "slug!" (special char), "über-slug" (non-ASCII)
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed $value The value to validate.
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
      *
      * @return bool True if value is a valid slug, false otherwise.
      */
@@ -2484,14 +2521,14 @@ class Validator
      * - Sets backtrack/recursion limits to prevent ReDoS (Regular Expression Denial of Service)
      * - Restores original INI settings after execution
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed $value The value to validate.
-     * @param  array $params Parameters: [0] => string $pattern (regex pattern).
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
+     * @param array $params Parameters: [0] => string $pattern (regex pattern).
+     *
+     * @throws InvalidArgumentException If pattern is not provided or not a string
+     * @throws RuntimeException If regex pattern is invalid or execution fails
      *
      * @return bool True if value matches the pattern, false otherwise.
-     *
-     * @throws \InvalidArgumentException If pattern is not provided or not a string
-     * @throws \RuntimeException If regex pattern is invalid or execution fails
      */
     protected function validateRegex(string $field, mixed $value, array $params): bool
     {
@@ -2500,15 +2537,15 @@ class Validator
         }
 
         if (!isset($params[0]) || !is_string($params[0])) {
-            throw new \InvalidArgumentException('Regex pattern must be provided as string');
+            throw new InvalidArgumentException('Regex pattern must be provided as string');
         }
 
         $pattern = $params[0];
 
         // Validate the regex pattern itself
         if (@preg_match($pattern, '') === false) {
-            throw new \RuntimeException(
-                'Invalid regex pattern: ' . $this->getPcreErrorMessage(preg_last_error())
+            throw new RuntimeException(
+                'Invalid regex pattern: ' . $this->getPcreErrorMessage(preg_last_error()),
             );
         }
 
@@ -2524,8 +2561,8 @@ class Validator
 
             if ($result === false) {
                 $error = preg_last_error();
-                throw new \RuntimeException(
-                    'Regex execution failed: ' . $this->getPcreErrorMessage($error)
+                throw new RuntimeException(
+                    'Regex execution failed: ' . $this->getPcreErrorMessage($error),
                 );
             }
 
@@ -2583,14 +2620,14 @@ class Validator
      * Security note: Relative date rejection prevents potential security issues where
      * user input like "next week" could be accepted but produce unexpected results.
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed $value The value to validate (DateTimeInterface or string).
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate (DateTimeInterface or string).
      *
      * @return bool True if value is a valid date, false otherwise.
      */
     protected function validateDate(string $field, mixed $value): bool
     {
-        if ($value instanceof \DateTimeInterface) {
+        if ($value instanceof DateTimeInterface) {
             return true;
         }
 
@@ -2605,11 +2642,11 @@ class Validator
             'd/m/Y',
             'm/d/Y',
             'Y/m/d',
-            'Y-m-d\TH:i:sP' // ISO 8601
+            'Y-m-d\TH:i:sP', // ISO 8601
         ];
 
         foreach ($formats as $format) {
-            $date = \DateTimeImmutable::createFromFormat($format, $value);
+            $date = DateTimeImmutable::createFromFormat($format, $value);
             if ($date && $date->format($format) === $value) {
                 return true;
             }
@@ -2652,16 +2689,16 @@ class Validator
      * - validateDateFormat('date', '12/31/2024', ['Y-m-d']) → false (wrong format)
      * - validateDateFormat('time', '14:30:00', ['H:i:s']) → true
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed  $value The value to validate (should be a string).
-     * @param  array  $params Format specification: [0] => string format (PHP date format syntax).
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate (should be a string).
+     * @param array $params Format specification: [0] => string format (PHP date format syntax).
      *
      * @return bool True if value matches the specified format exactly with no parsing errors, false otherwise.
      */
     protected function validateDateFormat(string $field, mixed $value, array $params): bool
     {
         if (!isset($params[0]) || !is_string($params[0])) {
-            throw new \InvalidArgumentException('Date format parameter must be a string');
+            throw new InvalidArgumentException('Date format parameter must be a string');
         }
 
         if (!is_string($value)) {
@@ -2697,20 +2734,20 @@ class Validator
      * - validateDateBefore('start', '2024-12-31', ['2024-01-01']) → false
      * - validateDateBefore('date', '2024-06-15', ['2024-06-15']) → false (equal dates fail)
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed  $value The value to validate (DateTime or string).
-     * @param  array  $params Comparison date: [0] => DateTime object or string representation.
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate (DateTime or string).
+     * @param array $params Comparison date: [0] => DateTime object or string representation.
      *
      * @return bool True if value is before the comparison date, false otherwise or if parsing fails.
      */
     protected function validateDateBefore(string $field, mixed $value, array $params): bool
     {
         if (!isset($params[0])) {
-            throw new \InvalidArgumentException('Comparison date required for dateBefore validation');
+            throw new InvalidArgumentException('Comparison date required for dateBefore validation');
         }
 
-        $vtime = ($value instanceof \DateTime) ? $value->getTimestamp() : strtotime((string)$value);
-        $ptime = ($params[0] instanceof \DateTime) ? $params[0]->getTimestamp() : strtotime((string)$params[0]);
+        $vtime = ($value instanceof DateTime) ? $value->getTimestamp() : strtotime((string)$value);
+        $ptime = ($params[0] instanceof DateTime) ? $params[0]->getTimestamp() : strtotime((string)$params[0]);
 
         // If either strtotime() failed, return false
         if ($vtime === false || $ptime === false) {
@@ -2744,20 +2781,20 @@ class Validator
      * - validateDateAfter('end', '2024-01-01', ['2024-12-31']) → false
      * - validateDateAfter('date', '2024-06-15', ['2024-06-15']) → false (equal dates fail)
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed  $value The value to validate (DateTime or string).
-     * @param  array  $params Comparison date: [0] => DateTime object or string representation.
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate (DateTime or string).
+     * @param array $params Comparison date: [0] => DateTime object or string representation.
      *
      * @return bool True if value is after the comparison date, false otherwise or if parsing fails.
      */
     protected function validateDateAfter(string $field, mixed $value, array $params): bool
     {
         if (!isset($params[0])) {
-            throw new \InvalidArgumentException('Comparison date required for dateAfter validation');
+            throw new InvalidArgumentException('Comparison date required for dateAfter validation');
         }
 
-        $vtime = ($value instanceof \DateTime) ? $value->getTimestamp() : strtotime((string)$value);
-        $ptime = ($params[0] instanceof \DateTime) ? $params[0]->getTimestamp() : strtotime((string)$params[0]);
+        $vtime = ($value instanceof DateTime) ? $value->getTimestamp() : strtotime((string)$value);
+        $ptime = ($params[0] instanceof DateTime) ? $params[0]->getTimestamp() : strtotime((string)$params[0]);
 
         // If either strtotime() failed, return false
         if ($vtime === false || $ptime === false) {
@@ -2777,8 +2814,8 @@ class Validator
      * Accepted values: true, false, 1, 0, '1', '0'
      * Rejected values: 'true', 'false', 'yes', 'no', 2, -1, etc.
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed $value The value to validate.
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
      *
      * @return bool True if value is a valid boolean representation, false otherwise.
      */
@@ -2819,9 +2856,9 @@ class Validator
      * - Consider PCI DSS compliance requirements
      * - Luhn algorithm prevents typos but not randomly valid numbers
      *
-     * @param  string $field The field name being validated.
-     * @param  mixed $value The value to validate (credit card number, spaces/dashes allowed).
-     * @param  array $params Optional card type constraints (see description for formats).
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate (credit card number, spaces/dashes allowed).
+     * @param array $params Optional card type constraints (see description for formats).
      *
      * @return bool True if credit card number is valid and matches type constraints, false otherwise.
      */
@@ -2953,9 +2990,9 @@ class Validator
      * @param mixed $value The value to validate (should be an object).
      * @param array $params Class specification: [0] => class name string OR object instance.
      *
-     * @return bool True if value is an instance of the specified class, false otherwise.
+     * @throws InvalidArgumentException If params[0] is not provided or is not a valid class/object
      *
-     * @throws \InvalidArgumentException If params[0] is not provided or is not a valid class/object
+     * @return bool True if value is an instance of the specified class, false otherwise.
      */
     protected function validateInstanceOf(string $field, mixed $value, array $params): bool
     {
@@ -2964,13 +3001,13 @@ class Validator
         }
 
         if (!isset($params[0])) {
-            throw new \InvalidArgumentException('Class name or object required for instanceOf validation');
+            throw new InvalidArgumentException('Class name or object required for instanceOf validation');
         }
 
         $expectedClass = is_object($params[0]) ? $params[0]::class : $params[0];
 
         if (!is_string($expectedClass)) {
-            throw new \InvalidArgumentException('Expected class name must be a string');
+            throw new InvalidArgumentException('Expected class name must be a string');
         }
 
         // The instanceof operator already handles exact class matches and inheritance
@@ -3176,5 +3213,32 @@ class Validator
         }
 
         return true;
+    }
+
+    // ===========================================
+    // Deprecated Methods - For Backward Compatibility
+    // ===========================================
+
+    /**
+     * @deprecated Use mapOneFieldToRules() instead. This method will be removed in a future version.
+     * @see mapOneFieldToRules()
+     *
+     * @param string $field The field name to apply rules to.
+     * @param array $rules Array of rule configurations.
+     */
+    public function mapFieldRules(string $field, array $rules): void
+    {
+        $this->mapOneFieldToRules($field, $rules);
+    }
+
+    /**
+     * @deprecated Use mapManyFieldsToRules() instead. This method will be removed in a future version.
+     * @see mapManyFieldsToRules()
+     *
+     * @param array $rules Associative array where keys are field names and values are rule configurations.
+     */
+    public function mapFieldsRules(array $rules): void
+    {
+        $this->mapManyFieldsToRules($rules);
     }
 }

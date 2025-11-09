@@ -1,24 +1,30 @@
 {
     "name": "vlucas/valitron",
     "type": "library",
-    "description": "Modern, type-safe PHP validation library for PHP 8.1+ with security-first design and zero dependencies",
+    "description": "Modern, type-safe PHP validation library for PHP 8.2+ with security-first design and zero dependencies",
     "keywords": ["validation", "validator", "valid", "php8", "type-safe", "security"],
     "homepage": "https://github.com/vlucas/valitron",
     "license": "BSD-3-Clause",
     "authors": [
         {
-            "name": "Vance Lucas",
+            "name": "Vance Lucas (original author)",
             "email": "vance@vancelucas.com",
             "homepage": "https://www.vancelucas.com"
+        },
+        {
+            "name": "FrostyBee (current maintainer)",
+            "homepage": "https://github.com/frostybee/valitron"
         }
     ],
     "require": {
-        "php": ">=8.1",
+        "php": ">=8.2",
         "ext-mbstring": "*"
     },
     "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.64",
         "phpunit/phpunit": "^10.5",
-        "phpstan/phpstan": "^1.10"
+        "phpstan/phpstan": "^1.10",
+        "rector/rector": "^1.0"
     },
     "autoload": {
         "psr-4": {
@@ -27,15 +33,27 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Valitron\\Tests\\": "tests"
+            "Valitron\\Tests\\": "tests/Valitron"
         }
     },
     "scripts": {
         "test": "phpunit",
         "analyse": "phpstan analyse",
+        "cs-fix": "php-cs-fixer fix",
+        "cs-check": "php-cs-fixer fix --dry-run --diff",
+        "refactor": "rector process",
+        "refactor-dry": "rector process --dry-run",
+        "benchmark": "php benchmarks/ValidationBenchmark.php",
         "check": [
             "@test",
-            "@analyse"
+            "@analyse",
+            "@cs-check"
+        ],
+        "check-all": [
+            "@test",
+            "@analyse",
+            "@cs-check",
+            "@refactor-dry"
         ]
     },
     "config": {

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Valitron\Tests;
 
+use function count;
+
 use Valitron\Validator;
 
 class MapRulesTest extends BaseTestCase
@@ -12,16 +14,16 @@ class MapRulesTest extends BaseTestCase
     {
         $rules = [
             'required',
-            ['lengthMin', 4]
+            ['lengthMin', 4],
         ];
 
         $v = new Validator([]);
-        $v->mapFieldRules('username', $rules);
+        $v->mapOneFieldToRules('username', $rules);
         $this->assertFalse($v->validate());
         $this->assertEquals(2, count($v->errors('username')));
 
         $v2 = new Validator(['username' => 'john']);
-        $v2->mapFieldRules('username', $rules);
+        $v2->mapOneFieldToRules('username', $rules);
         $this->assertTrue($v2->validate());
     }
 
@@ -30,11 +32,11 @@ class MapRulesTest extends BaseTestCase
         $v = new Validator([
             'settings' => [
                 ['threshold' => 50],
-                ['threshold' => 90]
-            ]
+                ['threshold' => 90],
+            ],
         ]);
-        $v->mapFieldRules('settings.*.threshold', [
-            ['max', 50]
+        $v->mapOneFieldToRules('settings.*.threshold', [
+            ['max', 50],
         ]);
 
         $this->assertFalse($v->validate());
@@ -45,18 +47,18 @@ class MapRulesTest extends BaseTestCase
         $rules = [
             'username' => [
                 'required',
-                ['lengthMin', 4]
+                ['lengthMin', 4],
             ],
             'password' => [
                 'required',
-                ['lengthMin', 8]
-            ]
+                ['lengthMin', 8],
+            ],
         ];
 
         $v = new Validator([
-            'username' => 'john'
+            'username' => 'john',
         ]);
-        $v->mapFieldsRules($rules);
+        $v->mapManyFieldsToRules($rules);
 
         $this->assertFalse($v->validate());
         $this->assertFalse($v->errors('username'));
@@ -66,13 +68,13 @@ class MapRulesTest extends BaseTestCase
     public function testCustomMessageSingleField()
     {
         $rules = [
-            ['lengthMin', 14, 'message' => 'Credit card number must be at least 14 digits']
+            ['lengthMin', 14, 'message' => 'Credit card number must be at least 14 digits'],
         ];
 
         $v = new Validator([
-            'card_number' => '12345'
+            'card_number' => '12345',
         ]);
-        $v->mapFieldRules('card_number', $rules);
+        $v->mapOneFieldToRules('card_number', $rules);
         $this->assertFalse($v->validate());
         $errors = $v->errors('card_number');
         $this->assertEquals('Credit card number must be at least 14 digits', $errors[0]);
@@ -82,19 +84,19 @@ class MapRulesTest extends BaseTestCase
     {
         $rules = [
             'email' => [
-                ['lengthMin', 14, 'message' => 'Email must be at least 14 characters']
+                ['lengthMin', 14, 'message' => 'Email must be at least 14 characters'],
             ],
             'phone' => [
-                ['lengthMin', 10, 'message' => 'Phone number must be at least 10 digits']
-            ]
+                ['lengthMin', 10, 'message' => 'Phone number must be at least 10 digits'],
+            ],
         ];
 
         $v = new Validator([
             'email' => 'test@ex.co',
-            'phone' => '555'
+            'phone' => '555',
         ]);
 
-        $v->mapFieldsRules($rules);
+        $v->mapManyFieldsToRules($rules);
         $this->assertFalse($v->validate());
 
         $emailErrors = $v->errors('email');

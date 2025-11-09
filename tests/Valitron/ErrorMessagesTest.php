@@ -59,7 +59,7 @@ class ErrorMessagesTest extends BaseTestCase
     {
         $messages = [
             'name' => ['Name is required'],
-            'email' => ['Email should be a valid email address']
+            'email' => ['Email should be a valid email address'],
         ];
 
         $v = new Validator(['name' => '', 'email' => '$']);
@@ -68,7 +68,7 @@ class ErrorMessagesTest extends BaseTestCase
 
         $v->labels([
             'name' => 'Name',
-            'email' => 'Email'
+            'email' => 'Email',
         ]);
 
         $v->validate();
@@ -92,4 +92,3 @@ class ErrorMessagesTest extends BaseTestCase
         $this->assertEquals($v->errors('name'), ['A value is required for my name']);
     }
 }
-

@@ -22,8 +22,8 @@ class ArrayValidationTest extends BaseTestCase
         $v = new Validator(['user_notifications' => ['bulletin_notifications' => true, 'marketing_notifications' => false, 'message_notification' => true]]);
         $v->rules([
             'array' => [
-                ['user_notifications']
-            ]
+                ['user_notifications'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -40,8 +40,8 @@ class ArrayValidationTest extends BaseTestCase
         $v = new Validator(['user_notifications' => 'string']);
         $v->rules([
             'array' => [
-                ['user_notifications']
-            ]
+                ['user_notifications'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -81,7 +81,7 @@ class ArrayValidationTest extends BaseTestCase
         $v = new Validator(['values' => [
             'foo' => 5,
             'bar' => 10,
-            'baz' => 15
+            'baz' => 15,
         ]]);
         $v->rule('integer', 'values.*');
         $this->assertTrue($v->validate());
@@ -92,7 +92,7 @@ class ArrayValidationTest extends BaseTestCase
         $v = new Validator(['values' => [
             'foo' => 5,
             'bar' => 10,
-            'baz' => 'faz'
+            'baz' => 'faz',
         ]]);
         $v->rule('integer', 'values.*');
         $this->assertFalse($v->validate());
@@ -101,8 +101,8 @@ class ArrayValidationTest extends BaseTestCase
     public function testForeachArrayAccess()
     {
         $v = new Validator(['settings' => [
-            array('enabled' => true),
-            array('enabled' => true)
+            ['enabled' => true],
+            ['enabled' => true],
         ]]);
         $v->rule('boolean', 'settings.*.enabled');
         $this->assertTrue($v->validate());
@@ -111,8 +111,8 @@ class ArrayValidationTest extends BaseTestCase
     public function testForeachArrayAccessInvalid()
     {
         $v = new Validator(['settings' => [
-            array('threshold' => 50),
-            array('threshold' => 500)
+            ['threshold' => 50],
+            ['threshold' => 500],
         ]]);
         $v->rule('max', 'settings.*.threshold', 100);
         $this->assertFalse($v->validate());
@@ -123,12 +123,12 @@ class ArrayValidationTest extends BaseTestCase
         $v = new Validator(['widgets' => [
             ['settings' => [
                 ['enabled' => true],
-                ['enabled' => true]
+                ['enabled' => true],
             ]],
             ['settings' => [
                 ['enabled' => true],
-                ['enabled' => true]
-            ]]
+                ['enabled' => true],
+            ]],
         ]]);
         $v->rule('boolean', 'widgets.*.settings.*.enabled');
         $this->assertTrue($v->validate());
@@ -139,16 +139,16 @@ class ArrayValidationTest extends BaseTestCase
         $v = new Validator(['widgets' => [
             ['settings' => [
                 ['threshold' => 50],
-                ['threshold' => 90]
+                ['threshold' => 90],
             ]],
             ['settings' => [
                 ['threshold' => 40],
-                ['threshold' => 500]
+                ['threshold' => 500],
             ]],
             ['settings' => [
                 ['threshold' => 40],
-                ['threshold' => 500]
-            ]]
+                ['threshold' => 500],
+            ]],
         ]]);
         $v->rule('max', 'widgets.*.settings.*.threshold', 100);
         $this->assertFalse($v->validate());
@@ -167,8 +167,8 @@ class ArrayValidationTest extends BaseTestCase
         $v = new Validator(['color' => 'purple']);
         $v->rules([
             'in' => [
-                ['color', ['blue', 'green', 'red', 'purple']]
-            ]
+                ['color', ['blue', 'green', 'red', 'purple']],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -178,8 +178,8 @@ class ArrayValidationTest extends BaseTestCase
         $v = new Validator(['color' => 'orange']);
         $v->rules([
             'in' => [
-                ['color', ['blue', 'green', 'red', 'purple']]
-            ]
+                ['color', ['blue', 'green', 'red', 'purple']],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -190,7 +190,7 @@ class ArrayValidationTest extends BaseTestCase
         $v->rule('in', 'color', [
             'red' => 'Red',
             'green' => 'Green',
-            'blue' => 'Blue'
+            'blue' => 'Blue',
         ]);
         $this->assertTrue($v->validate());
     }
@@ -215,8 +215,8 @@ class ArrayValidationTest extends BaseTestCase
 
         $v->rules([
             'in' => [
-                ['color', [3 => 'green', 2 => 'purple']]
-            ]
+                ['color', [3 => 'green', 2 => 'purple']],
+            ],
         ]);
 
         $this->assertTrue($v->validate());
@@ -228,8 +228,8 @@ class ArrayValidationTest extends BaseTestCase
 
         $v->rules([
             'in' => [
-                ['color', ['c-3' => 'green', 'c-2' => 'purple']]
-            ]
+                ['color', ['c-3' => 'green', 'c-2' => 'purple']],
+            ],
         ]);
 
         $this->assertTrue($v->validate());
@@ -241,8 +241,8 @@ class ArrayValidationTest extends BaseTestCase
 
         $v->rules([
             'in' => [
-                ['color', ['3' => 'green', '2' => 'purple'], null, true]
-            ]
+                ['color', ['3' => 'green', '2' => 'purple'], null, true],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -260,8 +260,8 @@ class ArrayValidationTest extends BaseTestCase
         $v = new Validator(['color' => 'purple']);
         $v->rules([
             'notIn' => [
-                ['color', ['blue', 'green', 'red', 'yellow']]
-            ]
+                ['color', ['blue', 'green', 'red', 'yellow']],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -278,8 +278,8 @@ class ArrayValidationTest extends BaseTestCase
         $v = new Validator(['color' => 'yellow']);
         $v->rules([
             'notIn' => [
-                ['color', ['blue', 'green', 'red', 'yellow']]
-            ]
+                ['color', ['blue', 'green', 'red', 'yellow']],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -297,8 +297,8 @@ class ArrayValidationTest extends BaseTestCase
         $v = new Validator(['color' => ['blue', 'green', 'red']]);
         $v->rules([
             'listContains' => [
-                ['color', 'red']
-            ]
+                ['color', 'red'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -308,8 +308,8 @@ class ArrayValidationTest extends BaseTestCase
         $v = new Validator(['color' => ['blue', 'green', 'red']]);
         $v->rules([
             'listContains' => [
-                ['color', 'yellow']
-            ]
+                ['color', 'yellow'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -433,8 +433,8 @@ class ArrayValidationTest extends BaseTestCase
         $v = new Validator(['colors' => ['green', 'blue']]);
         $v->rules([
             'subset' => [
-                ['colors', ['orange', 'green', 'blue', 'red']]
-            ]
+                ['colors', ['orange', 'green', 'blue', 'red']],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -451,8 +451,8 @@ class ArrayValidationTest extends BaseTestCase
         $v = new Validator(['colors' => ['purple', 'blue']]);
         $v->rules([
             'subset' => [
-                ['colors', ['orange', 'green', 'blue', 'red']]
-            ]
+                ['colors', ['orange', 'green', 'blue', 'red']],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -510,8 +510,8 @@ class ArrayValidationTest extends BaseTestCase
         $v = new Validator(['colors' => ['purple', 'blue']]);
         $v->rules([
             'containsUnique' => [
-                ['colors']
-            ]
+                ['colors'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -528,8 +528,8 @@ class ArrayValidationTest extends BaseTestCase
         $v = new Validator(['colors' => ['purple', 'purple']]);
         $v->rules([
             'containsUnique' => [
-                ['colors']
-            ]
+                ['colors'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -548,8 +548,8 @@ class ArrayValidationTest extends BaseTestCase
             'address' => [
                 'name' => 'Jane Doe',
                 'street' => 'Doe Square',
-                'city' => 'Doe D.C.'
-            ]
+                'city' => 'Doe D.C.',
+            ],
         ]);
         $v->rule('arrayHasKeys', 'address', ['name', 'street', 'city']);
         $this->assertTrue($v->validate());
@@ -560,8 +560,8 @@ class ArrayValidationTest extends BaseTestCase
         $v = new Validator([
             'address' => [
                 'name' => 'Jane Doe',
-                'street' => 'Doe Square'
-            ]
+                'street' => 'Doe Square',
+            ],
         ]);
         $v->rule('arrayHasKeys', 'address', ['name', 'street', 'city']);
         $this->assertFalse($v->validate());
@@ -570,7 +570,7 @@ class ArrayValidationTest extends BaseTestCase
     public function testArrayHasKeysFalseOnNonArray()
     {
         $v = new Validator([
-            'address' => ['Jane Doe, Doe Square']
+            'address' => ['Jane Doe, Doe Square'],
         ]);
         $v->rule('arrayHasKeys', 'address', ['name', 'street', 'city']);
         $this->assertFalse($v->validate());
@@ -581,8 +581,8 @@ class ArrayValidationTest extends BaseTestCase
         $v = new Validator([
             'address' => [
                 'lat' => 77.547,
-                'lon' => 16.337
-            ]
+                'lon' => 16.337,
+            ],
         ]);
         $v->rule('arrayHasKeys', 'address', []);
         $this->assertFalse($v->validate());
@@ -593,8 +593,8 @@ class ArrayValidationTest extends BaseTestCase
         $v = new Validator([
             'address' => [
                 'lat' => 77.547,
-                'lon' => 16.337
-            ]
+                'lon' => 16.337,
+            ],
         ]);
         $v->rule('arrayHasKeys', 'address');
         $this->assertFalse($v->validate());
@@ -614,12 +614,13 @@ class ArrayValidationTest extends BaseTestCase
      */
     public function testOptionalArrayPartsAreIgnored()
     {
-        $v = new Validator([
+        $v = new Validator(
+            [
             'data' => [
                 ['foo' => '2018-01-01'],
-                ['bar' => 1]
-            ]
-        ]
+                ['bar' => 1],
+            ],
+        ],
         );
         $v->rule('date', 'data.*.foo');
         $this->assertTrue($v->validate());
@@ -630,12 +631,13 @@ class ArrayValidationTest extends BaseTestCase
      */
     public function testRequiredArrayPartsAreNotIgnored()
     {
-        $v = new Validator([
+        $v = new Validator(
+            [
             'data' => [
                 ['foo' => '2018-01-01'],
-                ['bar' => 1]
-            ]
-        ]
+                ['bar' => 1],
+            ],
+        ],
         );
         $v->rule('required', 'data.*.foo');
         $v->rule('date', 'data.*.foo');

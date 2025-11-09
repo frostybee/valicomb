@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace Valitron\Tests;
 
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
+
+use function str_repeat;
+
 use Valitron\Validator;
 
 /**
@@ -23,7 +27,7 @@ class EdgeCaseTest extends TestCase
         // Use a longer string to ensure backtrack limit is hit even with reduced limits
         $v = new Validator(['field' => str_repeat('a', 1000) . 'x']);
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessageMatches('/(Backtrack|Recursion) limit/');
 
         // Catastrophic backtracking pattern
@@ -41,7 +45,7 @@ class EdgeCaseTest extends TestCase
             'password' => 'secret123',
             'password_confirm' => 'secret123',
             'name' => 'John Doe',
-            'birthdate' => '1990-01-01'
+            'birthdate' => '1990-01-01',
         ]);
 
         $v->rule('equals', 'password', 'password_confirm')

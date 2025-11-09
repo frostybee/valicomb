@@ -112,7 +112,7 @@ class MiscellaneousValidationTest extends BaseTestCase
     public function testAddRuleCallbackArray()
     {
         $v = new Validator(['name' => 'Chester Tester']);
-        $v->addRule('testRule', array($this, 'sampleObjectCallback'));
+        $v->addRule('testRule', [$this, 'sampleObjectCallback']);
         $v->rule('testRule', 'name');
         $this->assertTrue($v->validate());
     }
@@ -148,7 +148,7 @@ class MiscellaneousValidationTest extends BaseTestCase
         $rules = [
             'required' => 'nonexistent_field',
             'accepted' => 'foo',
-            'integer' => 'foo'
+            'integer' => 'foo',
         ];
 
         $v1 = new Validator(['foo' => 'bar', 'bar' => 'baz']);
@@ -168,14 +168,14 @@ class MiscellaneousValidationTest extends BaseTestCase
     {
         $rules = [
             'required' => [
-                [['nonexistent_field', 'other_missing_field']]
+                [['nonexistent_field', 'other_missing_field']],
             ],
             'equals' => [
-                ['foo', 'bar']
+                ['foo', 'bar'],
             ],
             'length' => [
-                ['foo', 5]
-            ]
+                ['foo', 5],
+            ],
         ];
 
         $v1 = new Validator(['foo' => 'bar', 'bar' => 'baz']);
@@ -196,8 +196,8 @@ class MiscellaneousValidationTest extends BaseTestCase
         $rules = [
             'length' => [
                 ['foo', 5],
-                ['bar', 5]
-            ]
+                ['bar', 5],
+            ],
         ];
 
         $v1 = new Validator(['foo' => 'bar', 'bar' => 'baz']);
@@ -217,8 +217,8 @@ class MiscellaneousValidationTest extends BaseTestCase
         $rules = [
             'length' => [
                 [['foo', 'bar'], 5],
-                ['baz', 5]
-            ]
+                ['baz', 5],
+            ],
         ];
 
         $v1 = new Validator(['foo' => 'bar', 'bar' => 'baz', 'baz' => 'foo']);
@@ -237,8 +237,8 @@ class MiscellaneousValidationTest extends BaseTestCase
     {
         $rules = [
             'in' => [
-                [['foo', 'bar'], ['x', 'y']]
-            ]
+                [['foo', 'bar'], ['x', 'y']],
+            ],
         ];
 
         $v1 = new Validator(['foo' => 'bar', 'bar' => 'baz', 'baz' => 'foo']);
@@ -257,8 +257,8 @@ class MiscellaneousValidationTest extends BaseTestCase
         $v = new Validator();
         $v->rules(
             [
-                'required' => ['foo', 'bar']
-            ]
+                'required' => ['foo', 'bar'],
+            ],
         );
 
         $this->assertFalse($v->validate());
@@ -279,7 +279,7 @@ class MiscellaneousValidationTest extends BaseTestCase
         $v->rule('required', ['name', 'email'])->message('{field} is required');
         $v->labels([
             'name' => 'Name',
-            'email' => 'Email address'
+            'email' => 'Email address',
         ]);
         $v->validate();
         $this->assertEquals(['name' => ['Name is required'], 'email' => ['Email address is required']], $v->errors());
@@ -289,12 +289,12 @@ class MiscellaneousValidationTest extends BaseTestCase
     {
         $v = new Validator([
             'password' => 'foo',
-            'passwordConfirm' => 'bar'
+            'passwordConfirm' => 'bar',
         ]);
         $v->rule('equals', 'password', 'passwordConfirm');
         $v->labels([
             'password' => 'Password',
-            'passwordConfirm' => 'Password Confirm'
+            'passwordConfirm' => 'Password Confirm',
         ]);
         $v->validate();
         $this->assertEquals(['password' => ["Password must be the same as 'Password Confirm'"]], $v->errors());

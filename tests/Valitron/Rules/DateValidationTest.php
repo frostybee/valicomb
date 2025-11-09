@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Valitron\Tests\Rules;
 
+use DateTime;
+use InvalidArgumentException;
 use Valitron\Tests\BaseTestCase;
 use Valitron\Validator;
-use DateTime;
 
 class DateValidationTest extends BaseTestCase
 {
@@ -23,8 +24,8 @@ class DateValidationTest extends BaseTestCase
         $v = new Validator(['created_at' => '2018-10-13']);
         $v->rules([
             'date' => [
-                ['created_at']
-            ]
+                ['created_at'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -48,8 +49,8 @@ class DateValidationTest extends BaseTestCase
         $v = new Validator(['created_at' => 'bananas']);
         $v->rules([
             'date' => [
-                ['created_at']
-            ]
+                ['created_at'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -77,8 +78,8 @@ class DateValidationTest extends BaseTestCase
         $v = new Validator(['created_at' => '2018-10-13']);
         $v->rules([
             'dateFormat' => [
-                ['created_at', 'Y-m-d']
-            ]
+                ['created_at', 'Y-m-d'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -99,8 +100,8 @@ class DateValidationTest extends BaseTestCase
         $v = new Validator(['created_at' => '10-13-2018']);
         $v->rules([
             'dateFormat' => [
-                ['created_at', 'Y-m-d']
-            ]
+                ['created_at', 'Y-m-d'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -109,7 +110,7 @@ class DateValidationTest extends BaseTestCase
     public function testDateBeforeValid()
     {
         $v = new Validator(['date' => '2013-01-27']);
-        $v->rule('dateBefore', 'date', new \DateTime('2013-01-28'));
+        $v->rule('dateBefore', 'date', new DateTime('2013-01-28'));
         $this->assertTrue($v->validate());
     }
 
@@ -118,8 +119,8 @@ class DateValidationTest extends BaseTestCase
         $v = new Validator(['created_at' => '2018-09-01']);
         $v->rules([
             'dateBefore' => [
-                ['created_at', '2018-10-13']
-            ]
+                ['created_at', '2018-10-13'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -129,19 +130,19 @@ class DateValidationTest extends BaseTestCase
         $v = new Validator(['startDate' => '2013-01-27', 'endDate' => '2013-05-08']);
         $v->rule(
             'date',
-            ['startDate', 'endDate']
+            ['startDate', 'endDate'],
         );
 
         $v->rule(
             'dateBefore',
             'endDate',
-            new DateTime('2013-04-08')
+            new DateTime('2013-04-08'),
         )->label('End date')->message('{field} must be before the end of the fiscal year, %s.');
 
         $v->rule(
             'dateAfter',
             'startDate',
-            new DateTime('2013-02-17')
+            new DateTime('2013-02-17'),
         )->label('Start date')->message('{field} must be after the beginning of the fiscal year, %s.');
 
         $this->assertFalse($v->validate());
@@ -159,8 +160,8 @@ class DateValidationTest extends BaseTestCase
         $v = new Validator(['created_at' => '2018-11-01']);
         $v->rules([
             'dateBefore' => [
-                ['created_at', '2018-10-13']
-            ]
+                ['created_at', '2018-10-13'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -169,7 +170,7 @@ class DateValidationTest extends BaseTestCase
     public function testDateAfterValid()
     {
         $v = new Validator(['date' => '2013-01-27']);
-        $v->rule('dateAfter', 'date', new \DateTime('2013-01-26'));
+        $v->rule('dateAfter', 'date', new DateTime('2013-01-26'));
         $this->assertTrue($v->validate());
     }
 
@@ -178,8 +179,8 @@ class DateValidationTest extends BaseTestCase
         $v = new Validator(['created_at' => '2018-09-01']);
         $v->rules([
             'dateAfter' => [
-                ['created_at', '2018-01-01']
-            ]
+                ['created_at', '2018-01-01'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -196,8 +197,8 @@ class DateValidationTest extends BaseTestCase
         $v = new Validator(['created_at' => '2017-09-01']);
         $v->rules([
             'dateAfter' => [
-                ['created_at', '2018-01-01']
-            ]
+                ['created_at', '2018-01-01'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -235,22 +236,22 @@ class DateValidationTest extends BaseTestCase
 
     public function testDateBeforeWithDateTimeObjects(): void
     {
-        $v = new Validator(['date' => new \DateTime('2025-01-01')]);
-        $v->rule('dateBefore', 'date', new \DateTime('2025-12-31'));
+        $v = new Validator(['date' => new DateTime('2025-01-01')]);
+        $v->rule('dateBefore', 'date', new DateTime('2025-12-31'));
         $this->assertTrue($v->validate(), 'Earlier DateTime should be before later DateTime');
     }
 
     public function testDateAfterWithDateTimeObjects(): void
     {
-        $v = new Validator(['date' => new \DateTime('2025-12-31')]);
-        $v->rule('dateAfter', 'date', new \DateTime('2025-01-01'));
+        $v = new Validator(['date' => new DateTime('2025-12-31')]);
+        $v->rule('dateAfter', 'date', new DateTime('2025-01-01'));
         $this->assertTrue($v->validate(), 'Later DateTime should be after earlier DateTime');
     }
 
     // Parameter Validation Tests
     public function testDateFormatRequiresStringParameter(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Date format parameter must be a string');
 
         $v = new Validator(['date' => '2025-01-01']);
@@ -260,7 +261,7 @@ class DateValidationTest extends BaseTestCase
 
     public function testDateFormatRequiresParameter(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Date format parameter must be a string');
 
         $v = new Validator(['date' => '2025-01-01']);
@@ -270,7 +271,7 @@ class DateValidationTest extends BaseTestCase
 
     public function testDateBeforeRequiresParameter(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Comparison date required for dateBefore validation');
 
         $v = new Validator(['date' => '2025-01-01']);
@@ -280,7 +281,7 @@ class DateValidationTest extends BaseTestCase
 
     public function testDateAfterRequiresParameter(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Comparison date required for dateAfter validation');
 
         $v = new Validator(['date' => '2025-01-01']);

@@ -8,5 +8,5 @@ use PHPUnit\Framework\TestCase;
 
 class BaseTestCase extends TestCase
 {
-	//NOTE: Keeping this class empty for now. It might be used in the future to add common functionality to all tests.
+    //NOTE: Keeping this class empty for now. It might be used in the future to add common functionality to all tests.
 }

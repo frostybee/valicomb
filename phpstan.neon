@@ -5,6 +5,19 @@ parameters:
     excludePaths:
         - tests
     reportUnmatchedIgnoredErrors: false
+
+    # Stricter checks for better type safety
+    checkMissingIterableValueType: true
+    checkGenericClassInNonGenericObjectType: true
+    checkMissingCallableSignature: true
+    checkTooWideReturnTypesInProtectedAndPublicMethods: true
+    checkUninitializedProperties: true
+
+    # Security-focused checks
+    checkAlwaysTrueCheckTypeFunctionCall: true
+    checkAlwaysTrueInstanceof: true
+    checkAlwaysTrueStrictComparison: true
+
     ignoreErrors:
         -
             identifier: missingType.iterableValue

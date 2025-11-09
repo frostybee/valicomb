@@ -1,36 +1,41 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Valitron\Tests;
+
+use function ucfirst;
 
 use Valitron\Validator;
 
 class StaticVsInstanceTest extends BaseTestCase
 {
-	public function testInstanceOverrideStaticLang()
-	{
-		Validator::lang('ar');
-		new Validator([], [], 'en');
-		$this->assertEquals(
-		    'ar', Validator::lang(), 'instance defined lang should not replace static global lang'
+    public function testInstanceOverrideStaticLang()
+    {
+        Validator::lang('ar');
+        new Validator([], [], 'en');
+        $this->assertEquals(
+            'ar',
+            Validator::lang(),
+            'instance defined lang should not replace static global lang',
         );
-		Validator::lang('en');
-	}
+        Validator::lang('en');
+    }
 
-	/**
-	 * Fix bug where rules messages added with Validator::addRule were replaced after creating validator instance
-	 */
-	public function testRuleMessagesReplacedAfterConstructor()
-	{
-		$customMessage = 'custom message';
-		$ruleName = 'customRule';
-		$fieldName = 'fieldName';
-		Validator::addRule($ruleName, function() {}, $customMessage);
-		$v = new Validator([$fieldName => $fieldName]);
-		$v->rule($ruleName, $fieldName);
-		$v->validate();
-		$messages = $v->errors();
-		$this->assertArrayHasKey($fieldName, $messages);
-		$this->assertEquals(ucfirst("$fieldName $customMessage"), $messages[$fieldName][0]);
-	}
+    /**
+     * Fix bug where rules messages added with Validator::addRule were replaced after creating validator instance
+     */
+    public function testRuleMessagesReplacedAfterConstructor()
+    {
+        $customMessage = 'custom message';
+        $ruleName = 'customRule';
+        $fieldName = 'fieldName';
+        Validator::addRule($ruleName, function () {}, $customMessage);
+        $v = new Validator([$fieldName => $fieldName]);
+        $v->rule($ruleName, $fieldName);
+        $v->validate();
+        $messages = $v->errors();
+        $this->assertArrayHasKey($fieldName, $messages);
+        $this->assertEquals(ucfirst("$fieldName $customMessage"), $messages[$fieldName][0]);
+    }
 }

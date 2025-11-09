@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Valitron\Tests\Rules;
 
+use InvalidArgumentException;
 use Valitron\Tests\BaseTestCase;
 use Valitron\Validator;
 
@@ -22,8 +23,8 @@ class ComparisonValidationTest extends BaseTestCase
         $v = new Validator(['password' => 'youshouldnotseethis', 'confirmPassword' => 'youshouldnotseethis']);
         $v->rules([
             'equals' => [
-                ['password', 'confirmPassword']
-            ]
+                ['password', 'confirmPassword'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -40,8 +41,8 @@ class ComparisonValidationTest extends BaseTestCase
         $v = new Validator(['password' => 'youshouldnotseethis', 'confirmPassword' => 'differentpassword']);
         $v->rules([
             'equals' => [
-                ['password', 'confirmPassword']
-            ]
+                ['password', 'confirmPassword'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -134,8 +135,8 @@ class ComparisonValidationTest extends BaseTestCase
         $v = new Validator(['username' => 'test', 'password' => 'test123']);
         $v->rules([
             'different' => [
-                ['username', 'password']
-            ]
+                ['username', 'password'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -152,8 +153,8 @@ class ComparisonValidationTest extends BaseTestCase
         $v = new Validator(['username' => 'test', 'password' => 'test']);
         $v->rules([
             'different' => [
-                ['username', 'password']
-            ]
+                ['username', 'password'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -239,8 +240,8 @@ class ComparisonValidationTest extends BaseTestCase
         $v1 = new Validator([
             'user' => [
                 'email' => 'test@example.com',
-                'email_confirm' => 'test@example.com'
-            ]
+                'email_confirm' => 'test@example.com',
+            ],
         ]);
         $v1->rule('equals', 'user.email', 'user.email_confirm');
         $this->assertTrue($v1->validate(), 'Nested equal fields should pass');
@@ -248,8 +249,8 @@ class ComparisonValidationTest extends BaseTestCase
         $v2 = new Validator([
             'user' => [
                 'email' => 'test@example.com',
-                'email_confirm' => 'different@example.com'
-            ]
+                'email_confirm' => 'different@example.com',
+            ],
         ]);
         $v2->rule('equals', 'user.email', 'user.email_confirm');
         $this->assertFalse($v2->validate(), 'Nested unequal fields should fail');
@@ -258,7 +259,7 @@ class ComparisonValidationTest extends BaseTestCase
     // Parameter Validation Tests
     public function testEqualsRequiresFieldParameter(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Field name required for equals validation');
 
         $v = new Validator(['field1' => 'value']);
@@ -268,7 +269,7 @@ class ComparisonValidationTest extends BaseTestCase
 
     public function testEqualsRequiresStringFieldParameter(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Field name required for equals validation');
 
         $v = new Validator(['field1' => 'value']);
@@ -278,7 +279,7 @@ class ComparisonValidationTest extends BaseTestCase
 
     public function testDifferentRequiresFieldParameter(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Field name required for different validation');
 
         $v = new Validator(['field1' => 'value']);
@@ -288,7 +289,7 @@ class ComparisonValidationTest extends BaseTestCase
 
     public function testDifferentRequiresStringFieldParameter(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Field name required for different validation');
 
         $v = new Validator(['field1' => 'value']);

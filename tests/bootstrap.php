@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 error_reporting(-1);
 date_default_timezone_set('UTC');
 
@@ -7,13 +9,13 @@ date_default_timezone_set('UTC');
  * another composer package. Designed to find composer autoloader and require
  */
 $vendorPos = strpos(__DIR__, 'vendor/vlucas/valitron');
-if($vendorPos !== false) {
+if ($vendorPos !== false) {
     // Package has been cloned within another composer package, resolve path to autoloader
     $vendorDir = substr(__DIR__, 0, $vendorPos) . 'vendor/';
     $loader = require $vendorDir . 'autoload.php';
 } else {
     // Package itself (cloned standalone)
-    $loader = require __DIR__.'/../vendor/autoload.php';
+    $loader = require __DIR__ . '/../vendor/autoload.php';
 }
 
 require_once __DIR__ . '/Valitron/BaseTestCase.php';

@@ -24,8 +24,8 @@ class ConditionalValidationTest extends BaseTestCase
             'required' => [
                 ['username'],
                 ['password'],
-                ['required_but_null', true] // boolean flag allows empty value so long as the field name is set on the data array
-            ]
+                ['required_but_null', true], // boolean flag allows empty value so long as the field name is set on the data array
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -43,8 +43,8 @@ class ConditionalValidationTest extends BaseTestCase
         $v->rules([
             'required' => [
                 ['username'],
-                ['password']
-            ]
+                ['password'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -62,7 +62,7 @@ class ConditionalValidationTest extends BaseTestCase
             'zero' => 0,
             'zero_txt' => '0',
             'false' => false,
-            'empty_array' => []
+            'empty_array' => [],
         ]);
         $v->rule('required', ['zero', 'zero_txt', 'false', 'empty_array']);
 
@@ -75,8 +75,8 @@ class ConditionalValidationTest extends BaseTestCase
             'empty_text' => '',
             'null_value' => null,
             'in_array' => [
-                'empty_text' => ''
-            ]
+                'empty_text' => '',
+            ],
         ];
 
         $v1 = new Validator($data);
@@ -101,8 +101,8 @@ class ConditionalValidationTest extends BaseTestCase
         $v = new Validator(['remember_me' => true]);
         $v->rules([
             'accepted' => [
-                ['remember_me']
-            ]
+                ['remember_me'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -119,8 +119,8 @@ class ConditionalValidationTest extends BaseTestCase
         $v = new Validator(['remember_me' => false]);
         $v->rules([
             'accepted' => [
-                ['remember_me']
-            ]
+                ['remember_me'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -145,11 +145,11 @@ class ConditionalValidationTest extends BaseTestCase
         $v = new Validator(['username' => 'batman']);
         $v->rules([
             'alpha' => [
-                ['username']
+                ['username'],
             ],
             'optional' => [
-                ['username']
-            ]
+                ['username'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -166,11 +166,11 @@ class ConditionalValidationTest extends BaseTestCase
         $v = new Validator(['username' => 'batman123']);
         $v->rules([
             'alpha' => [
-                ['username']
+                ['username'],
             ],
             'optional' => [
-                ['username']
-            ]
+                ['username'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -216,8 +216,8 @@ class ConditionalValidationTest extends BaseTestCase
         $v = new Validator(['username' => 'tester', 'password' => 'mypassword']);
         $v->rules([
             'requiredWith' => [
-                ['password', 'username']
-            ]
+                ['password', 'username'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -269,8 +269,8 @@ class ConditionalValidationTest extends BaseTestCase
         $v = new Validator(['password' => 'mypassword']);
         $v->rules([
             'requiredWith' => [
-                ['password', ['username', 'email']]
-            ]
+                ['password', ['username', 'email']],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -287,8 +287,8 @@ class ConditionalValidationTest extends BaseTestCase
         $v = new Validator(['username' => 'tester']);
         $v->rules([
             'requiredWith' => [
-                ['password', 'username']
-            ]
+                ['password', 'username'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -296,7 +296,7 @@ class ConditionalValidationTest extends BaseTestCase
     public function testRequiredWithInvalidArray()
     {
         $v = new Validator(['email' => 'test@test.com', 'nickname' => 'kevin']);
-        $v->rule('requiredWith', 'password', array('username', 'email', 'nickname'));
+        $v->rule('requiredWith', 'password', ['username', 'email', 'nickname']);
         $this->assertFalse($v->validate());
     }
 
@@ -312,8 +312,8 @@ class ConditionalValidationTest extends BaseTestCase
         $v = new Validator(['username' => 'tester', 'email' => 'test@test.com']);
         $v->rules([
             'requiredWith' => [
-                ['password', ['username', 'email', 'nickname']]
-            ]
+                ['password', ['username', 'email', 'nickname']],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -323,8 +323,8 @@ class ConditionalValidationTest extends BaseTestCase
         $v = new Validator(['username' => 'tester', 'email' => 'test@test.com', 'nickname' => 'joseph']);
         $v->rules([
             'requiredWith' => [
-                ['password', ['username', 'email', 'nickname'], true]
-            ]
+                ['password', ['username', 'email', 'nickname'], true],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -377,8 +377,8 @@ class ConditionalValidationTest extends BaseTestCase
         $v = new Validator(['password' => 'mypassword']);
         $v->rules([
             'requiredWithout' => [
-                ['password', 'username']
-            ]
+                ['password', 'username'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -388,8 +388,8 @@ class ConditionalValidationTest extends BaseTestCase
         $v = new Validator([]);
         $v->rules([
             'requiredWithout' => [
-                ['password', 'username']
-            ]
+                ['password', 'username'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -448,8 +448,8 @@ class ConditionalValidationTest extends BaseTestCase
         $v = new Validator(['password' => 'mypassword']);
         $v->rules([
             'requiredWithout' => [
-                ['password', ['username', 'email']]
-            ]
+                ['password', ['username', 'email']],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -480,8 +480,8 @@ class ConditionalValidationTest extends BaseTestCase
         $v = new Validator(['token' => 'ajkdhieyf2834fsuhf8934y89']);
         $v->rules([
             'requiredWithout' => [
-                ['token', ['email', 'password']]
-            ]
+                ['token', ['email', 'password']],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -491,17 +491,17 @@ class ConditionalValidationTest extends BaseTestCase
         $v = new Validator(['email' => 'test@test.com', 'password' => 'mypassword']);
         $v->rules([
             'requiredWithout' => [
-                ['token', ['email', 'password']]
+                ['token', ['email', 'password']],
             ],
             'requiredWith' => [
-                ['password', ['email']]
+                ['password', ['email']],
             ],
             'email' => [
-                ['email']
+                ['email'],
             ],
             'optional' => [
-                ['email']
-            ]
+                ['email'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -513,7 +513,7 @@ class ConditionalValidationTest extends BaseTestCase
         $v1 = new Validator([
             'field1' => 'value1',
             'field2' => 'value2',
-            'target' => ''
+            'target' => '',
         ]);
         $v1->rule('requiredWith', 'target', ['field1', 'field2'], true); // true = all required
         $this->assertFalse($v1->validate(), 'Should fail when all fields present but target empty');
@@ -522,7 +522,7 @@ class ConditionalValidationTest extends BaseTestCase
         $v2 = new Validator([
             'field1' => 'value1',
             'field2' => '',
-            'target' => ''
+            'target' => '',
         ]);
         $v2->rule('requiredWith', 'target', ['field1', 'field2'], true); // true = all required
         $this->assertTrue($v2->validate(), 'Should pass when not all fields present');
@@ -534,7 +534,7 @@ class ConditionalValidationTest extends BaseTestCase
         $v1 = new Validator([
             'field1' => '',
             'field2' => '',
-            'target' => ''
+            'target' => '',
         ]);
         $v1->rule('requiredWithout', 'target', ['field1', 'field2'], true); // true = all empty
         $this->assertFalse($v1->validate(), 'Should fail when all fields empty but target empty');
@@ -543,7 +543,7 @@ class ConditionalValidationTest extends BaseTestCase
         $v2 = new Validator([
             'field1' => 'value1',
             'field2' => '',
-            'target' => ''
+            'target' => '',
         ]);
         $v2->rule('requiredWithout', 'target', ['field1', 'field2'], true); // true = all empty
         $this->assertTrue($v2->validate(), 'Should pass when not all fields empty');

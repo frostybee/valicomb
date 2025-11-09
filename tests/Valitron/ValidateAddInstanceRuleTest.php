@@ -1,7 +1,15 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Valitron\Tests;
+
+use function in_array;
+use function is_numeric;
+use function preg_match;
+use function strrchr;
+use function strtolower;
+use function substr;
 
 use Valitron\Validator;
 
@@ -45,7 +53,7 @@ class ValidateAddInstanceRuleTest extends BaseTestCase
         Validator::addRule("allowedDomain", function ($field, $value) {
             $allowedDomains = ['example.com', 'test.com'];
             $domain = substr(strrchr($value, "@"), 1);
-            return in_array($domain, $allowedDomains);
+            return in_array($domain, $allowedDomains, true);
         });
 
         $v->rule("required", ["username", "email"]);
@@ -60,7 +68,7 @@ class ValidateAddInstanceRuleTest extends BaseTestCase
         $v = new Validator(["username" => "admin"]);
         $v->addInstanceRule("notReserved", function ($field, $value) {
             $reserved = ['admin', 'root', 'administrator'];
-            return !in_array(strtolower($value), $reserved);
+            return !in_array(strtolower($value), $reserved, true);
         });
         $v->rule("notReserved", "username");
         $this->assertFalse($v->validate());
@@ -93,7 +101,7 @@ class ValidateAddInstanceRuleTest extends BaseTestCase
         $v = new Validator(["coupon_code" => "INVALID"]);
         $v->rule(function ($field, $value) {
             $validCoupons = ['SAVE10', 'DISCOUNT20', 'FREESHIP'];
-            return in_array($value, $validCoupons);
+            return in_array($value, $validCoupons, true);
         }, "coupon_code", "is not a valid coupon code");
 
         $this->assertFalse($v->validate());

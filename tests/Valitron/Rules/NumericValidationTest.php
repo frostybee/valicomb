@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Valitron\Tests\Rules;
 
+use function function_exists;
+
+use stdClass;
 use Valitron\Tests\BaseTestCase;
 use Valitron\Validator;
-use stdClass;
 
 class NumericValidationTest extends BaseTestCase
 {
@@ -23,8 +25,8 @@ class NumericValidationTest extends BaseTestCase
         $v = new Validator(['amount' => 3.14]);
         $v->rules([
             'numeric' => [
-                ['amount']
-            ]
+                ['amount'],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -41,8 +43,8 @@ class NumericValidationTest extends BaseTestCase
         $v = new Validator(['amount' => 'banana']);
         $v->rules([
             'numeric' => [
-                ['amount']
-            ]
+                ['amount'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -64,8 +66,8 @@ class NumericValidationTest extends BaseTestCase
         $v = new Validator(['age' => 27]);
         $v->rules([
             'integer' => [
-                ['age', true]
-            ]
+                ['age', true],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -138,8 +140,8 @@ class NumericValidationTest extends BaseTestCase
         $v = new Validator(['age' => 3.14]);
         $v->rules([
             'integer' => [
-                ['age']
-            ]
+                ['age'],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -161,8 +163,8 @@ class NumericValidationTest extends BaseTestCase
         $v = new Validator(['age' => 28]);
         $v->rules([
             'min' => [
-                ['age', 18]
-            ]
+                ['age', 18],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -192,7 +194,7 @@ class NumericValidationTest extends BaseTestCase
         $v->rule('min', 'test', 1);
         $this->assertFalse($v->validate());
 
-        $v = new Validator(['test' => new stdClass]);
+        $v = new Validator(['test' => new stdClass()]);
         $v->rule('min', 'test', 1);
         $this->assertFalse($v->validate());
     }
@@ -202,8 +204,8 @@ class NumericValidationTest extends BaseTestCase
         $v = new Validator(['age' => 16]);
         $v->rules([
             'min' => [
-                ['age', 18]
-            ]
+                ['age', 18],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }
@@ -232,8 +234,8 @@ class NumericValidationTest extends BaseTestCase
         $v = new Validator(['age' => 10]);
         $v->rules([
             'max' => [
-                ['age', 12]
-            ]
+                ['age', 12],
+            ],
         ]);
         $this->assertTrue($v->validate());
     }
@@ -263,7 +265,7 @@ class NumericValidationTest extends BaseTestCase
         $v->rule('min', 'test', 1);
         $this->assertFalse($v->validate());
 
-        $v = new Validator(['test' => new stdClass]);
+        $v = new Validator(['test' => new stdClass()]);
         $v->rule('min', 'test', 1);
         $this->assertFalse($v->validate());
     }
@@ -273,8 +275,8 @@ class NumericValidationTest extends BaseTestCase
         $v = new Validator(['age' => 29]);
         $v->rules([
             'max' => [
-                ['age', 12]
-            ]
+                ['age', 12],
+            ],
         ]);
         $this->assertFalse($v->validate());
     }

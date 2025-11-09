@@ -4,7 +4,15 @@ declare(strict_types=1);
 
 namespace Valitron\Tests;
 
+use function checkdnsrr;
+use function defined;
+use function function_exists;
+use function md5;
+
 use PHPUnit\Framework\TestCase;
+
+use function time;
+
 use Valitron\Validator;
 
 /**
@@ -171,7 +179,7 @@ class NetworkValidationTest extends TestCase
         $urls = [
             'http://google.com',
             'https://google.com',
-            'ftp://ftp.gnu.org'
+            'ftp://ftp.gnu.org',
         ];
 
         foreach ($urls as $url) {

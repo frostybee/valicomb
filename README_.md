@@ -1263,7 +1263,7 @@ $rules = [
 ];
 
 $v = new Valitron\Validator(array('foo' => 'bar'));
-$v->mapFieldRules('foo', $rules);
+$v->mapOneFieldToRules('foo', $rules);
 $v->validate();
 ```
 
@@ -1276,7 +1276,7 @@ $rules = [
 ];
 
 $v = new Valitron\Validator(array('foo' => 'bar', 'bar' => 'mail@example.com));
-$v->mapFieldsRules($rules);
+$v->mapManyFieldsToRules($rules);
 $v->validate();
 ```
 

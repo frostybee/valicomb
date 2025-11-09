@@ -22,7 +22,7 @@ class IntegrationTest extends BaseTestCase
         $data = [
             'username' => 'john_doe',
             'email' => 'john@example.com',
-            'age' => '25'
+            'age' => '25',
         ];
 
         $v = new Validator($data);
@@ -42,7 +42,7 @@ class IntegrationTest extends BaseTestCase
         $data = [
             'username' => '',
             'email' => 'invalid-email',
-            'age' => 'not-a-number'
+            'age' => 'not-a-number',
         ];
 
         $v = new Validator($data);
@@ -71,7 +71,7 @@ class IntegrationTest extends BaseTestCase
             'price' => '19.99',      // String, not float
             'active' => '1',         // String, not bool
             'count' => '0',          // String zero
-            'negative' => '-5'       // String negative number
+            'negative' => '-5',       // String negative number
         ];
 
         $v = new Validator($formData);
@@ -92,7 +92,7 @@ class IntegrationTest extends BaseTestCase
         $v = new Validator([
             'field1' => '',
             'field2' => '',
-            'field3' => ''
+            'field3' => '',
         ]);
 
         $v->stopOnFirstFail(true);
@@ -127,14 +127,14 @@ class IntegrationTest extends BaseTestCase
         $v = new Validator([
             'email' => 'test@example.com',
             'age' => '25',
-            'username' => 'john123'
+            'username' => 'john123',
         ]);
 
         $v->rules([
             'required' => [['email'], ['age'], ['username']],
             'email' => 'email',
             'integer' => 'age',
-            'alphaNum' => 'username'
+            'alphaNum' => 'username',
         ]);
 
         $this->assertTrue($v->validate());
@@ -180,7 +180,7 @@ class IntegrationTest extends BaseTestCase
         $v = new Validator(['user_email' => '', 'user_name' => '']);
         $v->labels([
             'user_email' => 'Email Address',
-            'user_name' => 'Full Name'
+            'user_name' => 'Full Name',
         ]);
         $v->rule('required', ['user_email', 'user_name']);
 
@@ -204,7 +204,7 @@ class IntegrationTest extends BaseTestCase
             'password' => 'SecurePass123',
             'password_confirm' => 'SecurePass123',
             'age' => '25',
-            'terms' => '1'
+            'terms' => '1',
         ];
 
         $v = new Validator($formData);
@@ -242,7 +242,7 @@ class IntegrationTest extends BaseTestCase
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'phone' => '',  // Optional field not provided
-            'message' => 'Hello, this is my message.'
+            'message' => 'Hello, this is my message.',
         ];
 
         $v = new Validator($formData);
@@ -273,13 +273,13 @@ class IntegrationTest extends BaseTestCase
                 'profile' => [
                     'first_name' => 'John',
                     'last_name' => 'Doe',
-                    'email' => 'john@example.com'
+                    'email' => 'john@example.com',
                 ],
                 'settings' => [
                     'notifications' => '1',
-                    'theme' => 'dark'
-                ]
-            ]
+                    'theme' => 'dark',
+                ],
+            ],
         ];
 
         $v = new Validator($data);
@@ -303,8 +303,8 @@ class IntegrationTest extends BaseTestCase
             'users' => [
                 ['name' => 'John', 'age' => '25'],
                 ['name' => 'Jane', 'age' => '30'],
-                ['name' => 'Bob', 'age' => '35']
-            ]
+                ['name' => 'Bob', 'age' => '35'],
+            ],
         ];
 
         $v = new Validator($data);

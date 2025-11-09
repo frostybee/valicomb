@@ -4,8 +4,17 @@ declare(strict_types=1);
 
 namespace Valitron\Tests;
 
+use DateTime;
+use DateTimeImmutable;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
+
+use function str_repeat;
+
 use Valitron\Validator;
+
+use function var_export;
 
 /**
  * Security-focused tests for Valitron
@@ -21,7 +30,7 @@ class SecurityTest extends TestCase
         $v = new Validator(['field' => 'aaaaaaaaaaaaaaaaaaaaaaaaa!']);
 
         // This regex is vulnerable to catastrophic backtracking
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Backtrack limit');
 
         $v->rule('regex', 'field', '/^(a+)+$/');
@@ -33,7 +42,7 @@ class SecurityTest extends TestCase
      */
     public function testPathTraversalBlocked(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid language');
 
         new Validator([], [], '../../etc/passwd');
@@ -44,7 +53,7 @@ class SecurityTest extends TestCase
      */
     public function testInvalidLanguageRejected(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid language');
 
         new Validator([], [], 'invalid_lang');
@@ -58,7 +67,7 @@ class SecurityTest extends TestCase
         // These would be equal with loose comparison (==) but not with strict (===)
         $v = new Validator([
             'field1' => '0e123456',
-            'field2' => '0e789012'
+            'field2' => '0e789012',
         ]);
 
         $v->rule('equals', 'field1', 'field2');
@@ -75,7 +84,7 @@ class SecurityTest extends TestCase
     {
         $v = new Validator([
             'field1' => '0',
-            'field2' => 0
+            'field2' => 0,
         ]);
 
         $v->rule('equals', 'field1', 'field2');
@@ -249,7 +258,7 @@ class SecurityTest extends TestCase
             '2025-01-15 14:30:00',
             '15/01/2025',
             '01/15/2025',
-            '2025/01/15'
+            '2025/01/15',
         ];
 
         foreach ($validDates as $date) {
@@ -266,7 +275,7 @@ class SecurityTest extends TestCase
     {
         $v = new Validator(['field' => 'test']);
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Invalid regex pattern');
 
         // Invalid regex (unmatched parenthesis)
@@ -311,7 +320,7 @@ class SecurityTest extends TestCase
         $booleanValues = [
             true, false,
             1, 0,
-            '1', '0'
+            '1', '0',
         ];
 
         foreach ($booleanValues as $bool) {
@@ -374,21 +383,21 @@ class SecurityTest extends TestCase
      */
     public function testInstanceOfValidation(): void
     {
-        $dateTime = new \DateTime();
+        $dateTime = new DateTime();
 
         // Valid instance
         $v1 = new Validator(['date' => $dateTime]);
-        $v1->rule('instanceOf', 'date', \DateTime::class);
+        $v1->rule('instanceOf', 'date', DateTime::class);
         $this->assertTrue($v1->validate());
 
         // Invalid instance
         $v2 = new Validator(['date' => $dateTime]);
-        $v2->rule('instanceOf', 'date', \DateTimeImmutable::class);
+        $v2->rule('instanceOf', 'date', DateTimeImmutable::class);
         $this->assertFalse($v2->validate());
 
         // Non-object should fail
         $v3 = new Validator(['date' => 'not an object']);
-        $v3->rule('instanceOf', 'date', \DateTime::class);
+        $v3->rule('instanceOf', 'date', DateTime::class);
         $this->assertFalse($v3->validate());
     }
 
