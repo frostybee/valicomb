@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Valitron;
+namespace Valicomb;
 
 use function array_diff;
 use function array_filter;
@@ -92,7 +92,7 @@ use function vsprintf;
  * - Optional and conditional validation rules.
  * - Type-safe implementation with strict types.
  *
- * @package Valitron
+ * @package Valicomb
  *
  * @author  Vance Lucas <vance@vancelucas.com> (original author)
  * @author  frostybee (current maintainer)
@@ -681,16 +681,14 @@ class Validator
         if (isset($this->labels[$field])) {
             $message = str_replace('{field}', $this->labels[$field], $message);
 
-            if (is_array($params)) {
-                $i = 1;
-                foreach ($params as $k => $v) {
-                    $tag = '{field' . $i . '}';
-                    $label = isset($params[$k]) && (is_numeric($params[$k]) || is_string($params[$k])) && isset($this->labels[$params[$k]])
-                        ? $this->labels[$params[$k]]
-                        : $tag;
-                    $message = str_replace($tag, $label, $message);
-                    $i++;
-                }
+            $i = 1;
+            foreach ($params as $k => $v) {
+                $tag = '{field' . $i . '}';
+                $label = isset($params[$k]) && (is_numeric($params[$k]) || is_string($params[$k])) && isset($this->labels[$params[$k]])
+                    ? $this->labels[$params[$k]]
+                    : $tag;
+                $message = str_replace($tag, $label, $message);
+                $i++;
             }
         } else {
             $message = $this->prependLabels
@@ -784,17 +782,13 @@ class Validator
      * Verifies that a given callback is actually callable. Used internally to validate
      * callbacks before registering them as validation rules.
      *
-     * @param callable $callback The callback to validate.
+     * @param callable(string, mixed, array): bool $callback The callback to validate.
      *
      * @throws InvalidArgumentException If the callback is not callable
      */
     protected static function assertRuleCallback(callable $callback): void
     {
-        if (!is_callable($callback)) {
-            throw new InvalidArgumentException(
-                'Second argument must be a valid callback. Given argument was not callable.',
-            );
-        }
+        // No-op: Type hint already enforces callable, kept for backwards compatibility
     }
 
     /**
@@ -806,7 +800,7 @@ class Validator
      * Instance rules take precedence over global rules if they have the same name.
      *
      * @param string $name The name of the validation rule.
-     * @param callable $callback The validation function that returns true if valid, false otherwise.
+     * @param callable(string, mixed, array): bool $callback The validation function that returns true if valid, false otherwise.
      * @param string|null $message Optional custom error message.
      *
      * @throws InvalidArgumentException If the callback is not valid
@@ -839,7 +833,7 @@ class Validator
      * The callback signature should be: function($field, $value, $params, $fields): bool
      *
      * @param string $name The name of the validation rule (will be used with rule() method).
-     * @param callable $callback The validation function that returns true if valid, false otherwise.
+     * @param callable(string, mixed, array): bool $callback The validation function that returns true if valid, false otherwise.
      * @param string|null $message Optional custom error message (defaults to 'Invalid').
      *
      * @throws InvalidArgumentException If the callback is not valid
@@ -932,7 +926,7 @@ class Validator
      * - Nested field validation using dot notation (e.g., 'user.email')
      * - Fluent/chainable interface
      *
-     * @param string|callable $rule The name of the validation rule or a callable for custom validation.
+     * @param string|callable(string, mixed, array): bool $rule The name of the validation rule or a callable for custom validation.
      * @param string|array $fields Single field name or array of field names to validate.
      * @param mixed ...$params Optional parameters to pass to the validation rule.
      *
@@ -2864,7 +2858,9 @@ class Validator
      */
     protected function validateCreditCard(string $field, mixed $value, array $params): bool
     {
+        /** @var array|null $cards */
         $cards = null;
+        /** @var string|null $cardType */
         $cardType = null;
 
         /**
@@ -2945,17 +2941,16 @@ class Validator
                 return preg_match($cardRegex[$cardType], (string)$value) === 1;
             }
 
-            // If we have cards, check our users card against only the ones we have
-            if ($cards !== null) {
-                foreach ($cards as $card) {
-                    if (in_array($card, array_keys($cardRegex), true) && preg_match($cardRegex[$card], (string)$value) === 1) {
-                        // If the card is valid, we want to stop looping
-                        return true;
-                    }
+            // At this point, $cards must be non-null (from the early return check above)
+            // Check our users card against only the ones we have
+            foreach ($cards as $card) {
+                if (in_array($card, array_keys($cardRegex), true) && preg_match($cardRegex[$card], (string)$value) === 1) {
+                    // If the card is valid, we want to stop looping
+                    return true;
                 }
-                // None of the specified cards matched
-                return false;
             }
+            // None of the specified cards matched
+            return false;
         }
 
         // If we've got this far, the card has passed no validation so it's invalid

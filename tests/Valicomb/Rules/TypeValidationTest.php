@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Valitron\Tests\Rules;
+namespace Valicomb\Tests\Rules;
 
 use function compact;
 
@@ -11,8 +11,8 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
 use stdClass;
-use Valitron\Tests\BaseTestCase;
-use Valitron\Validator;
+use Valicomb\Tests\BaseTestCase;
+use Valicomb\Validator;
 
 class TypeValidationTest extends BaseTestCase
 {

@@ -1,4 +1,4 @@
-## Valitron: Easy Validation That Doesn't Suck
+## Valicomb: Easy Validation That Doesn't Suck
 
 Valitron is a simple, minimal and elegant stand-alone validation library
 with NO dependencies. Valitron uses simple, straightforward validation
@@ -31,14 +31,14 @@ get started.
 
 ## Installation
 
-Valitron uses [Composer](http://getcomposer.org) to install and update:
+Valicomb uses [Composer](http://getcomposer.org) to install and update:
 
 ```
 curl -s http://getcomposer.org/installer | php
-php composer.phar require vlucas/valitron
+php composer.phar require frostybee/valicomb
 ```
 
-The examples below use PHP 5.4 syntax, but Valitron works on PHP 5.3+.
+The examples below use PHP 8.2 syntax, but Valicomb works on PHP 8.2+.
 
 ## Usage
 
@@ -47,7 +47,7 @@ wish to validate, add some rules, and then call `validate()`. If there
 are any errors, you can call `errors()` to get them.
 
 ```php
-$v = new Valitron\Validator(array('name' => 'Chester Tester'));
+$v = new Valicomb\Validator(array('name' => 'Chester Tester'));
 $v->rule('required', 'name');
 if($v->validate()) {
     echo "Yay! We're all good!";
@@ -61,7 +61,7 @@ Using this format, you can validate `$_POST` data directly and easily,
 and can even apply a rule like `required` to an array of fields:
 
 ```php
-$v = new Valitron\Validator($_POST);
+$v = new Valicomb\Validator($_POST);
 $v->rule('required', ['name', 'email']);
 $v->rule('email', 'email');
 if($v->validate()) {
@@ -76,7 +76,7 @@ You may use dot syntax to access members of multi-dimensional arrays,
 and an asterisk to validate each member of an array:
 
 ```php
-$v = new Valitron\Validator(array('settings' => array(
+$v = new Valicomb\Validator(array('settings' => array(
     array('threshold' => 50),
     array('threshold' => 90)
 )));
@@ -92,7 +92,7 @@ if($v->validate()) {
 Or use dot syntax to validate all members of a numeric array:
 
 ```php
-$v = new Valitron\Validator(array('values' => array(50, 90)));
+$v = new Valicomb\Validator(array('values' => array(50, 90)));
 $v->rule('max', 'values.*', 100);
 if($v->validate()) {
     echo "Yay! We're all good!";
@@ -105,7 +105,7 @@ if($v->validate()) {
 You can also access nested values using dot notation:
 
 ```php
-$v = new Valitron\Validator(array('user' => array('first_name' => 'Steve', 'last_name' => 'Smith', 'username' => 'Batman123')));
+$v = new Valicomb\Validator(array('user' => array('first_name' => 'Steve', 'last_name' => 'Smith', 'username' => 'Batman123')));
 $v->rule('alpha', 'user.first_name')->rule('alpha', 'user.last_name')->rule('alphaNum', 'user.username');
 if($v->validate()) {
     echo "Yay! We're all good!";
@@ -121,7 +121,7 @@ Setting language and language dir globally:
 
 // boot or config file
 
-use Valitron\Validator as V;
+use Valicomb\Validator as V;
 
 V::langDir(__DIR__.'/validator_lang'); // always set langDir before lang.
 V::lang('ar');
@@ -131,9 +131,9 @@ V::lang('ar');
 Disabling the {field} name in the output of the error message.
 
 ```php
-use Valitron\Validator as V;
+use Valicomb\Validator as V;
 
-$v = new Valitron\Validator(['name' => 'John']);
+$v = new Valicomb\Validator(['name' => 'John']);
 $v->rule('required', ['name']);
 
 // Disable prepending the labels
@@ -162,7 +162,7 @@ $data = ['email' => 'test@test.com', 'password' => 'mypassword'];
 // or...
 $data = ['token' => 'jashdjahs83rufh89y38h38h'];
 
-$v = new Valitron\Validator($data);
+$v = new Valicomb\Validator($data);
 $v->rules([
     'requiredWithout' => [
         ['token', ['email', 'password'], true]
@@ -258,7 +258,7 @@ case of an error. The callback provided should return boolean true or
 false.
 
 ```php
-Valitron\Validator::addRule('alwaysFail', function($field, $value, array $params, array $fields) {
+Valicomb\Validator::addRule('alwaysFail', function($field, $value, array $params, array $fields) {
     return false;
 }, 'Everything you do is wrong. You fail.');
 ```
@@ -267,7 +267,7 @@ You can also use one-off rules that are only valid for the specified
 fields.
 
 ```php
-$v = new Valitron\Validator(array("foo" => "bar"));
+$v = new Valicomb\Validator(array("foo" => "bar"));
 $v->rule(function($field, $value, $params, $fields) {
     return true;
 }, "foo")->message("{field} failed...");
@@ -289,7 +289,7 @@ instance.
 
 You can chain multiple rules together using the following syntax.
 ```php
-$v = new Valitron\Validator(['email_address' => 'test@test.com']);
+$v = new Valicomb\Validator(['email_address' => 'test@test.com']);
 $v->rule('required', 'email_address')->rule('email', 'email_address');
 $v->validate();
 ```
@@ -306,7 +306,7 @@ $rules = [
     'integer' =>  'bar'
 ];
 
-$v = new Valitron\Validator(array('foo' => 'bar', 'bar' => 1));
+$v = new Valicomb\Validator(array('foo' => 'bar', 'bar' => 1));
 $v->rules($rules);
 $v->validate();
 ```
@@ -350,7 +350,7 @@ $rules = [
     'integer' =>  'bar'
 ];
 
-$v = new Valitron\Validator(array('foo' => 'bar', 'bar' => 1));
+$v = new Valicomb\Validator(array('foo' => 'bar', 'bar' => 1));
 $v->rules($rules);
 $v->rule('min', 'bar', 0);
 $v->validate();
@@ -363,7 +363,7 @@ $rules = [
     ['lengthMin', 4]
 ];
 
-$v = new Valitron\Validator(array('foo' => 'bar'));
+$v = new Valicomb\Validator(array('foo' => 'bar'));
 $v->mapOneFieldToRules('foo', $rules);
 $v->validate();
 ```
@@ -376,7 +376,7 @@ $rules = [
     'bar'=>['email', ['lengthMin', 4]]
 ];
 
-$v = new Valitron\Validator(array('foo' => 'bar', 'bar' => 'mail@example.com));
+$v = new Valicomb\Validator(array('foo' => 'bar', 'bar' => 'mail@example.com));
 $v->mapManyFieldsToRules($rules);
 $v->validate();
 ```
@@ -388,7 +388,7 @@ You can do this in two different ways, you can add a individual label to a rule 
 To add individual label to rule you simply add the `label` method after the rule.
 
 ```php
-$v = new Valitron\Validator(array());
+$v = new Valicomb\Validator(array());
 $v->rule('required', 'name')->message('{field} is required')->label('Name');
 $v->validate();
 ```
@@ -396,7 +396,7 @@ $v->validate();
 There is a edge case to this method, you wouldn't be able to use a array of field names in the rule definition, so one rule per field. So this wouldn't work:
 
 ```php
-$v = new Valitron\Validator(array());
+$v = new Valicomb\Validator(array());
 $v->rule('required', array('name', 'email'))->message('{field} is required')->label('Name');
 $v->validate();
 ```
@@ -404,7 +404,7 @@ $v->validate();
 However we can use a array of labels to solve this issue by simply adding the `labels` method instead:
 
 ```php
-$v = new Valitron\Validator(array());
+$v = new Valicomb\Validator(array());
 $v->rule('required', array('name', 'email'))->message('{field} is required');
 $v->labels(array(
     'name' => 'Name',
@@ -421,7 +421,7 @@ This introduces a new set of tags to your error language file which looks like `
 You can re-use your validation rules to quickly validate different data with the same rules by using the withData method:
 
 ```php
-$v = new Valitron\Validator(array());
+$v = new Valicomb\Validator(array());
 $v->rule('required', 'name')->message('{field} is required');
 $v->validate(); //false
 

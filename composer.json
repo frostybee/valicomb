@@ -2,20 +2,18 @@
     "name": "frostybee/valicomb",
     "type": "library",
     "description": "Modern, type-safe PHP validation library for PHP 8.2+ with security-first design and zero dependencies. This is a fork of vlucas/valitron.",
-    "keywords": ["valicomb" "validation", "validator", "valid", "php8", "type-safe", "security"],
+    "keywords": ["valicomb", "validation", "validator", "valid", "php8", "type-safe", "security"],
     "homepage": "https://github.com/frostybee/valicomb",
     "license": "BSD-3-Clause",
     "authors": [
         {
             "name": "Vance Lucas (original author)",
             "email": "vance@vancelucas.com",
-            "homepage": "https://www.vancelucas.com",
-            "repository": "https://github.com/vlucas/valitron"
+            "homepage": "https://www.vancelucas.com"
         },
         {
             "name": "FrostyBee (current maintainer)",
-            "homepage": "https://github.com/frostybee",
-            "repository": "https://github.com/frostybee/valicomb"
+            "homepage": "https://github.com/frostybee"
         }
     ],
     "require": {
@@ -30,12 +28,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Valitron\\": "src/Valitron"
+            "Valicomb\\": "src/Valicomb"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Valitron\\Tests\\": "tests/Valitron"
+            "Valicomb\\Tests\\": "tests/Valicomb"
         }
     },
     "scripts": {

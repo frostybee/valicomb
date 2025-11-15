@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Valitron\Benchmarks;
+namespace Valicomb\Benchmarks;
 
-use Valitron\Validator;
+use Valicomb\Validator;
 
 /**
  * Comprehensive benchmark script to measure validation performance accurately.
@@ -27,7 +27,7 @@ class ValidationBenchmark
     public function run(): void
     {
         echo "╔══════════════════════════════════════════════════════════════╗\n";
-        echo "║         Valitron Performance Benchmark (Accurate)           ║\n";
+        echo "║         Valicomb Performance Benchmark (Accurate)           ║\n";
         echo "╚══════════════════════════════════════════════════════════════╝\n\n";
 
         echo "PHP Version: " . PHP_VERSION . "\n";

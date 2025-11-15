@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Valitron\Tests;
+namespace Valicomb\Tests;
 
 use PHPUnit\Framework\TestCase;
 

@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Valitron\Tests\Rules;
+namespace Valicomb\Tests\Rules;
 
 use function checkdnsrr;
 use function function_exists;
 use function md5;
 use function time;
 
-use Valitron\Tests\BaseTestCase;
-use Valitron\Validator;
+use Valicomb\Tests\BaseTestCase;
+use Valicomb\Validator;
 
 class UrlValidationTest extends BaseTestCase
 {

@@ -8,7 +8,7 @@ date_default_timezone_set('UTC');
  * Path trickery ensures test suite will always run, standalone or within
  * another composer package. Designed to find composer autoloader and require
  */
-$vendorPos = strpos(__DIR__, 'vendor/vlucas/valitron');
+$vendorPos = strpos(__DIR__, 'vendor/frostybee/valicomb');
 if ($vendorPos !== false) {
     // Package has been cloned within another composer package, resolve path to autoloader
     $vendorDir = substr(__DIR__, 0, $vendorPos) . 'vendor/';
@@ -18,4 +18,4 @@ if ($vendorPos !== false) {
     $loader = require __DIR__ . '/../vendor/autoload.php';
 }
 
-require_once __DIR__ . '/Valitron/BaseTestCase.php';
+require_once __DIR__ . '/Valicomb/BaseTestCase.php';

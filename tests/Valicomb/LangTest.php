@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Valitron\Tests;
+namespace Valicomb\Tests;
 
 use InvalidArgumentException;
 
 use function realpath;
 
-use Valitron\Validator;
+use Valicomb\Validator;
 
 class LangTest extends BaseTestCase
 {

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Valitron\Tests;
+namespace Valicomb\Tests;
 
 use function ucfirst;
 
-use Valitron\Validator;
+use Valicomb\Validator;
 
 class StaticVsInstanceTest extends BaseTestCase
 {

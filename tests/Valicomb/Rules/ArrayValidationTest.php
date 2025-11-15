@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Valitron\Tests\Rules;
+namespace Valicomb\Tests\Rules;
 
-use Valitron\Tests\BaseTestCase;
-use Valitron\Validator;
+use Valicomb\Tests\BaseTestCase;
+use Valicomb\Validator;
 
 class ArrayValidationTest extends BaseTestCase
 {

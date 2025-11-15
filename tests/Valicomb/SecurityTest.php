@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Valitron\Tests;
+namespace Valicomb\Tests;
 
 use DateTime;
 use DateTimeImmutable;
@@ -12,12 +12,12 @@ use RuntimeException;
 
 use function str_repeat;
 
-use Valitron\Validator;
+use Valicomb\Validator;
 
 use function var_export;
 
 /**
- * Security-focused tests for Valitron
+ * Security-focused tests for Valicomb
  * Tests protection against ReDoS, type juggling, path traversal, etc.
  */
 class SecurityTest extends TestCase

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Valitron\Tests\Rules;
+namespace Valicomb\Tests\Rules;
 
-use Valitron\Tests\BaseTestCase;
-use Valitron\Validator;
+use Valicomb\Tests\BaseTestCase;
+use Valicomb\Validator;
 
 class MiscellaneousValidationTest extends BaseTestCase
 {
@@ -94,7 +94,7 @@ class MiscellaneousValidationTest extends BaseTestCase
     public function testAddRuleCallback()
     {
         $v = new Validator(['name' => 'Chester Tester']);
-        $v->addRule('testRule', 'Valitron\Tests\Rules\sampleFunctionCallback');
+        $v->addRule('testRule', 'Valicomb\Tests\Rules\sampleFunctionCallback');
         $v->rule('testRule', 'name');
         $this->assertTrue($v->validate());
     }

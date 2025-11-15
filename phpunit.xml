@@ -10,8 +10,8 @@
          bootstrap="tests/bootstrap.php"
 >
   <testsuites>
-    <testsuite name="Valitron Test Suite">
-      <directory suffix="Test.php">tests/Valitron</directory>
+    <testsuite name="Valicomb Test Suite">
+      <directory suffix="Test.php">tests/Valicomb</directory>
     </testsuite>
   </testsuites>
 </phpunit>

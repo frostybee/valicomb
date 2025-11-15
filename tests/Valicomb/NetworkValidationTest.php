@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Valitron\Tests;
+namespace Valicomb\Tests;
 
 use function checkdnsrr;
 use function defined;
@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 
 use function time;
 
-use Valitron\Validator;
+use Valicomb\Validator;
 
 /**
  * Tests for network-dependent validation rules (emailDNS, urlActive)

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Valitron\Tests;
+namespace Valicomb\Tests;
 
 use function count;
 
-use Valitron\Validator;
+use Valicomb\Validator;
 
 class MapRulesTest extends BaseTestCase
 {

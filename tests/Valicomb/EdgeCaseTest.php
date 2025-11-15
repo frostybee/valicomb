@@ -2,14 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Valitron\Tests;
+namespace Valicomb\Tests;
 
-use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 use function str_repeat;
 
-use Valitron\Validator;
+use Valicomb\Validator;
 
 /**
  * Edge case tests for cross-cutting concerns
@@ -17,7 +16,7 @@ use Valitron\Validator;
  * Tests in this file cover edge cases that don't fit into specific rule categories,
  * such as security concerns (ReDoS) and integration scenarios.
  */
-class EdgeCaseTest extends TestCase
+class EdgeCaseTest extends BaseTestCase
 {
     /**
      * Test ReDoS protection with reduced limits

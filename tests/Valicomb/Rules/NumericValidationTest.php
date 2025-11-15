@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Valitron\Tests\Rules;
+namespace Valicomb\Tests\Rules;
 
 use function function_exists;
 
 use stdClass;
-use Valitron\Tests\BaseTestCase;
-use Valitron\Validator;
+use Valicomb\Tests\BaseTestCase;
+use Valicomb\Validator;
 
 class NumericValidationTest extends BaseTestCase
 {

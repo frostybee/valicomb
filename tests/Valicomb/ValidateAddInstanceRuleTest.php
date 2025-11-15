@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Valitron\Tests;
+namespace Valicomb\Tests;
 
 use function in_array;
 use function is_numeric;
@@ -11,7 +11,7 @@ use function strrchr;
 use function strtolower;
 use function substr;
 
-use Valitron\Validator;
+use Valicomb\Validator;
 
 function validateStrongPassword($field, $value)
 {
@@ -114,14 +114,14 @@ class ValidateAddInstanceRuleTest extends BaseTestCase
     public function testAddRuleWithNamedCallbackOk()
     {
         $v = new Validator(["password" => "weakpass"]);
-        $v->rule('Valitron\Tests\validateStrongPassword', "password");
+        $v->rule('Valicomb\Tests\validateStrongPassword', "password");
         $this->assertFalse($v->validate());
     }
 
     public function testAddRuleWithNamedCallbackErr()
     {
         $v = new Validator(["password" => "StrongPass123"]);
-        $v->rule('Valitron\Tests\validateStrongPassword', "password");
+        $v->rule('Valicomb\Tests\validateStrongPassword', "password");
         $this->assertTrue($v->validate());
     }
 
