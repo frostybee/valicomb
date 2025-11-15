@@ -28,12 +28,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Valicomb\\": "src/Valicomb"
+            "Frostybee\\Valicomb\\": "src/Valicomb"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Valicomb\\Tests\\": "tests/Valicomb"
+            "Frostybee\\Valicomb\\Tests\\": "tests/Valicomb"
         }
     },
     "scripts": {

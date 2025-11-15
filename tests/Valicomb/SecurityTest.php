@@ -2,18 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Valicomb\Tests;
+namespace Frostybee\Valicomb\Tests;
 
 use DateTime;
 use DateTimeImmutable;
+use Frostybee\Valicomb\Validator;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 use function str_repeat;
-
-use Valicomb\Validator;
-
 use function var_export;
 
 /**

@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Valicomb\Tests;
+namespace Frostybee\Valicomb\Tests;
+
+use Frostybee\Valicomb\Validator;
 
 use function in_array;
 use function is_numeric;
@@ -10,8 +12,6 @@ use function preg_match;
 use function strrchr;
 use function strtolower;
 use function substr;
-
-use Valicomb\Validator;
 
 function validateStrongPassword($field, $value)
 {
@@ -114,14 +114,14 @@ class ValidateAddInstanceRuleTest extends BaseTestCase
     public function testAddRuleWithNamedCallbackOk()
     {
         $v = new Validator(["password" => "weakpass"]);
-        $v->rule('Valicomb\Tests\validateStrongPassword', "password");
+        $v->rule('Frostybee\Valicomb\Tests\validateStrongPassword', "password");
         $this->assertFalse($v->validate());
     }
 
     public function testAddRuleWithNamedCallbackErr()
     {
         $v = new Validator(["password" => "StrongPass123"]);
-        $v->rule('Valicomb\Tests\validateStrongPassword', "password");
+        $v->rule('Frostybee\Valicomb\Tests\validateStrongPassword', "password");
         $this->assertTrue($v->validate());
     }
 

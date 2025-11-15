@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Valicomb\Tests;
+namespace Frostybee\Valicomb\Tests;
 
+use Frostybee\Valicomb\Validator;
 use RuntimeException;
 
 use function str_repeat;
-
-use Valicomb\Validator;
 
 /**
  * Edge case tests for cross-cutting concerns

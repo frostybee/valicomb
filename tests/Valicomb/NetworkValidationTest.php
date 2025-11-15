@@ -2,18 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Valicomb\Tests;
+namespace Frostybee\Valicomb\Tests;
 
 use function checkdnsrr;
 use function defined;
+
+use Frostybee\Valicomb\Validator;
+
 use function function_exists;
 use function md5;
 
 use PHPUnit\Framework\TestCase;
 
 use function time;
-
-use Valicomb\Validator;
 
 /**
  * Tests for network-dependent validation rules (emailDNS, urlActive)

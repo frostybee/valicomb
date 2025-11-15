@@ -2,15 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Valicomb\Tests\Rules;
+namespace Frostybee\Valicomb\Tests\Rules;
 
 use function checkdnsrr;
+
+use Frostybee\Valicomb\Tests\BaseTestCase;
+use Frostybee\Valicomb\Validator;
+
 use function function_exists;
 use function md5;
 use function time;
-
-use Valicomb\Tests\BaseTestCase;
-use Valicomb\Validator;
 
 class UrlValidationTest extends BaseTestCase
 {

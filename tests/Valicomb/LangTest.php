@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Valicomb\Tests;
+namespace Frostybee\Valicomb\Tests;
 
+use Frostybee\Valicomb\Validator;
 use InvalidArgumentException;
 
 use function realpath;
-
-use Valicomb\Validator;
 
 class LangTest extends BaseTestCase
 {

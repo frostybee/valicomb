@@ -78,7 +78,7 @@ $v->rule('required', 'field_name', true);
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['username' => 'spiderman', 'password' => 'Gr33nG0Blin', 'required_but_null' => null]);
+$v = new Frostybee\Valicomb\Validator(['username' => 'spiderman', 'password' => 'Gr33nG0Blin', 'required_but_null' => null]);
 $v->rules([
     'required' => [
         ['username'],
@@ -98,7 +98,7 @@ $v->rule('requiredWith', 'password', 'username');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['username' => 'spiderman', 'password' => 'Gr33nG0Blin']);
+$v = new Frostybee\Valicomb\Validator(['username' => 'spiderman', 'password' => 'Gr33nG0Blin']);
 $v->rules([
     'requiredWith' => [
         ['password', 'username']
@@ -115,7 +115,7 @@ $v->rule('requiredWith', 'password', ['username', 'email']);
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['username' => 'spiderman', 'password' => 'Gr33nG0Blin']);
+$v = new Frostybee\Valicomb\Validator(['username' => 'spiderman', 'password' => 'Gr33nG0Blin']);
 $v->rules([
     'requiredWith' => [
         ['password', ['username', 'email']]
@@ -132,7 +132,7 @@ $v->rule('requiredWith', 'suffix', ['first_name', 'last_name'], true);
 ```
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['first_name' => 'steve', 'last_name' => 'holt', 'suffix' => 'Mr']);
+$v = new Frostybee\Valicomb\Validator(['first_name' => 'steve', 'last_name' => 'holt', 'suffix' => 'Mr']);
 $v->rules([
     'requiredWith' => [
         ['suffix', ['first_name', 'last_name'], true]
@@ -143,7 +143,7 @@ $v->validate();
 
 Likewise, in this case `validate()` would still return true, as the suffix field would not be required in strict mode, as not all of the fields are provided.
 ```php
-$v = new Valicomb\Validator(['first_name' => 'steve']);
+$v = new Frostybee\Valicomb\Validator(['first_name' => 'steve']);
 $v->rules([
     'requiredWith' => [
         ['suffix', ['first_name', 'last_name'], true]
@@ -162,7 +162,7 @@ $v->rule('requiredWithout', 'username', 'first_name')
 Alternate syntax.
 ```php
 // this will return true, as the username is provided when the first_name is not provided
-$v = new Valicomb\Validator(['username' => 'spiderman']);
+$v = new Frostybee\Valicomb\Validator(['username' => 'spiderman']);
 $v->rules([
     'requiredWithout' => [
         ['username', 'first_name']
@@ -180,7 +180,7 @@ $v->rule('requiredWithout', 'username', ['first_name', 'last_name']);
 Alternate syntax.
 ```php
 // this passes validation because although the last_name field is not present, the username is provided
-$v = new Valicomb\Validator(['username' => 'spiderman', 'first_name' => 'Peter']);
+$v = new Frostybee\Valicomb\Validator(['username' => 'spiderman', 'first_name' => 'Peter']);
 $v->rules([
     'requiredWithout' => [
         ['username', ['first_name', 'last_name']]
@@ -197,7 +197,7 @@ $v->rule('requiredWithout', 'username', ['first_name', 'last_name'], true);
 ```
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['username' => 'BatMan']);
+$v = new Frostybee\Valicomb\Validator(['username' => 'BatMan']);
 $v->rules([
     'requiredWithout' => [
         ['username', ['first_name', 'last_name'], true]
@@ -208,7 +208,7 @@ $v->validate();
 
 Likewise, in this case `validate()` would still return true, as the username field would not be required in strict mode, as all of the fields are provided.
 ```php
-$v = new Valicomb\Validator(['first_name' => 'steve', 'last_name' => 'holt']);
+$v = new Frostybee\Valicomb\Validator(['first_name' => 'steve', 'last_name' => 'holt']);
 $v->rules([
     'requiredWithout' => [
         ['suffix', ['first_name', 'last_name'], true]
@@ -229,7 +229,7 @@ $v->rule('equals', 'password', 'confirmPassword');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['password' => 'youshouldnotseethis', 'confirmPassword' => 'youshouldnotseethis']);
+$v = new Frostybee\Valicomb\Validator(['password' => 'youshouldnotseethis', 'confirmPassword' => 'youshouldnotseethis']);
 $v->rules([
     'equals' => [
         ['password', 'confirmPassword']
@@ -246,7 +246,7 @@ $v->rule('different', 'username', 'password');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['username' => 'spiderman', 'password' => 'Gr33nG0Blin']);
+$v = new Frostybee\Valicomb\Validator(['username' => 'spiderman', 'password' => 'Gr33nG0Blin']);
 $v->rules([
     'different' => [
         ['username', 'password']
@@ -263,7 +263,7 @@ $v->rule('accepted', 'remember_me');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['remember_me' => true]);
+$v = new Frostybee\Valicomb\Validator(['remember_me' => true]);
 $v->rules([
     'accepted' => [
         ['remember_me']
@@ -284,7 +284,7 @@ $v->rule('numeric', 'amount');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['amount' => 3.14]);
+$v = new Frostybee\Valicomb\Validator(['amount' => 3.14]);
 $v->rules([
     'numeric' => [
         ['amount']
@@ -301,7 +301,7 @@ $v->rule('integer', 'age');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['age' => '27']);
+$v = new Frostybee\Valicomb\Validator(['age' => '27']);
 $v->rules([
     'integer' => [
         ['age']
@@ -312,7 +312,7 @@ $v->validate();
 
 *Note* the optional boolean flag for strict mode makes sure integers are to be supplied in a strictly numeric form. So the following rule would evaluate to true:
 ```php
-$v = new Valicomb\Validator(['negative' => '-27', 'positive'=>'27']);
+$v = new Frostybee\Valicomb\Validator(['negative' => '-27', 'positive'=>'27']);
 $v->rule('integer', 'age', true);
 $v->rule('integer', 'height', true);
 $v->validate();
@@ -320,7 +320,7 @@ $v->validate();
 
 Whereas the following will evaluate to false, as the + for the positive number in this case is redundant:
 ```php
-$v = new Valicomb\Validator(['negative' => '-27', 'positive'=>'+27']);
+$v = new Frostybee\Valicomb\Validator(['negative' => '-27', 'positive'=>'+27']);
 $v->rule('integer', 'age', true);
 $v->rule('integer', 'height', true);
 $v->validate();
@@ -334,7 +334,7 @@ $v->rule('boolean', 'remember_me');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['remember_me' => true]);
+$v = new Frostybee\Valicomb\Validator(['remember_me' => true]);
 $v->rules([
     'boolean' => [
         ['remember_me']
@@ -351,7 +351,7 @@ $v->rule('array', 'user_notifications');
 
 Alternate Syntax.
 ```php
-$v = new Valicomb\Validator(['user_notifications' => ['bulletin_notifications' => true, 'marketing_notifications' => false, 'message_notification' => true]]);
+$v = new Frostybee\Valicomb\Validator(['user_notifications' => ['bulletin_notifications' => true, 'marketing_notifications' => false, 'message_notification' => true]]);
 $v->rules([
     'array' => [
         ['user_notifications']
@@ -372,7 +372,7 @@ $v->rule('length', 'username', 10);
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['username' => 'bobburgers']);
+$v = new Frostybee\Valicomb\Validator(['username' => 'bobburgers']);
 $v->rules([
     'length' => [
         ['username', 10]
@@ -389,7 +389,7 @@ $v->rule('lengthBetween', 'username', 1, 10);
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['username' => 'bobburgers']);
+$v = new Frostybee\Valicomb\Validator(['username' => 'bobburgers']);
 $v->rules([
     'lengthBetween' => [
         ['username', 1, 10]
@@ -406,7 +406,7 @@ $v->rule('lengthMin', 'username', 5);
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['username' => 'martha']);
+$v = new Frostybee\Valicomb\Validator(['username' => 'martha']);
 $v->rules([
     'lengthMin' => [
         ['username', 5]
@@ -423,7 +423,7 @@ $v->rule('lengthMax', 'username', 10);
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['username' => 'bruins91']);
+$v = new Frostybee\Valicomb\Validator(['username' => 'bruins91']);
 $v->rules([
     'lengthMax' => [
         ['username', 10]
@@ -444,7 +444,7 @@ $v->rule('min', 'age', 18);
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['age' => 28]);
+$v = new Frostybee\Valicomb\Validator(['age' => 28]);
 $v->rules([
     'min' => [
         ['age', 18]
@@ -461,7 +461,7 @@ $v->rule('max', 'age', 12);
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['age' => 10]);
+$v = new Frostybee\Valicomb\Validator(['age' => 10]);
 $v->rules([
     'max' => [
         ['age', 12]
@@ -482,7 +482,7 @@ $v->rule('listContains', 'color', 'yellow');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['color' => ['blue', 'green', 'red', 'yellow']]);
+$v = new Frostybee\Valicomb\Validator(['color' => ['blue', 'green', 'red', 'yellow']]);
 $v->rules([
     'listContains' => [
         ['color', 'yellow']
@@ -499,7 +499,7 @@ $v->rule('in', 'color', ['blue', 'green', 'red', 'purple']);
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['color' => 'purple']);
+$v = new Frostybee\Valicomb\Validator(['color' => 'purple']);
 $v->rules([
     'in' => [
         ['color', ['blue', 'green', 'red', 'purple']]
@@ -516,7 +516,7 @@ $v->rule('notIn', 'color', ['blue', 'green', 'red', 'yellow']);
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['color' => 'purple']);
+$v = new Frostybee\Valicomb\Validator(['color' => 'purple']);
 $v->rules([
     'notIn' => [
         ['color', ['blue', 'green', 'red', 'yellow']]
@@ -533,7 +533,7 @@ $v->rule('subset', 'colors', ['green', 'blue', 'orange']);
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['colors' => ['green', 'blue']]);
+$v = new Frostybee\Valicomb\Validator(['colors' => ['green', 'blue']]);
 $v->rules([
     'subset' => [
         ['colors', ['orange', 'green', 'blue', 'red']]
@@ -543,7 +543,7 @@ $v->validate();
 ```
 This example would return false, as the provided color, purple, does not exist in the array of accepted values we're providing.
 ```php
-$v = new Valicomb\Validator(['colors' => ['purple', 'blue']]);
+$v = new Frostybee\Valicomb\Validator(['colors' => ['purple', 'blue']]);
 $v->rules([
     'subset' => [
         ['colors', ['orange', 'green', 'blue', 'red']]
@@ -560,7 +560,7 @@ $v->rule('containsUnique', 'colors');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['colors' => ['purple', 'blue']]);
+$v = new Frostybee\Valicomb\Validator(['colors' => ['purple', 'blue']]);
 $v->rules([
     'containsUnique' => [
         ['colors']
@@ -570,7 +570,7 @@ $v->validate();
 ```
 This example would return false, as the values in the provided array are duplicates.
 ```php
-$v = new Valicomb\Validator(['colors' => ['purple', 'purple']]);
+$v = new Frostybee\Valicomb\Validator(['colors' => ['purple', 'purple']]);
 $v->rules([
     'containsUnique' => [
         ['colors']
@@ -591,7 +591,7 @@ $v->rule('ip', 'user_ip');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['user_ip' => '127.0.0.1']);
+$v = new Frostybee\Valicomb\Validator(['user_ip' => '127.0.0.1']);
 $v->rules([
     'ip' => [
         ['user_ip']
@@ -608,7 +608,7 @@ $v->rule('ipv4', 'user_ip');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['user_ip' => '127.0.0.1']);
+$v = new Frostybee\Valicomb\Validator(['user_ip' => '127.0.0.1']);
 $v->rules([
     'ipv4' => [
         ['user_ip']
@@ -625,7 +625,7 @@ $v->rule('ipv6', 'user_ip');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['user_ip' => '0:0:0:0:0:0:0:1']);
+$v = new Frostybee\Valicomb\Validator(['user_ip' => '0:0:0:0:0:0:0:1']);
 $v->rules([
     'ipv6' => [
         ['user_ip']
@@ -642,7 +642,7 @@ $v->rule('email', 'user_email');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['user_email' => 'someone@example.com']);
+$v = new Frostybee\Valicomb\Validator(['user_email' => 'someone@example.com']);
 $v->rules([
     'email' => [
         ['user_email']
@@ -659,7 +659,7 @@ $v->rule('emailDNS', 'user_email');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['user_email' => 'some_fake_email_address@gmail.com']);
+$v = new Frostybee\Valicomb\Validator(['user_email' => 'some_fake_email_address@gmail.com']);
 $v->rules([
     'emailDNS' => [
         ['user_email']
@@ -676,7 +676,7 @@ $v->rule('url', 'website');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['website' => 'https://example.com/contact']);
+$v = new Frostybee\Valicomb\Validator(['website' => 'https://example.com/contact']);
 $v->rules([
     'url' => [
         ['website']
@@ -693,7 +693,7 @@ $v->rule('urlActive', 'website');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['website' => 'https://example.com/contact']);
+$v = new Frostybee\Valicomb\Validator(['website' => 'https://example.com/contact']);
 $v->rules([
     'urlActive' => [
         ['website']
@@ -714,7 +714,7 @@ $v->rule('alpha', 'username');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['username' => 'batman']);
+$v = new Frostybee\Valicomb\Validator(['username' => 'batman']);
 $v->rules([
     'alpha' => [
         ['username']
@@ -731,7 +731,7 @@ $v->rule('alphaNum', 'username');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['username' => 'batman123']);
+$v = new Frostybee\Valicomb\Validator(['username' => 'batman123']);
 $v->rules([
     'alphaNum' => [
         ['username']
@@ -748,7 +748,7 @@ $v->rule('ascii', 'username');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['username' => 'batman123']);
+$v = new Frostybee\Valicomb\Validator(['username' => 'batman123']);
 $v->rules([
     'ascii' => [
         ['username']
@@ -765,7 +765,7 @@ $v->rule('slug', 'username');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['username' => 'L337-H4ckZ0rz_123']);
+$v = new Frostybee\Valicomb\Validator(['username' => 'L337-H4ckZ0rz_123']);
 $v->rules([
     'slug' => [
         ['username']
@@ -783,7 +783,7 @@ $v->rule('regex', 'username', '/^[a-zA-Z0-9]{5,10}$/');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['username' => 'Batman123']);
+$v = new Frostybee\Valicomb\Validator(['username' => 'Batman123']);
 $v->rules([
     'regex' => [
         ['username', '/^[a-zA-Z0-9]{5,10}$/']
@@ -800,7 +800,7 @@ $v->rule('contains', 'username', 'man');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['username' => 'Batman123']);
+$v = new Frostybee\Valicomb\Validator(['username' => 'Batman123']);
 $v->rules([
     'contains' => [
         ['username', 'man']
@@ -812,7 +812,7 @@ $v->validate();
 *Note* You can use the optional strict flag to ensure a case-sensitive match.
 The following example will return true:
 ```php
-$v = new Valicomb\Validator(['username' => 'Batman123']);
+$v = new Frostybee\Valicomb\Validator(['username' => 'Batman123']);
 $v->rules([
     'contains' => [
         ['username', 'man']
@@ -822,7 +822,7 @@ $v->validate();
 ```
 Whereas, this would return false, as the M in the search string is not uppercase in the provided value:
 ```php
-$v = new Valicomb\Validator(['username' => 'Batman123']);
+$v = new Frostybee\Valicomb\Validator(['username' => 'Batman123']);
 $v->rules([
     'contains' => [
         ['username', 'Man', true]
@@ -843,7 +843,7 @@ $v->rule('date', 'created_at');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['created_at' => '2018-10-13']);
+$v = new Frostybee\Valicomb\Validator(['created_at' => '2018-10-13']);
 $v->rules([
     'date' => [
         ['created_at']
@@ -860,7 +860,7 @@ $v->rule('dateFormat', 'created_at', 'Y-m-d');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['created_at' => '2018-10-13']);
+$v = new Frostybee\Valicomb\Validator(['created_at' => '2018-10-13']);
 $v->rules([
     'dateFormat' => [
         ['created_at', 'Y-m-d']
@@ -877,7 +877,7 @@ $v->rule('dateBefore', 'created_at', '2018-10-13');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['created_at' => '2018-09-01']);
+$v = new Frostybee\Valicomb\Validator(['created_at' => '2018-09-01']);
 $v->rules([
     'dateBefore' => [
         ['created_at', '2018-10-13']
@@ -894,7 +894,7 @@ $v->rule('dateAfter', 'created_at', '2018-10-13');
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['created_at' => '2018-09-01']);
+$v = new Frostybee\Valicomb\Validator(['created_at' => '2018-09-01']);
 $v->rules([
     'dateAfter' => [
         ['created_at', '2018-01-01']
@@ -948,7 +948,7 @@ $v->rule('instanceOf', 'date', \DateTime);
 
 Alternate syntax.
 ```php
-$v = new Valicomb\Validator(['date' => new \DateTime()]);
+$v = new Frostybee\Valicomb\Validator(['date' => new \DateTime()]);
 $v->rules([
     'instanceOf' => [
         ['date', 'DateTime']
@@ -959,7 +959,7 @@ $v->validate();
 *Note* You can also compare the value against a given object as opposed to the string class name.
 This example would also return true:
 ```php
-$v = new Valicomb\Validator(['date' => new \DateTime()]);
+$v = new Frostybee\Valicomb\Validator(['date' => new \DateTime()]);
 $existingDateObject = new \DateTime();
 $v->rules([
     'instanceOf' => [
@@ -978,7 +978,7 @@ $v->rule('optional', 'username');
 Alternate syntax.
 This example would return true either when the 'username' field is not present or in the case where the username is only alphabetic characters.
 ```php
-$v = new Valicomb\Validator(['username' => 'batman']);
+$v = new Frostybee\Valicomb\Validator(['username' => 'batman']);
 $v->rules([
     'alpha' => [
         ['username']
@@ -991,7 +991,7 @@ $v->validate();
 ```
 This example would return false, as although the field is optional, since it is provided it must pass all the validation rules, which in this case it does not.
 ```php
-$v = new Valicomb\Validator(['username' => 'batman123']);
+$v = new Frostybee\Valicomb\Validator(['username' => 'batman123']);
 $v->rules([
     'alpha' => [
         ['username']
@@ -1009,7 +1009,7 @@ The `arrayHasKeys` rule ensures that the field is an array and that it contains 
 Returns false if the field is not an array or if no required keys are specified or if some key is missing.
 
 ```php
-$v = new Valicomb\Validator([
+$v = new Frostybee\Valicomb\Validator([
     'address' => [
         'name' => 'Jane Doe',
         'street' => 'Doe Square',

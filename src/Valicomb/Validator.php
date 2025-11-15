@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Valicomb;
+namespace Frostybee\Valicomb;
 
 use function array_diff;
 use function array_filter;

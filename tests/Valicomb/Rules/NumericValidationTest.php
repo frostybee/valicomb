@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Valicomb\Tests\Rules;
+namespace Frostybee\Valicomb\Tests\Rules;
+
+use Frostybee\Valicomb\Tests\BaseTestCase;
+use Frostybee\Valicomb\Validator;
 
 use function function_exists;
 
 use stdClass;
-use Valicomb\Tests\BaseTestCase;
-use Valicomb\Validator;
 
 class NumericValidationTest extends BaseTestCase
 {

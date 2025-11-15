@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Valicomb\Benchmarks;
+namespace Frostybee\Valicomb\Benchmarks;
 
-use Valicomb\Validator;
+use Frostybee\Valicomb\Validator;
 
 /**
  * Comprehensive benchmark script to measure validation performance accurately.

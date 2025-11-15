@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Valicomb\Tests;
+namespace Frostybee\Valicomb\Tests;
 
-use Valicomb\Validator;
+use Frostybee\Valicomb\Validator;
 
 class StopOnFirstFailTest extends BaseTestCase
 {

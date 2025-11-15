@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Valicomb\Tests;
+namespace Frostybee\Valicomb\Tests;
 
 use function count;
 
-use Valicomb\Validator;
+use Frostybee\Valicomb\Validator;
 
 class MapRulesTest extends BaseTestCase
 {

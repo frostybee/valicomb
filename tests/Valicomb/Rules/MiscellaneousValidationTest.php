@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Valicomb\Tests\Rules;
+namespace Frostybee\Valicomb\Tests\Rules;
 
-use Valicomb\Tests\BaseTestCase;
-use Valicomb\Validator;
+use Frostybee\Valicomb\Tests\BaseTestCase;
+use Frostybee\Valicomb\Validator;
 
 class MiscellaneousValidationTest extends BaseTestCase
 {
@@ -94,7 +94,7 @@ class MiscellaneousValidationTest extends BaseTestCase
     public function testAddRuleCallback()
     {
         $v = new Validator(['name' => 'Chester Tester']);
-        $v->addRule('testRule', 'Valicomb\Tests\Rules\sampleFunctionCallback');
+        $v->addRule('testRule', 'Frostybee\Valicomb\Tests\Rules\sampleFunctionCallback');
         $v->rule('testRule', 'name');
         $this->assertTrue($v->validate());
     }

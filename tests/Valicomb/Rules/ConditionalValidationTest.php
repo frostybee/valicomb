@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Valicomb\Tests\Rules;
+namespace Frostybee\Valicomb\Tests\Rules;
 
-use Valicomb\Tests\BaseTestCase;
-use Valicomb\Validator;
+use Frostybee\Valicomb\Tests\BaseTestCase;
+use Frostybee\Valicomb\Validator;
 
 class ConditionalValidationTest extends BaseTestCase
 {
