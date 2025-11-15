@@ -1,9 +1,9 @@
 {
-    "name": "vlucas/valitron",
+    "name": "frostybee/valitron",
     "type": "library",
     "description": "Modern, type-safe PHP validation library for PHP 8.2+ with security-first design and zero dependencies",
     "keywords": ["validation", "validator", "valid", "php8", "type-safe", "security"],
-    "homepage": "https://github.com/vlucas/valitron",
+    "homepage": "https://github.com/frostybee/valitron",
     "license": "BSD-3-Clause",
     "authors": [
         {
