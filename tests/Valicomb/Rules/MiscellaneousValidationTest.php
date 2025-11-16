@@ -10,40 +10,40 @@ use Frostybee\Valicomb\Validator;
 class MiscellaneousValidationTest extends BaseTestCase
 {
     // Basic Validation Tests
-    public function testValidWithNoRules()
+    public function testValidWithNoRules(): void
     {
         $v = new Validator(['name' => 'Chester Tester']);
         $this->assertTrue($v->validate());
     }
 
-    public function testOptionalFieldFilter()
+    public function testOptionalFieldFilter(): void
     {
         $v = new Validator(['foo' => 'bar', 'bar' => 'baz'], ['foo']);
         $this->assertEquals($v->data(), ['foo' => 'bar']);
     }
 
-    public function testAccurateErrorShouldReturnFalse()
+    public function testAccurateErrorShouldReturnFalse(): void
     {
         $v = new Validator(['name' => 'Chester Tester']);
         $v->rule('required', 'name');
         $this->assertFalse($v->errors('name'));
     }
 
-    public function testArrayOfFieldsToValidate()
+    public function testArrayOfFieldsToValidate(): void
     {
         $v = new Validator(['name' => 'Chester Tester', 'email' => 'chester@tester.com']);
         $v->rule('required', ['name', 'email']);
         $this->assertTrue($v->validate());
     }
 
-    public function testArrayOfFieldsToValidateOneEmpty()
+    public function testArrayOfFieldsToValidateOneEmpty(): void
     {
         $v = new Validator(['name' => 'Chester Tester', 'email' => '']);
         $v->rule('required', ['name', 'email']);
         $this->assertFalse($v->validate());
     }
 
-    public function testNoErrorFailOnArray()
+    public function testNoErrorFailOnArray(): void
     {
         $v = new Validator(['test' => []]);
         $v->rule('slug', 'test');
@@ -51,47 +51,39 @@ class MiscellaneousValidationTest extends BaseTestCase
     }
 
     // Custom Rules Tests
-    public function testAddRuleClosure()
+    public function testAddRuleClosure(): void
     {
         $v = new Validator(['name' => 'Chester Tester']);
-        $v->addRule('testRule', function () {
-            return true;
-        });
+        $v->addRule('testRule', fn (): true => true);
         $v->rule('testRule', 'name');
         $this->assertTrue($v->validate());
     }
 
-    public function testAddRuleClosureReturnsFalse()
+    public function testAddRuleClosureReturnsFalse(): void
     {
         $v = new Validator(['name' => 'Chester Tester']);
-        $v->addRule('testRule', function () {
-            return false;
-        });
+        $v->addRule('testRule', fn (): false => false);
         $v->rule('testRule', 'name');
         $this->assertFalse($v->validate());
     }
 
-    public function testAddRuleClosureWithFieldArray()
+    public function testAddRuleClosureWithFieldArray(): void
     {
         $v = new Validator(['name' => 'Chester Tester', 'email' => 'foo@example.com']);
-        $v->addRule('testRule', function () {
-            return true;
-        });
+        $v->addRule('testRule', fn (): true => true);
         $v->rule('testRule', ['name', 'email']);
         $this->assertTrue($v->validate());
     }
 
-    public function testAddRuleClosureWithArrayAsExtraParameter()
+    public function testAddRuleClosureWithArrayAsExtraParameter(): void
     {
         $v = new Validator(['name' => 'Chester Tester']);
-        $v->addRule('testRule', function () {
-            return true;
-        });
+        $v->addRule('testRule', fn (): true => true);
         $v->rule('testRule', 'name', ['foo', 'bar']);
         $this->assertTrue($v->validate());
     }
 
-    public function testAddRuleCallback()
+    public function testAddRuleCallback(): void
     {
         $v = new Validator(['name' => 'Chester Tester']);
         $v->addRule('testRule', 'Frostybee\Valicomb\Tests\Rules\sampleFunctionCallback');
@@ -99,51 +91,51 @@ class MiscellaneousValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function sampleObjectCallback()
+    public function sampleObjectCallback(): bool
     {
         return true;
     }
 
-    public function sampleObjectCallbackFalse()
+    public function sampleObjectCallbackFalse(): bool
     {
         return false;
     }
 
-    public function testAddRuleCallbackArray()
+    public function testAddRuleCallbackArray(): void
     {
         $v = new Validator(['name' => 'Chester Tester']);
-        $v->addRule('testRule', [$this, 'sampleObjectCallback']);
+        $v->addRule('testRule', $this->sampleObjectCallback(...));
         $v->rule('testRule', 'name');
         $this->assertTrue($v->validate());
     }
 
-    public function testAddRuleCallbackArrayWithArrayAsExtraParameter()
+    public function testAddRuleCallbackArrayWithArrayAsExtraParameter(): void
     {
         $v = new Validator(['name' => 'Chester Tester']);
-        $v->addRule('testRule', [$this, 'sampleObjectCallback']);
+        $v->addRule('testRule', $this->sampleObjectCallback(...));
         $v->rule('testRule', 'name', ['foo', 'bar']);
         $this->assertTrue($v->validate());
     }
 
-    public function testAddRuleCallbackArrayWithArrayAsExtraParameterAndCustomMessage()
+    public function testAddRuleCallbackArrayWithArrayAsExtraParameterAndCustomMessage(): void
     {
         $v = new Validator(['name' => 'Chester Tester']);
-        $v->addRule('testRule', [$this, 'sampleObjectCallbackFalse']);
+        $v->addRule('testRule', $this->sampleObjectCallbackFalse(...));
         $v->rule('testRule', 'name', ['foo', 'bar'])->message('Invalid name selected.');
         $this->assertFalse($v->validate());
     }
 
-    public function testAddRuleCallbackArrayWithArrayAsExtraParameterAndCustomMessageLabel()
+    public function testAddRuleCallbackArrayWithArrayAsExtraParameterAndCustomMessageLabel(): void
     {
         $v = new Validator(['name' => 'Chester Tester']);
         $v->labels(['name' => 'Name']);
-        $v->addRule('testRule', [$this, 'sampleObjectCallbackFalse']);
+        $v->addRule('testRule', $this->sampleObjectCallbackFalse(...));
         $v->rule('testRule', 'name', ['foo', 'bar'])->message('Invalid name selected.');
         $this->assertFalse($v->validate());
     }
 
     // Bulk Rules Tests
-    public function testAcceptBulkRulesWithSingleParams()
+    public function testAcceptBulkRulesWithSingleParams(): void
     {
         $rules = [
             'required' => 'nonexistent_field',
@@ -164,7 +156,7 @@ class MiscellaneousValidationTest extends BaseTestCase
         $this->assertEquals($v1->errors(), $v2->errors());
     }
 
-    public function testAcceptBulkRulesWithMultipleParams()
+    public function testAcceptBulkRulesWithMultipleParams(): void
     {
         $rules = [
             'required' => [
@@ -191,7 +183,7 @@ class MiscellaneousValidationTest extends BaseTestCase
         $this->assertEquals($v1->errors(), $v2->errors());
     }
 
-    public function testAcceptBulkRulesWithNestedRules()
+    public function testAcceptBulkRulesWithNestedRules(): void
     {
         $rules = [
             'length' => [
@@ -212,7 +204,7 @@ class MiscellaneousValidationTest extends BaseTestCase
         $this->assertEquals($v1->errors(), $v2->errors());
     }
 
-    public function testAcceptBulkRulesWithNestedRulesAndMultipleFields()
+    public function testAcceptBulkRulesWithNestedRulesAndMultipleFields(): void
     {
         $rules = [
             'length' => [
@@ -233,7 +225,7 @@ class MiscellaneousValidationTest extends BaseTestCase
         $this->assertEquals($v1->errors(), $v2->errors());
     }
 
-    public function testAcceptBulkRulesWithMultipleArrayParams()
+    public function testAcceptBulkRulesWithMultipleArrayParams(): void
     {
         $rules = [
             'in' => [
@@ -252,7 +244,7 @@ class MiscellaneousValidationTest extends BaseTestCase
         $this->assertEquals($v1->errors(), $v2->errors());
     }
 
-    public function testMalformedBulkRules()
+    public function testMalformedBulkRules(): void
     {
         $v = new Validator();
         $v->rules(
@@ -265,7 +257,7 @@ class MiscellaneousValidationTest extends BaseTestCase
     }
 
     // Label and Message Tests
-    public function testCustomLabelInMessage()
+    public function testCustomLabelInMessage(): void
     {
         $v = new Validator([]);
         $v->rule('required', 'name')->message('{field} is required')->label('NAME!!!');
@@ -273,7 +265,7 @@ class MiscellaneousValidationTest extends BaseTestCase
         $this->assertEquals(['NAME!!! is required'], $v->errors('name'));
     }
 
-    public function testCustomLabelArrayInMessage()
+    public function testCustomLabelArrayInMessage(): void
     {
         $v = new Validator([]);
         $v->rule('required', ['name', 'email'])->message('{field} is required');
@@ -285,7 +277,7 @@ class MiscellaneousValidationTest extends BaseTestCase
         $this->assertEquals(['name' => ['Name is required'], 'email' => ['Email address is required']], $v->errors());
     }
 
-    public function testCustomLabelArrayWithoutMessage()
+    public function testCustomLabelArrayWithoutMessage(): void
     {
         $v = new Validator([
             'password' => 'foo',
@@ -303,7 +295,7 @@ class MiscellaneousValidationTest extends BaseTestCase
     /**
      * @dataProvider dataProviderFor_testError
      */
-    public function testError($expected, $input, $test, $message)
+    public function testError(string $expected, string|array $input, array $test, string $message): void
     {
         $v = new Validator(['test' => $input]);
         $v->error('test', $message, $test);
@@ -311,7 +303,7 @@ class MiscellaneousValidationTest extends BaseTestCase
         $this->assertEquals(['test' => [$expected]], $v->errors());
     }
 
-    public function dataProviderFor_testError()
+    public function dataProviderFor_testError(): array
     {
         return [
             [
@@ -330,14 +322,14 @@ class MiscellaneousValidationTest extends BaseTestCase
     }
 
     // Chaining and Dot Notation Tests
-    public function testChainingRules()
+    public function testChainingRules(): void
     {
         $v = new Validator(['email_address' => 'test@test.com']);
         $v->rule('required', 'email_address')->rule('email', 'email_address');
         $this->assertTrue($v->validate());
     }
 
-    public function testNestedDotNotation()
+    public function testNestedDotNotation(): void
     {
         $v = new Validator(['user' => ['first_name' => 'Steve', 'last_name' => 'Smith', 'username' => 'Batman123']]);
         $v->rule('alpha', 'user.first_name')->rule('alpha', 'user.last_name')->rule('alphaNum', 'user.username');
@@ -345,7 +337,7 @@ class MiscellaneousValidationTest extends BaseTestCase
     }
 
     // WithData Tests
-    public function testWithData()
+    public function testWithData(): void
     {
         $v = new Validator([]);
         $v->rule('required', 'name');
@@ -365,7 +357,7 @@ class MiscellaneousValidationTest extends BaseTestCase
     }
 }
 
-function sampleFunctionCallback($field, $value, array $params)
+function sampleFunctionCallback($field, $value, array $params): bool
 {
     return true;
 }

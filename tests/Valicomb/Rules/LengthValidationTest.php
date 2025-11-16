@@ -12,14 +12,14 @@ use stdClass;
 class LengthValidationTest extends BaseTestCase
 {
     // Length Tests
-    public function testLengthValid()
+    public function testLengthValid(): void
     {
         $v = new Validator(['str' => 'happy']);
         $v->rule('length', 'str', 5);
         $this->assertTrue($v->validate());
     }
 
-    public function testLengthValidAltSyntax()
+    public function testLengthValidAltSyntax(): void
     {
         $v = new Validator(['username' => 'bobburgers']);
         $v->rules([
@@ -30,7 +30,7 @@ class LengthValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testLengthInvalid()
+    public function testLengthInvalid(): void
     {
         $v = new Validator(['str' => 'sad']);
         $v->rule('length', 'str', 6);
@@ -45,7 +45,7 @@ class LengthValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testLengthInvalidAltSyntax()
+    public function testLengthInvalidAltSyntax(): void
     {
         $v = new Validator(['username' => 'hi']);
         $v->rules([
@@ -57,14 +57,14 @@ class LengthValidationTest extends BaseTestCase
     }
 
     // Length Between Tests
-    public function testLengthBetweenValid()
+    public function testLengthBetweenValid(): void
     {
         $v = new Validator(['str' => 'happy']);
         $v->rule('lengthBetween', 'str', 2, 8);
         $this->assertTrue($v->validate());
     }
 
-    public function testLengthBetweenValidAltSyntax()
+    public function testLengthBetweenValidAltSyntax(): void
     {
         $v = new Validator(['username' => 'bobburgers']);
         $v->rules([
@@ -75,7 +75,7 @@ class LengthValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testLengthBetweenInvalid()
+    public function testLengthBetweenInvalid(): void
     {
         $v = new Validator(['str' => 'sad']);
         $v->rule('lengthBetween', 'str', 4, 10);
@@ -90,7 +90,7 @@ class LengthValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testLengthBetweenInvalidAltSyntax()
+    public function testLengthBetweenInvalidAltSyntax(): void
     {
         $v = new Validator(['username' => 'hi']);
         $v->rules([
@@ -102,14 +102,14 @@ class LengthValidationTest extends BaseTestCase
     }
 
     // Length Min Tests
-    public function testLengthMinValid()
+    public function testLengthMinValid(): void
     {
         $v = new Validator(['str' => 'happy']);
         $v->rule('lengthMin', 'str', 4);
         $this->assertTrue($v->validate());
     }
 
-    public function testLengthMinValidAltSyntax()
+    public function testLengthMinValidAltSyntax(): void
     {
         $v = new Validator(['username' => 'martha']);
         $v->rules([
@@ -120,14 +120,14 @@ class LengthValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testLengthMinInvalid()
+    public function testLengthMinInvalid(): void
     {
         $v = new Validator(['str' => 'sad']);
         $v->rule('lengthMin', 'str', 4);
         $this->assertFalse($v->validate());
     }
 
-    public function testLengthMinInvalidAltSyntax()
+    public function testLengthMinInvalidAltSyntax(): void
     {
         $v = new Validator(['username' => 'abc']);
         $v->rules([
@@ -139,14 +139,14 @@ class LengthValidationTest extends BaseTestCase
     }
 
     // Length Max Tests
-    public function testLengthMaxValid()
+    public function testLengthMaxValid(): void
     {
         $v = new Validator(['str' => 'sad']);
         $v->rule('lengthMax', 'str', 4);
         $this->assertTrue($v->validate());
     }
 
-    public function testLengthMaxValidAltSyntax()
+    public function testLengthMaxValidAltSyntax(): void
     {
         $v = new Validator(['username' => 'bruins91']);
         $v->rules([
@@ -157,14 +157,14 @@ class LengthValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testLengthMaxInvalid()
+    public function testLengthMaxInvalid(): void
     {
         $v = new Validator(['str' => 'sad']);
         $v->rule('lengthMax', 'str', 2);
         $this->assertFalse($v->validate());
     }
 
-    public function testLengthMaxInvalidAltSyntax()
+    public function testLengthMaxInvalidAltSyntax(): void
     {
         $v = new Validator(['username' => 'bruins91']);
         $v->rules([

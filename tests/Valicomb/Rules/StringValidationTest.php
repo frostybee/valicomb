@@ -11,14 +11,14 @@ use InvalidArgumentException;
 class StringValidationTest extends BaseTestCase
 {
     // ASCII Tests
-    public function testAsciiValid()
+    public function testAsciiValid(): void
     {
         $v = new Validator(['text' => '12345 abcde']);
         $v->rule('ascii', 'text');
         $this->assertTrue($v->validate());
     }
 
-    public function testAsciiValidAltSyntax()
+    public function testAsciiValidAltSyntax(): void
     {
         $v = new Validator(['username' => 'batman123']);
         $v->rules([
@@ -29,14 +29,14 @@ class StringValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testAsciiInvalid()
+    public function testAsciiInvalid(): void
     {
         $v = new Validator(['text' => '12345 abcdé']);
         $v->rule('ascii', 'text');
         $this->assertFalse($v->validate());
     }
 
-    public function testAsciiInvalidAltSyntax()
+    public function testAsciiInvalidAltSyntax(): void
     {
         $v = new Validator(['username' => '12345 abcdé']);
         $v->rules([
@@ -48,14 +48,14 @@ class StringValidationTest extends BaseTestCase
     }
 
     // Email Tests
-    public function testEmailValid()
+    public function testEmailValid(): void
     {
         $v = new Validator(['name' => 'Chester Tester', 'email' => 'chester@tester.com']);
         $v->rule('email', 'email');
         $this->assertTrue($v->validate());
     }
 
-    public function testEmailValidAltSyntax()
+    public function testEmailValidAltSyntax(): void
     {
         $v = new Validator(['user_email' => 'someone@example.com']);
         $v->rules([
@@ -66,14 +66,14 @@ class StringValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testEmailInvalid()
+    public function testEmailInvalid(): void
     {
         $v = new Validator(['name' => 'Chester Tester', 'email' => 'chestertesterman']);
         $v->rule('email', 'email');
         $this->assertFalse($v->validate());
     }
 
-    public function testEmailInvalidAltSyntax()
+    public function testEmailInvalidAltSyntax(): void
     {
         $v = new Validator(['user_email' => 'example.com']);
         $v->rules([
@@ -84,14 +84,14 @@ class StringValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testEmailDnsValid()
+    public function testEmailDnsValid(): void
     {
         $v = new Validator(['name' => 'Chester Tester', 'email' => 'chester@tester.com']);
         $v->rule('emailDNS', 'email');
         $this->assertTrue($v->validate());
     }
 
-    public function testEmailDnsValidAltSyntax()
+    public function testEmailDnsValidAltSyntax(): void
     {
         $v = new Validator(['user_email' => 'some_fake_email_address@gmail.com']);
         $v->rules([
@@ -102,14 +102,14 @@ class StringValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testEmailDnsInvalid()
+    public function testEmailDnsInvalid(): void
     {
         $v = new Validator(['name' => 'Chester Tester', 'email' => 'chester@tester.zyx']);
         $v->rule('emailDNS', 'email');
         $this->assertFalse($v->validate());
     }
 
-    public function testEmailDnsInvalidAltSyntax()
+    public function testEmailDnsInvalidAltSyntax(): void
     {
         $v = new Validator(['user_email' => 'some_fake_email_address@gmail.zyx']);
         $v->rules([
@@ -121,14 +121,14 @@ class StringValidationTest extends BaseTestCase
     }
 
     // Alpha Tests
-    public function testAlphaValid()
+    public function testAlphaValid(): void
     {
         $v = new Validator(['test' => 'abcDEF']);
         $v->rule('alpha', 'test');
         $this->assertTrue($v->validate());
     }
 
-    public function testAlphaValidAltSyntax()
+    public function testAlphaValidAltSyntax(): void
     {
         $v = new Validator(['username' => 'batman']);
         $v->rules([
@@ -139,14 +139,14 @@ class StringValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testAlphaInvalid()
+    public function testAlphaInvalid(): void
     {
         $v = new Validator(['test' => 'abc123']);
         $v->rule('alpha', 'test');
         $this->assertFalse($v->validate());
     }
 
-    public function testAlphaInvalidAltSyntax()
+    public function testAlphaInvalidAltSyntax(): void
     {
         $v = new Validator(['username' => '123456asdf']);
         $v->rules([
@@ -158,14 +158,14 @@ class StringValidationTest extends BaseTestCase
     }
 
     // AlphaNum Tests
-    public function testAlphaNumValid()
+    public function testAlphaNumValid(): void
     {
         $v = new Validator(['test' => 'abc123']);
         $v->rule('alphaNum', 'test');
         $this->assertTrue($v->validate());
     }
 
-    public function testAlphaNumValidAltSyntax()
+    public function testAlphaNumValidAltSyntax(): void
     {
         $v = new Validator(['username' => 'batman123']);
         $v->rules([
@@ -176,14 +176,14 @@ class StringValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testAlphaNumInvalid()
+    public function testAlphaNumInvalid(): void
     {
         $v = new Validator(['test' => 'abc123$%^']);
         $v->rule('alphaNum', 'test');
         $this->assertFalse($v->validate());
     }
 
-    public function testAlphaNumInvalidAltSyntax()
+    public function testAlphaNumInvalidAltSyntax(): void
     {
         $v = new Validator(['username' => 'batman123-$']);
         $v->rules([
@@ -195,14 +195,14 @@ class StringValidationTest extends BaseTestCase
     }
 
     // Slug (AlphaDash) Tests
-    public function testAlphaDashValid()
+    public function testAlphaDashValid(): void
     {
         $v = new Validator(['test' => 'abc-123_DEF']);
         $v->rule('slug', 'test');
         $this->assertTrue($v->validate());
     }
 
-    public function testSlugValidAltSyntax()
+    public function testSlugValidAltSyntax(): void
     {
         $v = new Validator(['username' => 'L337-H4ckZ0rz_123']);
         $v->rules([
@@ -213,14 +213,14 @@ class StringValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testAlphaDashInvalid()
+    public function testAlphaDashInvalid(): void
     {
         $v = new Validator(['test' => 'abc-123_DEF $%^']);
         $v->rule('slug', 'test');
         $this->assertFalse($v->validate());
     }
 
-    public function testSlugInvalidAltSyntax()
+    public function testSlugInvalidAltSyntax(): void
     {
         $v = new Validator(['username' => 'L337-H4ckZ0rz_123 $%^']);
         $v->rules([
@@ -232,14 +232,14 @@ class StringValidationTest extends BaseTestCase
     }
 
     // Contains Tests
-    public function testContainsValid()
+    public function testContainsValid(): void
     {
         $v = new Validator(['test_string' => 'this is a Test']);
         $v->rule('contains', 'test_string', 'Test');
         $this->assertTrue($v->validate());
     }
 
-    public function testContainsValidAltSyntax()
+    public function testContainsValidAltSyntax(): void
     {
         $v = new Validator(['username' => 'Batman123']);
         $v->rules([
@@ -251,21 +251,21 @@ class StringValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testContainsNonStrictValid()
+    public function testContainsNonStrictValid(): void
     {
         $v = new Validator(['test_string' => 'this is a Test']);
         $v->rule('contains', 'test_string', 'test', false);
         $this->assertTrue($v->validate());
     }
 
-    public function testContainsInvalid()
+    public function testContainsInvalid(): void
     {
         $v = new Validator(['test_string' => 'this is a test']);
         $v->rule('contains', 'test_string', 'foobar');
         $this->assertFalse($v->validate());
     }
 
-    public function testContainsInvalidAltSyntax()
+    public function testContainsInvalidAltSyntax(): void
     {
         $v = new Validator(['username' => 'Batman123']);
         $v->rules([
@@ -276,21 +276,21 @@ class StringValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testContainsStrictInvalid()
+    public function testContainsStrictInvalid(): void
     {
         $v = new Validator(['test_string' => 'this is a Test']);
         $v->rule('contains', 'test_string', 'test');
         $this->assertFalse($v->validate());
     }
 
-    public function testContainsInvalidValue()
+    public function testContainsInvalidValue(): void
     {
         $v = new Validator(['test_string' => false]);
         $v->rule('contains', 'test_string', 'foobar');
         $this->assertFalse($v->validate());
     }
 
-    public function testContainsInvalidRule()
+    public function testContainsInvalidRule(): void
     {
         $v = new Validator(['test_string' => 'this is a test']);
         $v->rule('contains', 'test_string', null);
@@ -298,14 +298,14 @@ class StringValidationTest extends BaseTestCase
     }
 
     // Regex Tests
-    public function testRegexValid()
+    public function testRegexValid(): void
     {
         $v = new Validator(['test' => '42']);
         $v->rule('regex', 'test', '/[\d]+/');
         $this->assertTrue($v->validate());
     }
 
-    public function testRegexValidAltSyntax()
+    public function testRegexValidAltSyntax(): void
     {
         $v = new Validator(['username' => 'Batman123']);
         $v->rules([
@@ -316,14 +316,14 @@ class StringValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testRegexInvalid()
+    public function testRegexInvalid(): void
     {
         $v = new Validator(['test' => 'istheanswer']);
         $v->rule('regex', 'test', '/[\d]+/');
         $this->assertFalse($v->validate());
     }
 
-    public function testRegexInvalidAltSyntax()
+    public function testRegexInvalidAltSyntax(): void
     {
         $v = new Validator(['username' => 'Batman_123']);
         $v->rules([

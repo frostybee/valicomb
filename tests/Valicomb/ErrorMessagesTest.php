@@ -8,7 +8,7 @@ use Frostybee\Valicomb\Validator;
 
 class ErrorMessagesTest extends BaseTestCase
 {
-    public function testErrorMessageIncludesFieldName()
+    public function testErrorMessageIncludesFieldName(): void
     {
         $v = new Validator([]);
         $v->rule('required', 'name');
@@ -20,7 +20,7 @@ class ErrorMessagesTest extends BaseTestCase
      * Test the disabling of prepending the field labels
      * to error messages.
      */
-    public function testErrorMessageExcludeFieldName()
+    public function testErrorMessageExcludeFieldName(): void
     {
         $v = new Validator([]);
         $v->setPrependLabels(false);
@@ -29,7 +29,7 @@ class ErrorMessagesTest extends BaseTestCase
         $this->assertSame(["is required"], $v->errors('name'));
     }
 
-    public function testAccurateErrorMessageParams()
+    public function testAccurateErrorMessageParams(): void
     {
         $v = new Validator(['num' => 5]);
         $v->rule('min', 'num', 6);
@@ -37,7 +37,7 @@ class ErrorMessagesTest extends BaseTestCase
         $this->assertSame(["Num must be at least 6"], $v->errors('num'));
     }
 
-    public function testCustomErrorMessage()
+    public function testCustomErrorMessage(): void
     {
         $v = new Validator([]);
         $v->rule('required', 'name')->message('Name is required');
@@ -46,7 +46,7 @@ class ErrorMessagesTest extends BaseTestCase
         $this->assertSame('Name is required', $errors[0]);
     }
 
-    public function testCustomLabel()
+    public function testCustomLabel(): void
     {
         $v = new Validator([]);
         $v->rule('required', 'name')->message('{field} is required')->label('Custom Name');
@@ -55,7 +55,7 @@ class ErrorMessagesTest extends BaseTestCase
         $this->assertSame('Custom Name is required', $errors[0]);
     }
 
-    public function testCustomLabels()
+    public function testCustomLabels(): void
     {
         $messages = [
             'name' => ['Name is required'],
@@ -76,7 +76,7 @@ class ErrorMessagesTest extends BaseTestCase
         $this->assertEquals($messages, $errors);
     }
 
-    public function testMessageWithFieldSet()
+    public function testMessageWithFieldSet(): void
     {
         $v = new Validator(['name' => ''], [], 'en', __DIR__ . '/../lang');
         $v->rule('required', 'name');
@@ -84,7 +84,7 @@ class ErrorMessagesTest extends BaseTestCase
         $this->assertEquals($v->errors('name'), ['A value is required for Name']);
     }
 
-    public function testMessageWithFieldAndLabelSet()
+    public function testMessageWithFieldAndLabelSet(): void
     {
         $v = new Validator(['name' => ''], [], 'en', __DIR__ . '/../lang');
         $v->rule('required', 'name')->label('my name');

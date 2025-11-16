@@ -11,7 +11,7 @@ use function realpath;
 
 class LangTest extends BaseTestCase
 {
-    protected function getLangDir()
+    protected function getLangDir(): string
     {
         return __DIR__ . '/../../lang';
     }
@@ -19,7 +19,7 @@ class LangTest extends BaseTestCase
     /**
      * Lang defined statically should not be override by constructor default
      */
-    public function testLangDefinedStatically()
+    public function testLangDefinedStatically(): void
     {
         $lang = 'ar';
         Validator::lang($lang);
@@ -30,27 +30,27 @@ class LangTest extends BaseTestCase
     /**
      * LangDir defined statically should not be override by constructor default
      */
-    public function testLangDirDefinedStatically()
+    public function testLangDirDefinedStatically(): void
     {
         $langDir = $this->getLangDir();
         Validator::langDir($langDir);
-        $validator = new Validator([]);
+        new Validator([]);
         $this->assertEquals($langDir, Validator::langDir());
     }
 
-    public function testDefaultLangShouldBeEn()
+    public function testDefaultLangShouldBeEn(): void
     {
-        $validator = new Validator([]);
+        new Validator([]);
         $this->assertEquals('en', Validator::lang());
     }
 
-    public function testDefaultLangDirShouldBePackageLangDir()
+    public function testDefaultLangDirShouldBePackageLangDir(): void
     {
-        $validator = new Validator([]);
+        new Validator([]);
         $this->assertEquals(realpath($this->getLangDir()), realpath(Validator::langDir()));
     }
 
-    public function testLangException()
+    public function testLangException(): void
     {
         try {
             new Validator([], [], 'en', '/this/dir/does/not/exists');
@@ -60,7 +60,7 @@ class LangTest extends BaseTestCase
         }
     }
 
-    public function testLoadingNorwegianLoadsNNVariant()
+    public function testLoadingNorwegianLoadsNNVariant(): void
     {
         $validator = new Validator([], [], 'no', $this->getLangDir());
         $validator->rule('required', 'test');

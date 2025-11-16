@@ -10,14 +10,14 @@ use Frostybee\Valicomb\Validator;
 class ArrayValidationTest extends BaseTestCase
 {
     // Array Tests
-    public function testArrayValid()
+    public function testArrayValid(): void
     {
         $v = new Validator(['colors' => ['yellow']]);
         $v->rule('array', 'colors');
         $this->assertTrue($v->validate());
     }
 
-    public function testArrayValidAltSyntax()
+    public function testArrayValidAltSyntax(): void
     {
         $v = new Validator(['user_notifications' => ['bulletin_notifications' => true, 'marketing_notifications' => false, 'message_notification' => true]]);
         $v->rules([
@@ -28,14 +28,14 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testAssocArrayValid()
+    public function testAssocArrayValid(): void
     {
         $v = new Validator(['settings' => ['color' => 'yellow']]);
         $v->rule('array', 'settings');
         $this->assertTrue($v->validate());
     }
 
-    public function testArrayInvalidAltSyntax()
+    public function testArrayInvalidAltSyntax(): void
     {
         $v = new Validator(['user_notifications' => 'string']);
         $v->rules([
@@ -46,7 +46,7 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testArrayInvalid()
+    public function testArrayInvalid(): void
     {
         $v = new Validator(['colors' => 'yellow']);
         $v->rule('array', 'colors');
@@ -54,14 +54,14 @@ class ArrayValidationTest extends BaseTestCase
     }
 
     // Array Access Tests
-    public function testArrayAccess()
+    public function testArrayAccess(): void
     {
         $v = new Validator(['settings' => ['enabled' => true]]);
         $v->rule('boolean', 'settings.enabled');
         $this->assertTrue($v->validate());
     }
 
-    public function testArrayAccessInvalid()
+    public function testArrayAccessInvalid(): void
     {
         $v = new Validator(['settings' => ['threshold' => 500]]);
         $v->rule('max', 'settings.threshold', 100);
@@ -69,14 +69,14 @@ class ArrayValidationTest extends BaseTestCase
     }
 
     // Foreach Tests
-    public function testForeachDiscreteValues()
+    public function testForeachDiscreteValues(): void
     {
         $v = new Validator(['values' => [5, 10, 15, 20, 25]]);
         $v->rule('integer', 'values.*');
         $this->assertTrue($v->validate());
     }
 
-    public function testForeachAssocValues()
+    public function testForeachAssocValues(): void
     {
         $v = new Validator(['values' => [
             'foo' => 5,
@@ -87,7 +87,7 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testForeachAssocValuesFails()
+    public function testForeachAssocValuesFails(): void
     {
         $v = new Validator(['values' => [
             'foo' => 5,
@@ -98,7 +98,7 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testForeachArrayAccess()
+    public function testForeachArrayAccess(): void
     {
         $v = new Validator(['settings' => [
             ['enabled' => true],
@@ -108,7 +108,7 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testForeachArrayAccessInvalid()
+    public function testForeachArrayAccessInvalid(): void
     {
         $v = new Validator(['settings' => [
             ['threshold' => 50],
@@ -118,7 +118,7 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testNestedForeachArrayAccess()
+    public function testNestedForeachArrayAccess(): void
     {
         $v = new Validator(['widgets' => [
             ['settings' => [
@@ -134,7 +134,7 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testNestedForeachArrayAccessInvalid()
+    public function testNestedForeachArrayAccessInvalid(): void
     {
         $v = new Validator(['widgets' => [
             ['settings' => [
@@ -155,14 +155,14 @@ class ArrayValidationTest extends BaseTestCase
     }
 
     // In Tests
-    public function testInValid()
+    public function testInValid(): void
     {
         $v = new Validator(['color' => 'green']);
         $v->rule('in', 'color', ['red', 'green', 'blue']);
         $this->assertTrue($v->validate());
     }
 
-    public function testInValidAltSyntax()
+    public function testInValidAltSyntax(): void
     {
         $v = new Validator(['color' => 'purple']);
         $v->rules([
@@ -173,7 +173,7 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testInInvalidAltSyntax()
+    public function testInInvalidAltSyntax(): void
     {
         $v = new Validator(['color' => 'orange']);
         $v->rules([
@@ -184,7 +184,7 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testInValidAssociativeArray()
+    public function testInValidAssociativeArray(): void
     {
         $v = new Validator(['color' => 'green']);
         $v->rule('in', 'color', [
@@ -195,21 +195,21 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testInStrictInvalid()
+    public function testInStrictInvalid(): void
     {
         $v = new Validator(['color' => '1']);
         $v->rule('in', 'color', [1, 2, 3], true);
         $this->assertFalse($v->validate());
     }
 
-    public function testInInvalid()
+    public function testInInvalid(): void
     {
         $v = new Validator(['color' => 'yellow']);
         $v->rule('in', 'color', ['red', 'green', 'blue']);
         $this->assertFalse($v->validate());
     }
 
-    public function testInRuleSearchesValuesForNumericArray()
+    public function testInRuleSearchesValuesForNumericArray(): void
     {
         $v = new Validator(['color' => 'purple']);
 
@@ -222,7 +222,7 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testInRuleSearchesKeysForAssociativeArray()
+    public function testInRuleSearchesKeysForAssociativeArray(): void
     {
         $v = new Validator(['color' => 'c-2']);
 
@@ -235,7 +235,7 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testInRuleSearchesKeysWhenForcedTo()
+    public function testInRuleSearchesKeysWhenForcedTo(): void
     {
         $v = new Validator(['color' => 2]);
 
@@ -248,14 +248,14 @@ class ArrayValidationTest extends BaseTestCase
     }
 
     // NotIn Tests
-    public function testNotInValid()
+    public function testNotInValid(): void
     {
         $v = new Validator(['color' => 'yellow']);
         $v->rule('notIn', 'color', ['red', 'green', 'blue']);
         $this->assertTrue($v->validate());
     }
 
-    public function testNotInValidAltSyntax()
+    public function testNotInValidAltSyntax(): void
     {
         $v = new Validator(['color' => 'purple']);
         $v->rules([
@@ -266,14 +266,14 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testNotInInvalid()
+    public function testNotInInvalid(): void
     {
         $v = new Validator(['color' => 'blue']);
         $v->rule('notIn', 'color', ['red', 'green', 'blue']);
         $this->assertFalse($v->validate());
     }
 
-    public function testNotInInvalidAltSyntax()
+    public function testNotInInvalidAltSyntax(): void
     {
         $v = new Validator(['color' => 'yellow']);
         $v->rules([
@@ -285,14 +285,14 @@ class ArrayValidationTest extends BaseTestCase
     }
 
     // ListContains Tests
-    public function testListContainsValid()
+    public function testListContainsValid(): void
     {
         $v = new Validator(['color' => ['blue', 'green', 'red', 'yellow']]);
         $v->rule('listContains', 'color', 'red');
         $this->assertTrue($v->validate());
     }
 
-    public function testListContainsValidAltSyntax()
+    public function testListContainsValidAltSyntax(): void
     {
         $v = new Validator(['color' => ['blue', 'green', 'red']]);
         $v->rules([
@@ -303,7 +303,7 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testListContainsInvalidAltSyntax()
+    public function testListContainsInvalidAltSyntax(): void
     {
         $v = new Validator(['color' => ['blue', 'green', 'red']]);
         $v->rules([
@@ -316,56 +316,56 @@ class ArrayValidationTest extends BaseTestCase
 
     // ListContains Edge Case Tests
 
-    public function testListContainsWithEmptyArray()
+    public function testListContainsWithEmptyArray(): void
     {
         $v = new Validator(['tags' => []]);
         $v->rule('listContains', 'tags', 'php');
         $this->assertFalse($v->validate());
     }
 
-    public function testListContainsNonStrictComparison()
+    public function testListContainsNonStrictComparison(): void
     {
         $v = new Validator(['numbers' => [1, 2, 3]]);
         $v->rule('listContains', 'numbers', '1'); // String '1', default non-strict
         $this->assertTrue($v->validate());
     }
 
-    public function testListContainsStrictComparison()
+    public function testListContainsStrictComparison(): void
     {
         $v = new Validator(['numbers' => [1, 2, 3]]);
         $v->rule('listContains', 'numbers', '1', true); // true = strict
         $this->assertFalse($v->validate());
     }
 
-    public function testListContainsWithIntegers()
+    public function testListContainsWithIntegers(): void
     {
         $v = new Validator(['ids' => [10, 20, 30]]);
         $v->rule('listContains', 'ids', 20);
         $this->assertTrue($v->validate());
     }
 
-    public function testListContainsWithAssociativeArray()
+    public function testListContainsWithAssociativeArray(): void
     {
         $v = new Validator(['data' => ['name' => 'John', 'email' => 'john@example.com']]);
         $v->rule('listContains', 'data', 'name'); // Should check keys
         $this->assertTrue($v->validate());
     }
 
-    public function testListContainsWithAssociativeArrayValues()
+    public function testListContainsWithAssociativeArrayValues(): void
     {
         $v = new Validator(['data' => ['name' => 'John', 'email' => 'john@example.com']]);
         $v->rule('listContains', 'data', 'John'); // Should NOT find values
         $this->assertFalse($v->validate());
     }
 
-    public function testListContainsForceAssociative()
+    public function testListContainsForceAssociative(): void
     {
         $v = new Validator(['items' => ['a', 'b', 'c']]);
         $v->rule('listContains', 'items', '0', false, true); // Force check keys
         $this->assertTrue($v->validate());
     }
 
-    public function testListContainsWithBooleans()
+    public function testListContainsWithBooleans(): void
     {
         $v1 = new Validator(['flags' => [true, false]]);
         $v1->rule('listContains', 'flags', true);
@@ -376,28 +376,28 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertTrue($v2->validate());
     }
 
-    public function testListContainsWithZero()
+    public function testListContainsWithZero(): void
     {
         $v = new Validator(['numbers' => [0, 1, 2]]);
         $v->rule('listContains', 'numbers', 0);
         $this->assertTrue($v->validate());
     }
 
-    public function testListContainsWithNull()
+    public function testListContainsWithNull(): void
     {
         $v = new Validator(['values' => [null, 'a', 'b']]);
         $v->rule('listContains', 'values', null);
         $this->assertTrue($v->validate());
     }
 
-    public function testListContainsCaseSensitive()
+    public function testListContainsCaseSensitive(): void
     {
         $v = new Validator(['tags' => ['PHP', 'JavaScript', 'Python']]);
         $v->rule('listContains', 'tags', 'php'); // lowercase
         $this->assertFalse($v->validate());
     }
 
-    public function testListContainsWithFloats()
+    public function testListContainsWithFloats(): void
     {
         $v = new Validator(['prices' => [9.99, 19.99, 29.99]]);
         $v->rule('listContains', 'prices', 19.99);
@@ -405,7 +405,7 @@ class ArrayValidationTest extends BaseTestCase
     }
 
     // Subset Tests
-    public function testSubsetValid()
+    public function testSubsetValid(): void
     {
         // numeric values
         $v = new Validator(['test_field' => [81, 3, 15]]);
@@ -428,7 +428,7 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testSubsetValidAltSyntax()
+    public function testSubsetValidAltSyntax(): void
     {
         $v = new Validator(['colors' => ['green', 'blue']]);
         $v->rules([
@@ -439,14 +439,14 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testSubsetInvalid()
+    public function testSubsetInvalid(): void
     {
         $v = new Validator(['test_field' => [81, false, 'orange']]);
         $v->rule('subset', 'test_field', [45, 'green', true, 'orange', null, false, 7]);
         $this->assertFalse($v->validate());
     }
 
-    public function testSubsetInvalidAltSyntax()
+    public function testSubsetInvalidAltSyntax(): void
     {
         $v = new Validator(['colors' => ['purple', 'blue']]);
         $v->rules([
@@ -457,14 +457,14 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testSubsetInvalidValue()
+    public function testSubsetInvalidValue(): void
     {
         $v = new Validator(['test_field' => 'black 45']);
         $v->rule('subset', 'test_field', ['black', 45]);
         $this->assertFalse($v->validate());
     }
 
-    public function testSubsetInvalidRule()
+    public function testSubsetInvalidRule(): void
     {
         // rule value has invalid type
         $v = new Validator(['test_field' => ['black', 45]]);
@@ -477,7 +477,7 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testSubsetAcceptNullValue()
+    public function testSubsetAcceptNullValue(): void
     {
         // rule value equals null
         $v = new Validator(['test_field' => null]);
@@ -487,7 +487,7 @@ class ArrayValidationTest extends BaseTestCase
     }
 
     // ContainsUnique Tests
-    public function testContainsUniqueValid()
+    public function testContainsUniqueValid(): void
     {
         // numeric values
         $v = new Validator(['test_field' => [81, 3, 15]]);
@@ -505,7 +505,7 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testContainsUniqueValidAltSyntax()
+    public function testContainsUniqueValidAltSyntax(): void
     {
         $v = new Validator(['colors' => ['purple', 'blue']]);
         $v->rules([
@@ -516,14 +516,14 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testContainsUniqueInvalid()
+    public function testContainsUniqueInvalid(): void
     {
         $v = new Validator(['test_field' => [81, false, 'orange', false]]);
         $v->rule('containsUnique', 'test_field');
         $this->assertFalse($v->validate());
     }
 
-    public function testContainsUniqueInvalidAltSyntax()
+    public function testContainsUniqueInvalidAltSyntax(): void
     {
         $v = new Validator(['colors' => ['purple', 'purple']]);
         $v->rules([
@@ -534,7 +534,7 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testContainsUniqueInvalidValue()
+    public function testContainsUniqueInvalidValue(): void
     {
         $v = new Validator(['test_field' => 'lorem ipsum']);
         $v->rule('containsUnique', 'test_field');
@@ -542,7 +542,7 @@ class ArrayValidationTest extends BaseTestCase
     }
 
     // ArrayHasKeys Tests
-    public function testArrayHasKeysTrueIfAllFieldsExist()
+    public function testArrayHasKeysTrueIfAllFieldsExist(): void
     {
         $v = new Validator([
             'address' => [
@@ -555,7 +555,7 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testArrayHasKeysFalseOnMissingField()
+    public function testArrayHasKeysFalseOnMissingField(): void
     {
         $v = new Validator([
             'address' => [
@@ -567,7 +567,7 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testArrayHasKeysFalseOnNonArray()
+    public function testArrayHasKeysFalseOnNonArray(): void
     {
         $v = new Validator([
             'address' => ['Jane Doe, Doe Square'],
@@ -576,7 +576,7 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testArrayHasKeysFalseOnEmptyRequiredFields()
+    public function testArrayHasKeysFalseOnEmptyRequiredFields(): void
     {
         $v = new Validator([
             'address' => [
@@ -588,7 +588,7 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testArrayHasKeysFalseOnUnspecifiedRequiredFields()
+    public function testArrayHasKeysFalseOnUnspecifiedRequiredFields(): void
     {
         $v = new Validator([
             'address' => [
@@ -600,7 +600,7 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testArrayHasKeysTrueIfMissingAndOptional()
+    public function testArrayHasKeysTrueIfMissingAndOptional(): void
     {
         $v = new Validator([]);
         $v->rule('arrayHasKeys', 'address', ['name', 'street', 'city']);
@@ -612,7 +612,7 @@ class ArrayValidationTest extends BaseTestCase
     /**
      * @see https://github.com/vlucas/valitron/issues/262
      */
-    public function testOptionalArrayPartsAreIgnored()
+    public function testOptionalArrayPartsAreIgnored(): void
     {
         $v = new Validator(
             [
@@ -629,7 +629,7 @@ class ArrayValidationTest extends BaseTestCase
     /**
      * @see https://github.com/vlucas/valitron/issues/262
      */
-    public function testRequiredArrayPartsAreNotIgnored()
+    public function testRequiredArrayPartsAreNotIgnored(): void
     {
         $v = new Validator(
             [

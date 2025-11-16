@@ -13,9 +13,9 @@
 * **Security-first approach** that helps guard against things like ReDoS, type juggling issues, path traversal, and similar problems.
 * **Thoroughly tested**, with over 430 tests making sure things behave the way they should.
 * **No external dependencies**, other than the standard `ext-mbstring` extension.
-* **Clean and straightforward API** that’s easy to read and chain together.
+* **Clean and straightforward API** that's easy to read and chain together.
 * **Built-in i18n support**, offering 22 languages out of the box.
-* **35+ ready-to-use validation rules** covering the most common validation needs.
+* **43 ready-to-use validation rules** covering the most common validation needs.
 * **Easy to extend**, so you can add your own custom validation rules when needed.
 * **Clean, modern codebase**, fully passing PHPStan Level 8 checks.
 
@@ -55,6 +55,7 @@ if ($v->validate()) {
 **For detailed usage examples of each rule, see [EXAMPLES.md](EXAMPLES.md)**
 
 ### String Validators
+
  * `required` - Field is required
  * `alpha` - Alphabetic characters only
  * `alphaNum` - Alphabetic and numeric characters only
@@ -66,22 +67,27 @@ if ($v->validate()) {
  * `regex` - Field matches given regex pattern
 
 ### Numeric Validators
+
  * `integer` - Must be integer number
  * `numeric` - Must be numeric
  * `min` - Minimum value
  * `max` - Maximum value
+ * `between` - Value must be between min and max
 
 ### Length Validators
+
  * `length` - String must be certain length
  * `lengthBetween` - String must be between given lengths
  * `lengthMin` - String must be greater than given length
  * `lengthMax` - String must be less than given length
 
 ### URL Validators
+
  * `url` - Valid URL
  * `urlActive` - Valid URL with active DNS record
 
 ### Array Validators
+
  * `array` - Must be array
  * `in` - Performs in_array check on given array values
  * `notIn` - Negation of `in` rule (not in array of values)
@@ -91,16 +97,19 @@ if ($v->validate()) {
  * `arrayHasKeys` - Field is an array and contains all specified keys
 
 ### Date Validators
+
  * `date` - Field is a valid date
  * `dateFormat` - Field is a valid date in the given format
  * `dateBefore` - Field is a valid date and is before the given date
  * `dateAfter` - Field is a valid date and is after the given date
 
 ### Comparison Validators
+
  * `equals` - Field must match another field (email/password confirmation)
  * `different` - Field must be different than another field
 
 ### Type Validators
+
  * `boolean` - Must be boolean
  * `ip` - Valid IP address
  * `ipv4` - Valid IP v4 address
@@ -109,20 +118,23 @@ if ($v->validate()) {
  * `instanceOf` - Field contains an instance of the given class
 
 ### Conditional Validators
+
  * `optional` - Value does not need to be included in data array. If it is however, it must pass validation.
  * `accepted` - Checkbox or Radio must be accepted (yes, on, 1, true)
  * `requiredWith` - Field is required if any other fields are present
  * `requiredWithout` - Field is required if any other fields are NOT present
 
 **NOTE**: If you are comparing floating-point numbers with min/max validators, you
-should install the [BCMath](http://us3.php.net/manual/en/book.bc.php)
-extension for greater accuracy and reliability. The extension is not required
-for Valicomb to work, but Valicomb will use it if available, and it is highly
+should install the [BCMath](http://us3.php.net/manual/en/book.bc.php) extension for greater accuracy and reliability. The extension is not required for Valicomb to work, but Valicomb will use it if available, and it is highly
 recommended.
 
 ## Usage Examples
 
-### Multiple Rules on One Field
+### Defining Validation Rules
+
+Valicomb provides three flexible ways to define validation rules:
+
+#### 1. Fluent/Chained syntax (most explicit)
 
 ```php
 use Frostybee\Valicomb\Validator;
@@ -133,7 +145,7 @@ $v->rule('required', 'email')
   ->rule('lengthMin', 'email', 5);
 ```
 
-### Alternative Syntax
+#### 2. Rule-based array (best when applying the same rule to many fields)
 
 ```php
 use Frostybee\Valicomb\Validator;
@@ -149,40 +161,16 @@ $v->rules([
 ]);
 ```
 
-### Specifying Validation Rules as Arrays
-
-Valicomb provides two ways to specify validation rules as arrays:
-
-#### 1. Field-based array (field names as keys)
-```php
-$rules = [
-    'name' => ['required', ['lengthMin', 2]]
-];
-$v->mapManyFieldsToRules($rules);
-```
-
-#### 2. Rule-based array (rule names as keys)
-```php
-$rules = [
-    'required' => [['name']],
-    'lengthMin' => [['name', 2]]
-];
-$v->rules($rules);
-```
-
-> - The field-based array is **more intuitive** when organizing validation rules by field.
-> - The rule-based array is **more useful** when applying the same rule to many fields.
-
-### Custom Error Messages
+#### 3. Field-based array (best when organizing by field)
 
 ```php
 use Frostybee\Valicomb\Validator;
 
-$v = new Validator(['email' => 'invalid']);
-$v->rule('email', 'email')->message('Please enter a valid email address');
-
-// Or set custom message when defining rule
-$v->rule('required', 'name')->message('{field} is absolutely required');
+$v = new Validator($_POST);
+$v->mapManyFieldsToRules([
+    'name' => ['required', ['lengthMin', 2]],
+    'email' => ['required', 'email', ['lengthMax', 254]]
+]);
 ```
 
 ### Field Labels
@@ -514,48 +502,6 @@ $v->rule('lengthBetween', 'username', 3, 20)
   ->message('Username must be between {0} and {1} characters');
 ```
 
-## Testing & Development Commands
-
-| Command | Description | When to Use |
-|---------|-------------|-------------|
-| **Testing** |
-| `composer test` | Run PHPUnit test suite | Run tests before committing |
-| **Code Quality** |
-| `composer analyse` | Run PHPStan static analysis (Level 8) | Check type safety and find bugs |
-| `composer cs-check` | Check code style (PSR-12 + custom rules) | Verify code formatting (dry-run) |
-| `composer cs-fix` | Fix code style issues automatically | Auto-fix formatting issues |
-| **Refactoring** |
-| `composer refactor` | Apply Rector automated refactorings | Modernize code (review changes!) |
-| `composer refactor-dry` | Preview Rector refactorings (dry-run) | See what Rector would change |
-| **Combined Checks** |
-| `composer check` | Run tests + analyse + cs-check | Quick quality check before commit |
-| `composer check-all` | Run tests + analyse + cs-check + refactor-dry | Complete quality check (recommended) |
-| **Performance** |
-| `composer benchmark` | Run performance benchmarks | Measure validation performance |
-| **Utilities** |
-| `composer dump-autoload` | Rebuild autoloader | After adding new classes |
-| `composer validate` | Validate composer.json syntax | Check composer.json is valid |
-| `composer audit` | Check for security vulnerabilities | Security check for dependencies |
-| `composer update` | Update all dependencies | Keep packages up to date |
-| `composer install` | Install dependencies from lock file | Initial setup or after git pull |
-
-### Quick Reference Workflow
-
-```bash
-# Before committing code
-composer check-all          # Run all quality checks
-
-# Fix any issues found
-composer cs-fix            # Auto-fix code style
-composer refactor          # Apply safe refactorings (review first!)
-
-# Verify everything passes
-composer check-all
-
-# Run performance benchmarks (optional)
-composer benchmark
-```
-
 ## 🙏 Credits
 
 Originally created by [Vance Lucas](https://www.vancelucas.com/)
@@ -583,18 +529,29 @@ Contributions are welcome! Please ensure:
 10. Push to the branch (`git push origin my-new-feature`)
 11. Create a Pull Request
 
-### Development Workflow
+## Testing & Development Workflow
 
 ```bash
-# Before committing code
-composer check-all          # Run all quality checks
+# Before committing
+composer check-all
 
-# Fix any issues found
-composer cs-fix            # Auto-fix code style
+# Individual checks
+composer test              # Run PHPUnit test suite
+composer analyse           # Run PHPStan static analysis (Level 8)
+composer cs-check          # Check code style (PSR-12)
 
-# Verify everything passes
+# Fix any issues
+composer cs-fix
+
+# Verify fixes
 composer check-all
 ```
+
+### Additional Commands
+
+- `composer benchmark` - Run performance benchmarks
+- `composer validate` - Validate composer.json syntax
+- `composer audit` - Check for security vulnerabilities
 
 ## Security
 

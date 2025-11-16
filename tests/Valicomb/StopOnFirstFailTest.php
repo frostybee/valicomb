@@ -8,7 +8,7 @@ use Frostybee\Valicomb\Validator;
 
 class StopOnFirstFailTest extends BaseTestCase
 {
-    public function testStopOnFirstFail()
+    public function testStopOnFirstFail(): void
     {
         $rules = [
             'website' => [

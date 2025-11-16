@@ -29,7 +29,6 @@ use function dirname;
 use function explode;
 use function filter_var;
 use function function_exists;
-use function get_class;
 use function idn_to_ascii;
 use function implode;
 use function in_array;
@@ -245,9 +244,9 @@ class Validator
         ?string $langDir = null,
     ) {
         // Filter fields if whitelist provided.
-        $this->fields = !empty($fields)
-            ? array_intersect_key($data, array_flip($fields))
-            : $data;
+        $this->fields = $fields === []
+            ? $data
+            : array_intersect_key($data, array_flip($fields));
 
         // Initialize language files.
         $this->initializeLanguage($lang, $langDir);
@@ -274,7 +273,7 @@ class Validator
     protected function initializeLanguage(?string $lang, ?string $langDir): void
     {
         // Determine language.
-        $lang = $lang ?? static::lang();
+        $lang ??= static::lang();
         $lang = basename($lang); // Remove any path traversal attempts
 
         // Validate language against whitelist.
@@ -285,7 +284,7 @@ class Validator
         }
 
         // Determine and validate language directory.
-        $langDir = $langDir ?? static::langDir();
+        $langDir ??= static::langDir();
         $originalLangDir = $langDir;
 
         // Resolve the real path (this will normalize .. and check existence).
@@ -510,7 +509,7 @@ class Validator
             } elseif ($param instanceof DateTime) {
                 $param = $param->format('Y-m-d');
             } elseif (is_object($param)) {
-                $param = get_class($param);
+                $param = $param::class;
                 // Add leading backslash for fully qualified class names
                 if ($param[0] !== '\\') {
                     $param = '\\' . $param;
@@ -682,7 +681,7 @@ class Validator
             $message = str_replace('{field}', $this->labels[$field], $message);
 
             $i = 1;
-            foreach ($params as $k => $v) {
+            foreach (array_keys($params) as $k) {
                 $tag = '{field' . $i . '}';
                 $label = isset($params[$k]) && (is_numeric($params[$k]) || is_string($params[$k])) && isset($this->labels[$params[$k]])
                     ? $this->labels[$params[$k]]
@@ -973,7 +972,7 @@ class Validator
         $message = $messages[$rule] ?? self::ERROR_DEFAULT;
 
         // Ensure message contains field label
-        if (!str_contains($message, '{field}')) {
+        if (!str_contains((string) $message, '{field}')) {
             $message = '{field} ' . $message;
         }
 
@@ -1070,7 +1069,7 @@ class Validator
     public function withData(array $data, array $fields = []): self
     {
         $clone = clone $this;
-        $clone->fields = !empty($fields) ? array_intersect_key($data, array_flip($fields)) : $data;
+        $clone->fields = $fields === [] ? $data : array_intersect_key($data, array_flip($fields));
         $clone->errors = [];
         return $clone;
     }
@@ -1184,7 +1183,7 @@ class Validator
     private function isAssociativeArray(array $input): bool
     {
         // Array contains at least one key that's not an integer or can't be cast to an integer
-        return count(array_filter(array_keys($input), 'is_string')) > 0;
+        return array_filter(array_keys($input), 'is_string') !== [];
     }
 
     /**
@@ -1207,7 +1206,7 @@ class Validator
     protected function getPart(mixed $data, array $identifiers, bool $allowEmpty = false): array
     {
         // Catches the case where the field is an array of discrete values
-        if (count($identifiers) === 0) {
+        if ($identifiers === []) {
             return [$data, false];
         }
 
@@ -1242,7 +1241,7 @@ class Validator
         }
 
         // Match array element
-        if (count($identifiers) === 0) {
+        if ($identifiers === []) {
             if ($allowEmpty) {
                 // When empty values are allowed, we only care if the key exists
                 return [null, array_key_exists($identifier, $data)];
@@ -1344,7 +1343,7 @@ class Validator
 
         foreach ($this->validations as $v) {
             foreach ($v['fields'] as $field) {
-                [$values, $multiple] = $this->getPart($this->fields, explode('.', $field), false);
+                [$values, $multiple] = $this->getPart($this->fields, explode('.', (string) $field), false);
 
                 if (!$this->validationMustBeExecuted($v, $field, $values, $multiple)) {
                     continue;
@@ -1352,11 +1351,7 @@ class Validator
 
                 // Callback is user-specified or assumed method on class
                 $errors = $this->getRules();
-                if (isset($errors[$v['rule']])) {
-                    $callback = $errors[$v['rule']];
-                } else {
-                    $callback = [$this, 'validate' . ucfirst($v['rule'])];
-                }
+                $callback = $errors[$v['rule']] ?? [$this, 'validate' . ucfirst((string) $v['rule'])];
 
                 if (!$multiple) {
                     $values = [$values];
@@ -1383,7 +1378,7 @@ class Validator
             }
         }
 
-        return count($this->errors) === 0;
+        return $this->errors === [];
     }
 
     // ===========================================
@@ -1412,12 +1407,7 @@ class Validator
             $find = $this->getPart($this->fields, explode('.', $field), true);
             return $find[1];
         }
-
-        if (is_null($value) || (is_string($value) && trim($value) === '')) {
-            return false;
-        }
-
-        return true;
+        return !is_null($value) && !(is_string($value) && trim($value) === '');
     }
 
     /**
@@ -1552,7 +1542,7 @@ class Validator
             }
 
             // Fixed regex: matches 0, or optional negative sign followed by 1-9 then any digits
-            return preg_match('/^(0|-?[1-9][0-9]*)$/', $value) === 1;
+            return preg_match('/^(0|-?[1-9]\d*)$/', $value) === 1;
         }
 
         // Non-strict: also accept actual integers and numeric strings
@@ -1754,7 +1744,7 @@ class Validator
         }
 
         if (function_exists('bccomp')) {
-            return !(bccomp((string)$params[0], (string)$value, 14) === 1);
+            return bccomp((string)$params[0], (string)$value, 14) !== 1;
         }
 
         return $params[0] <= $value;
@@ -1790,7 +1780,7 @@ class Validator
         }
 
         if (function_exists('bccomp')) {
-            return !(bccomp((string)$value, (string)$params[0], 14) === 1);
+            return bccomp((string)$value, (string)$params[0], 14) !== 1;
         }
 
         return $params[0] >= $value;
@@ -2030,7 +2020,7 @@ class Validator
         }
 
         // Check if all elements in $value exist in $allowedValues
-        return count(array_diff($value, $allowedValues)) === 0;
+        return array_diff($value, $allowedValues) === [];
     }
 
     /**
@@ -2218,13 +2208,8 @@ class Validator
         if (str_contains($local, '..')) {
             return false;
         }
-
         // Reject leading/trailing dots in local part
-        if (str_starts_with($local, '.') || str_ends_with($local, '.')) {
-            return false;
-        }
-
-        return true;
+        return !str_starts_with($local, '.') && !str_ends_with($local, '.');
     }
 
     /**
@@ -2357,7 +2342,7 @@ class Validator
 
         // Check if URL starts with valid prefix (FIXED: using str_starts_with)
         foreach ($this->validUrlPrefixes as $prefix) {
-            if (str_starts_with($value, $prefix)) {
+            if (str_starts_with($value, (string) $prefix)) {
                 return filter_var($value, FILTER_VALIDATE_URL) !== false;
             }
         }
@@ -2407,7 +2392,7 @@ class Validator
 
         // Check if URL starts with valid prefix (FIXED: using str_starts_with)
         foreach ($this->validUrlPrefixes as $prefix) {
-            if (str_starts_with($value, $prefix)) {
+            if (str_starts_with($value, (string) $prefix)) {
                 $host = parse_url(strtolower($value), PHP_URL_HOST);
 
                 if ($host === null || $host === false) {
@@ -2867,7 +2852,7 @@ class Validator
          * If there has been an array of valid cards supplied, or the name of the users card
          * or the name and an array of valid cards
          */
-        if (!empty($params)) {
+        if ($params !== []) {
             /**
              * Array of valid cards
              */
@@ -2887,7 +2872,7 @@ class Validator
         /**
          * Luhn algorithm
          */
-        $numberIsValid = function () use ($value) {
+        $numberIsValid = function () use ($value): bool {
             $number = preg_replace('/[^0-9]+/', '', (string)$value);
             if (!is_string($number) || $number === '') {
                 return false;
@@ -2924,11 +2909,11 @@ class Validator
             }
 
             $cardRegex = [
-                'visa' => '#^4[0-9]{12}(?:[0-9]{3})?$#',
-                'mastercard' => '#^(5[1-5]|2[2-7])[0-9]{14}$#',
-                'amex' => '#^3[47][0-9]{13}$#',
-                'dinersclub' => '#^3(?:0[0-5]|[68][0-9])[0-9]{11}$#',
-                'discover' => '#^6(?:011|5[0-9]{2})[0-9]{12}$#',
+                'visa' => '#^4\d{12}(?:\d{3})?$#',
+                'mastercard' => '#^(5[1-5]|2[2-7])\d{14}$#',
+                'amex' => '#^3[47]\d{13}$#',
+                'dinersclub' => '#^3(?:0[0-5]|[68]\d)\d{11}$#',
+                'discover' => '#^6(?:011|5\d{2})\d{12}$#',
             ];
 
             if ($cardType !== null) {
@@ -3036,7 +3021,7 @@ class Validator
 
             foreach ($reqParams as $requiredField) {
                 // Check the field is set, not null, and not the empty string
-                [$requiredFieldValue, $multiple] = $this->getPart($fields, explode('.', $requiredField));
+                [$requiredFieldValue, $multiple] = $this->getPart($fields, explode('.', (string) $requiredField));
                 if (isset($requiredFieldValue) && (!is_string($requiredFieldValue) || trim($requiredFieldValue) !== '')) {
                     if (!$allRequired) {
                         $conditionallyReq = true;
@@ -3051,13 +3036,8 @@ class Validator
                 $conditionallyReq = true;
             }
         }
-
         // If we have conditionally required fields
-        if ($conditionallyReq && (is_null($value) || (is_string($value) && trim($value) === ''))) {
-            return false;
-        }
-
-        return true;
+        return !($conditionallyReq && (is_null($value) || (is_string($value) && trim($value) === '')));
     }
 
     /**
@@ -3087,7 +3067,7 @@ class Validator
 
             foreach ($reqParams as $requiredField) {
                 // Check the field is NOT set, null, or the empty string, in which case we are requiring this value be present
-                [$requiredFieldValue, $multiple] = $this->getPart($fields, explode('.', $requiredField));
+                [$requiredFieldValue, $multiple] = $this->getPart($fields, explode('.', (string) $requiredField));
                 if (!isset($requiredFieldValue) || (is_string($requiredFieldValue) && trim($requiredFieldValue) === '')) {
                     if (!$allEmpty) {
                         $conditionallyReq = true;
@@ -3102,13 +3082,8 @@ class Validator
                 $conditionallyReq = true;
             }
         }
-
         // If we have conditionally required fields
-        if ($conditionallyReq && (is_null($value) || (is_string($value) && trim($value) === ''))) {
-            return false;
-        }
-
-        return true;
+        return !($conditionallyReq && (is_null($value) || (is_string($value) && trim($value) === '')));
     }
 
     /**
@@ -3192,7 +3167,7 @@ class Validator
         }
 
         $requiredFields = $params[0];
-        if (!is_array($requiredFields) || count($requiredFields) === 0) {
+        if (!is_array($requiredFields) || $requiredFields === []) {
             return false;
         }
 

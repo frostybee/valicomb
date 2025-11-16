@@ -14,14 +14,14 @@ use stdClass;
 class NumericValidationTest extends BaseTestCase
 {
     // Numeric Tests
-    public function testNumericValid()
+    public function testNumericValid(): void
     {
         $v = new Validator(['num' => '42.341569']);
         $v->rule('numeric', 'num');
         $this->assertTrue($v->validate());
     }
 
-    public function testNumericValidAltSyntax()
+    public function testNumericValidAltSyntax(): void
     {
         $v = new Validator(['amount' => 3.14]);
         $v->rules([
@@ -32,14 +32,14 @@ class NumericValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testNumericInvalid()
+    public function testNumericInvalid(): void
     {
         $v = new Validator(['num' => 'nope']);
         $v->rule('numeric', 'num');
         $this->assertFalse($v->validate());
     }
 
-    public function testNumericInvalidAltSyntax()
+    public function testNumericInvalidAltSyntax(): void
     {
         $v = new Validator(['amount' => 'banana']);
         $v->rules([
@@ -51,7 +51,7 @@ class NumericValidationTest extends BaseTestCase
     }
 
     // Integer Tests
-    public function testIntegerValid()
+    public function testIntegerValid(): void
     {
         $v = new Validator(['num' => '41243']);
         $v->rule('integer', 'num');
@@ -62,7 +62,7 @@ class NumericValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testIntegerValidAltSyntax()
+    public function testIntegerValidAltSyntax(): void
     {
         $v = new Validator(['age' => 27]);
         $v->rules([
@@ -73,7 +73,7 @@ class NumericValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testIntegerStrict()
+    public function testIntegerStrict(): void
     {
 
         $v = new Validator(['num' => ' 41243']);
@@ -121,7 +121,7 @@ class NumericValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testIntegerInvalid()
+    public function testIntegerInvalid(): void
     {
         $v = new Validator(['num' => '42.341569']);
         $v->rule('integer', 'num');
@@ -136,7 +136,7 @@ class NumericValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testIntegerInvalidAltSyntax()
+    public function testIntegerInvalidAltSyntax(): void
     {
         $v = new Validator(['age' => 3.14]);
         $v->rules([
@@ -148,7 +148,7 @@ class NumericValidationTest extends BaseTestCase
     }
 
     // Min Tests
-    public function testMinValid()
+    public function testMinValid(): void
     {
         $v = new Validator(['num' => 5]);
         $v->rule('min', 'num', 2);
@@ -159,7 +159,7 @@ class NumericValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testMinValidAltSyntax()
+    public function testMinValidAltSyntax(): void
     {
         $v = new Validator(['age' => 28]);
         $v->rules([
@@ -170,7 +170,7 @@ class NumericValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testMinValidFloat()
+    public function testMinValidFloat(): void
     {
         if (!function_exists('bccomp')) {
             $this->markTestSkipped("Floating point comparison requires the BC Math extension to be installed");
@@ -185,7 +185,7 @@ class NumericValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testMinInvalid()
+    public function testMinInvalid(): void
     {
         $v = new Validator(['num' => 5]);
         $v->rule('min', 'num', 6);
@@ -200,7 +200,7 @@ class NumericValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testMinInvalidAltSyntax()
+    public function testMinInvalidAltSyntax(): void
     {
         $v = new Validator(['age' => 16]);
         $v->rules([
@@ -211,7 +211,7 @@ class NumericValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testMinInvalidFloat()
+    public function testMinInvalidFloat(): void
     {
         $v = new Validator(['num' => 0.5]);
         $v->rule('min', 'num', 0.9);
@@ -219,7 +219,7 @@ class NumericValidationTest extends BaseTestCase
     }
 
     // Max Tests
-    public function testMaxValid()
+    public function testMaxValid(): void
     {
         $v = new Validator(['num' => 5]);
         $v->rule('max', 'num', 6);
@@ -230,7 +230,7 @@ class NumericValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testMaxValidAltSyntax()
+    public function testMaxValidAltSyntax(): void
     {
         $v = new Validator(['age' => 10]);
         $v->rules([
@@ -241,7 +241,7 @@ class NumericValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testMaxValidFloat()
+    public function testMaxValidFloat(): void
     {
         if (!function_exists('bccomp')) {
             $this->markTestSkipped("Accurate floating point comparison requires the BC Math extension to be installed");
@@ -256,7 +256,7 @@ class NumericValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testMaxInvalid()
+    public function testMaxInvalid(): void
     {
         $v = new Validator(['num' => 5]);
         $v->rule('max', 'num', 4);
@@ -271,7 +271,7 @@ class NumericValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testMaxInvalidAltSyntax()
+    public function testMaxInvalidAltSyntax(): void
     {
         $v = new Validator(['age' => 29]);
         $v->rules([
@@ -282,7 +282,7 @@ class NumericValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testMaxInvalidFloat()
+    public function testMaxInvalidFloat(): void
     {
         $v = new Validator(['num' => 0.9]);
         $v->rule('max', 'num', 0.5);
@@ -290,28 +290,28 @@ class NumericValidationTest extends BaseTestCase
     }
 
     // Between Tests
-    public function testBetweenValid()
+    public function testBetweenValid(): void
     {
         $v = new Validator(['num' => 5]);
         $v->rule('between', 'num', [3, 7]);
         $this->assertTrue($v->validate());
     }
 
-    public function testBetweenInvalid()
+    public function testBetweenInvalid(): void
     {
         $v = new Validator(['num' => 3]);
         $v->rule('between', 'num', [5, 10]);
         $this->assertFalse($v->validate());
     }
 
-    public function testBetweenInvalidValue()
+    public function testBetweenInvalidValue(): void
     {
         $v = new Validator(['num' => [3]]);
         $v->rule('between', 'num', [5, 10]);
         $this->assertFalse($v->validate());
     }
 
-    public function testBetweenInvalidRange()
+    public function testBetweenInvalidRange(): void
     {
         $v = new Validator(['num' => 3]);
         $v->rule('between', 'num');
@@ -327,14 +327,14 @@ class NumericValidationTest extends BaseTestCase
     }
 
     // Special Numeric Edge Cases
-    public function testZeroStillTriggersValidation()
+    public function testZeroStillTriggersValidation(): void
     {
         $v = new Validator(['test' => 0]);
         $v->rule('min', 'test', 1);
         $this->assertFalse($v->validate());
     }
 
-    public function testFalseStillTriggersValidation()
+    public function testFalseStillTriggersValidation(): void
     {
         $v = new Validator(['test' => false]);
         $v->rule('min', 'test', 5);
@@ -346,7 +346,7 @@ class NumericValidationTest extends BaseTestCase
     /**
      * Test min with very large numbers
      */
-    public function testMinWithLargeNumbers()
+    public function testMinWithLargeNumbers(): void
     {
         $v = new Validator(['num' => '999999999999']);
         $v->rule('min', 'num', 999999999998);
@@ -356,7 +356,7 @@ class NumericValidationTest extends BaseTestCase
     /**
      * Test min with decimal precision (bcmath handles 14 decimal places)
      */
-    public function testMinWithDecimalPrecision()
+    public function testMinWithDecimalPrecision(): void
     {
         if (!function_exists('bccomp')) {
             $this->markTestSkipped("BC Math extension required for decimal precision tests");
@@ -370,7 +370,7 @@ class NumericValidationTest extends BaseTestCase
     /**
      * Test between with negative range
      */
-    public function testBetweenWithNegativeRange()
+    public function testBetweenWithNegativeRange(): void
     {
         $v = new Validator(['num' => '-5']);
         $v->rule('between', 'num', [-10, -1]);
@@ -380,7 +380,7 @@ class NumericValidationTest extends BaseTestCase
     /**
      * Test between with range crossing zero
      */
-    public function testBetweenCrossingZero()
+    public function testBetweenCrossingZero(): void
     {
         $v1 = new Validator(['num' => '-5']);
         $v1->rule('between', 'num', [-10, 10]);
@@ -398,7 +398,7 @@ class NumericValidationTest extends BaseTestCase
     /**
      * Test between with single point range (edge case)
      */
-    public function testBetweenWithSinglePointRange()
+    public function testBetweenWithSinglePointRange(): void
     {
         $v1 = new Validator(['num' => '10']);
         $v1->rule('between', 'num', [10, 10]);
@@ -412,7 +412,7 @@ class NumericValidationTest extends BaseTestCase
     /**
      * Test between with decimal boundaries
      */
-    public function testBetweenWithDecimalBoundaries()
+    public function testBetweenWithDecimalBoundaries(): void
     {
         $v = new Validator(['num' => '10.5']);
         $v->rule('between', 'num', [10.1, 10.9]);

@@ -51,9 +51,6 @@ jobs:
       - name: Run PHP CS Fixer (check only)
         run: composer cs-check
 
-      - name: Run Rector (dry-run)
-        run: composer refactor-dry
-
   code-coverage:
     name: Code Coverage
     runs-on: ubuntu-latest

@@ -12,14 +12,14 @@ use InvalidArgumentException;
 class DateValidationTest extends BaseTestCase
 {
     // Date Tests
-    public function testDateValid()
+    public function testDateValid(): void
     {
         $v = new Validator(['date' => '2013-01-27']);
         $v->rule('date', 'date');
         $this->assertTrue($v->validate());
     }
 
-    public function testDateValidAltSyntax()
+    public function testDateValidAltSyntax(): void
     {
         $v = new Validator(['created_at' => '2018-10-13']);
         $v->rules([
@@ -30,21 +30,21 @@ class DateValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testDateValidWithDateTimeObject()
+    public function testDateValidWithDateTimeObject(): void
     {
         $v = new Validator(['date' => new DateTime()]);
         $v->rule('date', 'date');
         $this->assertTrue($v->validate());
     }
 
-    public function testDateInvalid()
+    public function testDateInvalid(): void
     {
         $v = new Validator(['date' => 'no thanks']);
         $v->rule('date', 'date');
         $this->assertFalse($v->validate());
     }
 
-    public function testDateInvalidAltSyntax()
+    public function testDateInvalidAltSyntax(): void
     {
         $v = new Validator(['created_at' => 'bananas']);
         $v->rules([
@@ -58,7 +58,7 @@ class DateValidationTest extends BaseTestCase
     /**
      * @group issue-13
      */
-    public function testDateValidWhenEmptyButNotRequired()
+    public function testDateValidWhenEmptyButNotRequired(): void
     {
         $v = new Validator(['date' => '']);
         $v->rule('date', 'date');
@@ -66,14 +66,14 @@ class DateValidationTest extends BaseTestCase
     }
 
     // DateFormat Tests
-    public function testDateFormatValid()
+    public function testDateFormatValid(): void
     {
         $v = new Validator(['date' => '2013-01-27']);
         $v->rule('dateFormat', 'date', 'Y-m-d');
         $this->assertTrue($v->validate());
     }
 
-    public function testDateFormatValidAltSyntax()
+    public function testDateFormatValidAltSyntax(): void
     {
         $v = new Validator(['created_at' => '2018-10-13']);
         $v->rules([
@@ -84,7 +84,7 @@ class DateValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testDateFormatInvalid()
+    public function testDateFormatInvalid(): void
     {
         $v = new Validator(['date' => 'no thanks']);
         $v->rule('dateFormat', 'date', 'Y-m-d');
@@ -95,7 +95,7 @@ class DateValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testDateFormatInvalidAltSyntax()
+    public function testDateFormatInvalidAltSyntax(): void
     {
         $v = new Validator(['created_at' => '10-13-2018']);
         $v->rules([
@@ -107,14 +107,14 @@ class DateValidationTest extends BaseTestCase
     }
 
     // DateBefore Tests
-    public function testDateBeforeValid()
+    public function testDateBeforeValid(): void
     {
         $v = new Validator(['date' => '2013-01-27']);
         $v->rule('dateBefore', 'date', new DateTime('2013-01-28'));
         $this->assertTrue($v->validate());
     }
 
-    public function testDateBeforeValidAltSyntax()
+    public function testDateBeforeValidAltSyntax(): void
     {
         $v = new Validator(['created_at' => '2018-09-01']);
         $v->rules([
@@ -125,7 +125,7 @@ class DateValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testDateWarningsWithObjectParams()
+    public function testDateWarningsWithObjectParams(): void
     {
         $v = new Validator(['startDate' => '2013-01-27', 'endDate' => '2013-05-08']);
         $v->rule(
@@ -148,14 +148,14 @@ class DateValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testDateBeforeInvalid()
+    public function testDateBeforeInvalid(): void
     {
         $v = new Validator(['date' => '2013-01-27']);
         $v->rule('dateBefore', 'date', '2013-01-26');
         $this->assertFalse($v->validate());
     }
 
-    public function testDateBeforeInvalidAltSyntax()
+    public function testDateBeforeInvalidAltSyntax(): void
     {
         $v = new Validator(['created_at' => '2018-11-01']);
         $v->rules([
@@ -167,14 +167,14 @@ class DateValidationTest extends BaseTestCase
     }
 
     // DateAfter Tests
-    public function testDateAfterValid()
+    public function testDateAfterValid(): void
     {
         $v = new Validator(['date' => '2013-01-27']);
         $v->rule('dateAfter', 'date', new DateTime('2013-01-26'));
         $this->assertTrue($v->validate());
     }
 
-    public function testDateAfterValidAltSyntax()
+    public function testDateAfterValidAltSyntax(): void
     {
         $v = new Validator(['created_at' => '2018-09-01']);
         $v->rules([
@@ -185,14 +185,14 @@ class DateValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testDateAfterInvalid()
+    public function testDateAfterInvalid(): void
     {
         $v = new Validator(['date' => '2013-01-27']);
         $v->rule('dateAfter', 'date', '2013-01-28');
         $this->assertFalse($v->validate());
     }
 
-    public function testDateAfterInvalidAltSyntax()
+    public function testDateAfterInvalidAltSyntax(): void
     {
         $v = new Validator(['created_at' => '2017-09-01']);
         $v->rules([

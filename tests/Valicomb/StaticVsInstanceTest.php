@@ -10,7 +10,7 @@ use function ucfirst;
 
 class StaticVsInstanceTest extends BaseTestCase
 {
-    public function testInstanceOverrideStaticLang()
+    public function testInstanceOverrideStaticLang(): void
     {
         Validator::lang('ar');
         new Validator([], [], 'en');
@@ -25,12 +25,12 @@ class StaticVsInstanceTest extends BaseTestCase
     /**
      * Fix bug where rules messages added with Validator::addRule were replaced after creating validator instance
      */
-    public function testRuleMessagesReplacedAfterConstructor()
+    public function testRuleMessagesReplacedAfterConstructor(): void
     {
         $customMessage = 'custom message';
         $ruleName = 'customRule';
         $fieldName = 'fieldName';
-        Validator::addRule($ruleName, function () {}, $customMessage);
+        Validator::addRule($ruleName, function (): void {}, $customMessage);
         $v = new Validator([$fieldName => $fieldName]);
         $v->rule($ruleName, $fieldName);
         $v->validate();

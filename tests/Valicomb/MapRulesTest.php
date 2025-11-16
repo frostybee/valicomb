@@ -10,7 +10,7 @@ use Frostybee\Valicomb\Validator;
 
 class MapRulesTest extends BaseTestCase
 {
-    public function testMapSingleFieldRules()
+    public function testMapSingleFieldRules(): void
     {
         $rules = [
             'required',
@@ -27,7 +27,7 @@ class MapRulesTest extends BaseTestCase
         $this->assertTrue($v2->validate());
     }
 
-    public function testSingleFieldDot()
+    public function testSingleFieldDot(): void
     {
         $v = new Validator([
             'settings' => [
@@ -42,7 +42,7 @@ class MapRulesTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testMapMultipleFieldsRules()
+    public function testMapMultipleFieldsRules(): void
     {
         $rules = [
             'username' => [
@@ -65,7 +65,7 @@ class MapRulesTest extends BaseTestCase
         $this->assertEquals(2, count($v->errors('password')));
     }
 
-    public function testCustomMessageSingleField()
+    public function testCustomMessageSingleField(): void
     {
         $rules = [
             ['lengthMin', 14, 'message' => 'Credit card number must be at least 14 digits'],
@@ -80,7 +80,7 @@ class MapRulesTest extends BaseTestCase
         $this->assertEquals('Credit card number must be at least 14 digits', $errors[0]);
     }
 
-    public function testCustomMessageMultipleFields()
+    public function testCustomMessageMultipleFields(): void
     {
         $rules = [
             'email' => [

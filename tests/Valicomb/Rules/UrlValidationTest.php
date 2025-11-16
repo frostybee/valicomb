@@ -16,14 +16,14 @@ use function time;
 class UrlValidationTest extends BaseTestCase
 {
     // URL Tests
-    public function testUrlValid()
+    public function testUrlValid(): void
     {
         $v = new Validator(['website' => 'http://google.com']);
         $v->rule('url', 'website');
         $this->assertTrue($v->validate());
     }
 
-    public function testUrlValidAltSyntax()
+    public function testUrlValidAltSyntax(): void
     {
         $v = new Validator(['website' => 'https://example.com/contact']);
         $v->rules([
@@ -34,14 +34,14 @@ class UrlValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testUrlInvalid()
+    public function testUrlInvalid(): void
     {
         $v = new Validator(['website' => 'shoobedobop']);
         $v->rule('url', 'website');
         $this->assertFalse($v->validate());
     }
 
-    public function testUrlInvalidAltSyntax()
+    public function testUrlInvalidAltSyntax(): void
     {
         $v = new Validator(['website' => 'thisisjusttext']);
         $v->rules([
@@ -53,14 +53,14 @@ class UrlValidationTest extends BaseTestCase
     }
 
     // URL Active Tests
-    public function testUrlActive()
+    public function testUrlActive(): void
     {
         $v = new Validator(['website' => 'http://google.com']);
         $v->rule('urlActive', 'website');
         $this->assertTrue($v->validate());
     }
 
-    public function testUrlActiveValidAltSyntax()
+    public function testUrlActiveValidAltSyntax(): void
     {
         // Use a more reliable domain that's guaranteed to have DNS
         $v = new Validator(['website' => 'https://google.com']);
@@ -85,14 +85,14 @@ class UrlValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testUrlInactive()
+    public function testUrlInactive(): void
     {
         $v = new Validator(['website' => 'http://example-test-domain-' . md5((string)time()) . '.com']);
         $v->rule('urlActive', 'website');
         $this->assertFalse($v->validate());
     }
 
-    public function testUrlActiveInvalidAltSyntax()
+    public function testUrlActiveInvalidAltSyntax(): void
     {
         $v = new Validator(['website' => 'https://example-domain']);
         $v->rules([

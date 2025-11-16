@@ -367,9 +367,7 @@ class SecurityTest extends TestCase
 
         // Add multiple custom rules to test unique naming
         for ($i = 0; $i < 5; $i++) {
-            $v->rule(function ($field, $value) {
-                return true;
-            }, 'field');
+            $v->rule(fn ($field, $value): true => true, 'field');
         }
 
         // If this doesn't throw an exception, random_int is working

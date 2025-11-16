@@ -31,7 +31,7 @@ class NetworkValidationTest extends TestCase
             return false;
         }
         // Try a known good domain
-        return @checkdnsrr('google.com', 'A') !== false;
+        return @checkdnsrr('google.com', 'A');
     }
 
     /**

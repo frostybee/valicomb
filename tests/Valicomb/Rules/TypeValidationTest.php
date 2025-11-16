@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Frostybee\Valicomb\Tests\Rules;
 
-use function compact;
-
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -17,14 +15,14 @@ use stdClass;
 class TypeValidationTest extends BaseTestCase
 {
     // Boolean Tests
-    public function testBooleanValid()
+    public function testBooleanValid(): void
     {
         $v = new Validator(['test' => true]);
         $v->rule('boolean', 'test');
         $this->assertTrue($v->validate());
     }
 
-    public function testBooleanValidAltSyntax()
+    public function testBooleanValidAltSyntax(): void
     {
         $v = new Validator(['remember_me' => true]);
         $v->rules([
@@ -35,14 +33,14 @@ class TypeValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testBooleanInvalid()
+    public function testBooleanInvalid(): void
     {
         $v = new Validator(['test' => 'true']);
         $v->rule('boolean', 'test');
         $this->assertFalse($v->validate());
     }
 
-    public function testBooleanInvalidAltSyntax()
+    public function testBooleanInvalidAltSyntax(): void
     {
         $v = new Validator(['remember_me' => 'lobster']);
         $v->rules([
@@ -54,14 +52,14 @@ class TypeValidationTest extends BaseTestCase
     }
 
     // IP Tests
-    public function testIpValid()
+    public function testIpValid(): void
     {
         $v = new Validator(['ip' => '127.0.0.1']);
         $v->rule('ip', 'ip');
         $this->assertTrue($v->validate());
     }
 
-    public function testIpValidAltSyntax()
+    public function testIpValidAltSyntax(): void
     {
         $v = new Validator(['user_ip' => '127.0.0.1']);
         $v->rules([
@@ -72,14 +70,14 @@ class TypeValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testIpInvalid()
+    public function testIpInvalid(): void
     {
         $v = new Validator(['ip' => 'buy viagra now!']);
         $v->rule('ip', 'ip');
         $this->assertFalse($v->validate());
     }
 
-    public function testIpInvalidAltSyntax()
+    public function testIpInvalidAltSyntax(): void
     {
         $v = new Validator(['user_ip' => '127.0.0.1.345']);
         $v->rules([
@@ -91,14 +89,14 @@ class TypeValidationTest extends BaseTestCase
     }
 
     // IPv4 Tests
-    public function testIpv4Valid()
+    public function testIpv4Valid(): void
     {
         $v = new Validator(['ip' => '127.0.0.1']);
         $v->rule('ipv4', 'ip');
         $this->assertTrue($v->validate());
     }
 
-    public function testIpv4ValidAltSyntax()
+    public function testIpv4ValidAltSyntax(): void
     {
         $v = new Validator(['user_ip' => '127.0.0.1']);
         $v->rules([
@@ -109,14 +107,14 @@ class TypeValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testIpv4Invalid()
+    public function testIpv4Invalid(): void
     {
         $v = new Validator(['ip' => 'FE80::0202:B3FF:FE1E:8329']);
         $v->rule('ipv4', 'ip');
         $this->assertFalse($v->validate());
     }
 
-    public function testIpv4InvalidAltSyntax()
+    public function testIpv4InvalidAltSyntax(): void
     {
         $v = new Validator(['user_ip' => '127.0.0.1.234']);
         $v->rules([
@@ -128,14 +126,14 @@ class TypeValidationTest extends BaseTestCase
     }
 
     // IPv6 Tests
-    public function testIpv6Valid()
+    public function testIpv6Valid(): void
     {
         $v = new Validator(['ip' => 'FE80::0202:B3FF:FE1E:8329']);
         $v->rule('ipv6', 'ip');
         $this->assertTrue($v->validate());
     }
 
-    public function testIpv6ValidAltSyntax()
+    public function testIpv6ValidAltSyntax(): void
     {
         $v = new Validator(['user_ipv6' => '0:0:0:0:0:0:0:1']);
         $v->rules([
@@ -146,14 +144,14 @@ class TypeValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testIpv6Invalid()
+    public function testIpv6Invalid(): void
     {
         $v = new Validator(['ip' => '127.0.0.1']);
         $v->rule('ipv6', 'ip');
         $this->assertFalse($v->validate());
     }
 
-    public function testIpv6InvalidAltSyntax()
+    public function testIpv6InvalidAltSyntax(): void
     {
         $v = new Validator(['user_ipv6' => '0:0:0:0:0:0:0:1:3:4:5']);
         $v->rules([
@@ -165,7 +163,7 @@ class TypeValidationTest extends BaseTestCase
     }
 
     // Credit Card Tests
-    public function testCreditCardValid()
+    public function testCreditCardValid(): void
     {
         $visa = [4539511619543489, 4532949059629052, 4024007171194938, 4929646403373269, 4539135861690622];
         $mastercard = [5162057048081965, 5382687859049349, 5484388880142230, 5464941521226434, 5473481232685965, 2223000048400011, 2223520043560014];
@@ -173,7 +171,7 @@ class TypeValidationTest extends BaseTestCase
         $dinersclub = [30363194756249, 30160097740704, 38186521192206, 38977384214552, 38563220301454];
         $discover = [6011712400392605, 6011536340491809, 6011785775263015, 6011984124619056, 6011320958064251];
 
-        foreach (compact('visa', 'mastercard', 'amex', 'dinersclub', 'discover') as $type => $numbers) {
+        foreach (['visa' => $visa, 'mastercard' => $mastercard, 'amex' => $amex, 'dinersclub' => $dinersclub, 'discover' => $discover] as $type => $numbers) {
             foreach ($numbers as $number) {
                 $v = new Validator(['test' => $number]);
                 $v->rule('creditCard', 'test');
@@ -189,7 +187,7 @@ class TypeValidationTest extends BaseTestCase
         }
     }
 
-    public function testCreditCardInvalid()
+    public function testCreditCardInvalid(): void
     {
         $visa = [3539511619543489, 3532949059629052, 3024007171194938, 3929646403373269, 3539135861690622];
         $mastercard = [4162057048081965, 4382687859049349, 4484388880142230, 4464941521226434, 4473481232685965];
@@ -197,7 +195,7 @@ class TypeValidationTest extends BaseTestCase
         $dinersclub = [20363194756249, 20160097740704, 28186521192206, 28977384214552, 28563220301454];
         $discover = [5011712400392605, 5011536340491809, 5011785775263015, 5011984124619056, 5011320958064251];
 
-        foreach (compact('visa', 'mastercard', 'amex', 'dinersclub', 'discover') as $type => $numbers) {
+        foreach (['visa' => $visa, 'mastercard' => $mastercard, 'amex' => $amex, 'dinersclub' => $dinersclub, 'discover' => $discover] as $type => $numbers) {
             foreach ($numbers as $number) {
                 $v = new Validator(['test' => $number]);
                 $v->rule('creditCard', 'test');
@@ -218,14 +216,14 @@ class TypeValidationTest extends BaseTestCase
     }
 
     // InstanceOf Tests
-    public function testInstanceOfValidWithString()
+    public function testInstanceOfValidWithString(): void
     {
         $v = new Validator(['attributeName' => new stdClass()]);
         $v->rule('instanceOf', 'attributeName', '\stdClass');
         $this->assertTrue($v->validate());
     }
 
-    public function testInstanceOfValidAltSyntax()
+    public function testInstanceOfValidAltSyntax(): void
     {
         $v = new Validator(['date' => new DateTime()]);
         $existingDateObject = new DateTime();
@@ -238,14 +236,14 @@ class TypeValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testInstanceOfInvalidWithInstance()
+    public function testInstanceOfInvalidWithInstance(): void
     {
         $v = new Validator(['attributeName' => new stdClass()]);
         $v->rule('instanceOf', 'attributeName', new Validator([]));
         $this->assertFalse($v->validate());
     }
 
-    public function testInstanceOfInvalidAltSyntax()
+    public function testInstanceOfInvalidAltSyntax(): void
     {
         $v = new Validator(['date' => new DateTime()]);
         $v->rules([
@@ -256,14 +254,14 @@ class TypeValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testInstanceOfValidWithInstance()
+    public function testInstanceOfValidWithInstance(): void
     {
         $v = new Validator(['attributeName' => new stdClass()]);
         $v->rule('instanceOf', 'attributeName', new stdClass());
         $this->assertTrue($v->validate());
     }
 
-    public function testInstanceOfErrorMessageShowsInstanceName()
+    public function testInstanceOfErrorMessageShowsInstanceName(): void
     {
         $v = new Validator(['attributeName' => new Validator([])]);
         $v->rule('instanceOf', 'attributeName', new stdClass());
@@ -276,14 +274,14 @@ class TypeValidationTest extends BaseTestCase
         $this->assertEquals($expected_error, $v->errors());
     }
 
-    public function testInstanceOfInvalidWithString()
+    public function testInstanceOfInvalidWithString(): void
     {
         $v = new Validator(['attributeName' => new stdClass()]);
         $v->rule('instanceOf', 'attributeName', 'SomeOtherClass');
         $this->assertFalse($v->validate());
     }
 
-    public function testInstanceOfWithAlternativeSyntaxValid()
+    public function testInstanceOfWithAlternativeSyntaxValid(): void
     {
         $v = new Validator(['attributeName' => new stdClass()]);
         $v->rules([
@@ -294,7 +292,7 @@ class TypeValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testInstanceOfWithAlternativeSyntaxInvalid()
+    public function testInstanceOfWithAlternativeSyntaxInvalid(): void
     {
         $v = new Validator(['attributeName' => new stdClass()]);
         $v->rules([
@@ -310,7 +308,7 @@ class TypeValidationTest extends BaseTestCase
     public function testInstanceOfSimplifiedLogic(): void
     {
         $dateTime = new DateTime();
-        $dateTimeImmutable = new DateTimeImmutable();
+        new DateTimeImmutable();
 
         // Test exact class match
         $v1 = new Validator(['obj' => $dateTime]);

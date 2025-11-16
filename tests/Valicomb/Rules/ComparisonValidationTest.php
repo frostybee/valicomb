@@ -11,14 +11,14 @@ use InvalidArgumentException;
 class ComparisonValidationTest extends BaseTestCase
 {
     // Equals Tests
-    public function testEqualsValid()
+    public function testEqualsValid(): void
     {
         $v = new Validator(['foo' => 'bar', 'bar' => 'bar']);
         $v->rule('equals', 'foo', 'bar');
         $this->assertTrue($v->validate());
     }
 
-    public function testEqualsValidAltSyntax()
+    public function testEqualsValidAltSyntax(): void
     {
         $v = new Validator(['password' => 'youshouldnotseethis', 'confirmPassword' => 'youshouldnotseethis']);
         $v->rules([
@@ -29,14 +29,14 @@ class ComparisonValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testEqualsInvalid()
+    public function testEqualsInvalid(): void
     {
         $v = new Validator(['foo' => 'foo', 'bar' => 'bar']);
         $v->rule('equals', 'foo', 'bar');
         $this->assertFalse($v->validate());
     }
 
-    public function testEqualsInvalidAltSyntax()
+    public function testEqualsInvalidAltSyntax(): void
     {
         $v = new Validator(['password' => 'youshouldnotseethis', 'confirmPassword' => 'differentpassword']);
         $v->rules([
@@ -47,14 +47,14 @@ class ComparisonValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testEqualsBothNull()
+    public function testEqualsBothNull(): void
     {
         $v = new Validator(['foo' => null, 'bar' => null]);
         $v->rule('equals', 'foo', 'bar');
         $this->assertTrue($v->validate());
     }
 
-    public function testEqualsBothNullRequired()
+    public function testEqualsBothNullRequired(): void
     {
         $v = new Validator(['foo' => null, 'bar' => null]);
         $v->rule('required', ['foo', 'bar']);
@@ -62,14 +62,14 @@ class ComparisonValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testEqualsBothUnset()
+    public function testEqualsBothUnset(): void
     {
         $v = new Validator(['foo' => 1]);
         $v->rule('equals', 'bar', 'baz');
         $this->assertTrue($v->validate());
     }
 
-    public function testEqualsBothUnsetRequired()
+    public function testEqualsBothUnsetRequired(): void
     {
         $v = new Validator(['foo' => 1]);
         $v->rule('required', ['bar', 'baz']);
@@ -78,28 +78,28 @@ class ComparisonValidationTest extends BaseTestCase
     }
 
     // Nested Equals Tests
-    public function testNestedEqualsValid()
+    public function testNestedEqualsValid(): void
     {
         $v = new Validator(['foo' => ['one' => 'bar', 'two' => 'bar']]);
         $v->rule('equals', 'foo.one', 'foo.two');
         $this->assertTrue($v->validate());
     }
 
-    public function testNestedEqualsInvalid()
+    public function testNestedEqualsInvalid(): void
     {
         $v = new Validator(['foo' => ['one' => 'bar', 'two' => 'baz']]);
         $v->rule('equals', 'foo.one', 'foo.two');
         $this->assertFalse($v->validate());
     }
 
-    public function testNestedEqualsBothNull()
+    public function testNestedEqualsBothNull(): void
     {
         $v = new Validator(['foo' => ['bar' => null, 'baz' => null]]);
         $v->rule('equals', 'foo.bar', 'foo.baz');
         $this->assertTrue($v->validate());
     }
 
-    public function testNestedEqualsBothNullRequired()
+    public function testNestedEqualsBothNullRequired(): void
     {
         $v = new Validator(['foo' => ['bar' => null, 'baz' => null]]);
         $v->rule('required', ['foo.bar', 'foo.baz']);
@@ -107,14 +107,14 @@ class ComparisonValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testNestedEqualsBothUnset()
+    public function testNestedEqualsBothUnset(): void
     {
         $v = new Validator(['foo' => 'bar']);
         $v->rule('equals', 'foo.one', 'foo.two');
         $this->assertTrue($v->validate());
     }
 
-    public function testNestedEqualsBothUnsetRequired()
+    public function testNestedEqualsBothUnsetRequired(): void
     {
         $v = new Validator(['foo' => 'bar']);
         $v->rule('required', ['foo.one', 'foo.two']);
@@ -123,14 +123,14 @@ class ComparisonValidationTest extends BaseTestCase
     }
 
     // Different Tests
-    public function testDifferentValid()
+    public function testDifferentValid(): void
     {
         $v = new Validator(['foo' => 'bar', 'bar' => 'baz']);
         $v->rule('different', 'foo', 'bar');
         $this->assertTrue($v->validate());
     }
 
-    public function testDifferentValidAltSyntax()
+    public function testDifferentValidAltSyntax(): void
     {
         $v = new Validator(['username' => 'test', 'password' => 'test123']);
         $v->rules([
@@ -141,14 +141,14 @@ class ComparisonValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
-    public function testDifferentInvalid()
+    public function testDifferentInvalid(): void
     {
         $v = new Validator(['foo' => 'baz', 'bar' => 'baz']);
         $v->rule('different', 'foo', 'bar');
         $this->assertFalse($v->validate());
     }
 
-    public function testDifferentInvalidAltSyntax()
+    public function testDifferentInvalidAltSyntax(): void
     {
         $v = new Validator(['username' => 'test', 'password' => 'test']);
         $v->rules([
@@ -159,14 +159,14 @@ class ComparisonValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testDifferentBothNull()
+    public function testDifferentBothNull(): void
     {
         $v = new Validator(['foo' => null, 'bar' => null]);
         $v->rule('equals', 'foo', 'bar');
         $this->assertTrue($v->validate());
     }
 
-    public function testDifferentBothNullRequired()
+    public function testDifferentBothNullRequired(): void
     {
         $v = new Validator(['foo' => null, 'bar' => null]);
         $v->rule('required', ['foo', 'bar']);
@@ -174,14 +174,14 @@ class ComparisonValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testDifferentBothUnset()
+    public function testDifferentBothUnset(): void
     {
         $v = new Validator(['foo' => 1]);
         $v->rule('equals', 'bar', 'baz');
         $this->assertTrue($v->validate());
     }
 
-    public function testDifferentBothUnsetRequired()
+    public function testDifferentBothUnsetRequired(): void
     {
         $v = new Validator(['foo' => 1]);
         $v->rule('required', ['bar', 'baz']);
@@ -190,28 +190,28 @@ class ComparisonValidationTest extends BaseTestCase
     }
 
     // Nested Different Tests
-    public function testNestedDifferentValid()
+    public function testNestedDifferentValid(): void
     {
         $v = new Validator(['foo' => ['one' => 'bar', 'two' => 'baz']]);
         $v->rule('different', 'foo.one', 'foo.two');
         $this->assertTrue($v->validate());
     }
 
-    public function testNestedDifferentInvalid()
+    public function testNestedDifferentInvalid(): void
     {
         $v = new Validator(['foo' => ['one' => 'baz', 'two' => 'baz']]);
         $v->rule('different', 'foo.one', 'foo.two');
         $this->assertFalse($v->validate());
     }
 
-    public function testNestedDifferentBothNull()
+    public function testNestedDifferentBothNull(): void
     {
         $v = new Validator(['foo' => ['bar' => null, 'baz' => null]]);
         $v->rule('different', 'foo.bar', 'foo.baz');
         $this->assertTrue($v->validate());
     }
 
-    public function testNestedDifferentBothNullRequired()
+    public function testNestedDifferentBothNullRequired(): void
     {
         $v = new Validator(['foo' => ['bar' => null, 'baz' => null]]);
         $v->rule('required', ['foo.bar', 'foo.baz']);
@@ -219,14 +219,14 @@ class ComparisonValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    public function testNestedDifferentBothUnset()
+    public function testNestedDifferentBothUnset(): void
     {
         $v = new Validator(['foo' => 'bar']);
         $v->rule('different', 'foo.bar', 'foo.baz');
         $this->assertTrue($v->validate());
     }
 
-    public function testNestedDifferentBothUnsetRequired()
+    public function testNestedDifferentBothUnsetRequired(): void
     {
         $v = new Validator(['foo' => 'bar']);
         $v->rule('required', ['foo.bar', 'foo.baz']);
