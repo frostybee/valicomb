@@ -5,18 +5,19 @@
 
 **Valicomb** is a simple, minimal, and elegant PHP validation library with **zero dependencies**. Completely rewritten for PHP 8.2+ with security-first design, strict type safety, and modern PHP features.
 
-> Note: This is a maintained fork of [vlucas/valitron](https://github.com/vlucas/valitron)
+> **Note:** This is a modernized and actively maintained fork of [vlucas/valitron](https://github.com/vlucas/valitron)
 
-## Features and Improvements
+## Features
 
-- **Modern PHP 8.2+** - Full type safety with `declare(strict_types=1)`
-- **Security-First** - Protection against ReDoS, type juggling, path traversal, and more
-- **Zero Dependencies** - Only requires `ext-mbstring`
-- **Simple API**: Fluent, chainable interface
-- **I18n Support**: 22 built-in languages
-- **35+ Validators**: Comprehensive validation rules out of the box
-- Easy custom validation rules
-- PHPStan Level 8 compliant
+* **Modern PHP 8.2+ support** with strict types turned on, so everything is fully typed and predictable.
+* **Security-first approach** that helps guard against things like ReDoS, type juggling issues, path traversal, and similar problems.
+* **Thoroughly tested**, with over 430 tests making sure things behave the way they should.
+* **No external dependencies**, other than the standard `ext-mbstring` extension.
+* **Clean and straightforward API** that’s easy to read and chain together.
+* **Built-in i18n support**, offering 22 languages out of the box.
+* **35+ ready-to-use validation rules** covering the most common validation needs.
+* **Easy to extend**, so you can add your own custom validation rules when needed.
+* **Clean, modern codebase**, fully passing PHPStan Level 8 checks.
 
 ## Requirements
 
@@ -31,10 +32,10 @@ Install via Composer:
 composer require frostybee/valicomb
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ```php
-use Valitron\Validator;
+use Frostybee\Valicomb\Validator;
 
 // Basic validation
 $v = new Validator(['email' => 'test@example.com', 'age' => '25']);
@@ -116,14 +117,16 @@ if ($v->validate()) {
 **NOTE**: If you are comparing floating-point numbers with min/max validators, you
 should install the [BCMath](http://us3.php.net/manual/en/book.bc.php)
 extension for greater accuracy and reliability. The extension is not required
-for Valitron to work, but Valitron will use it if available, and it is highly
+for Valicomb to work, but Valicomb will use it if available, and it is highly
 recommended.
 
-## 💡 Usage Examples
+## Usage Examples
 
 ### Multiple Rules on One Field
 
 ```php
+use Frostybee\Valicomb\Validator;
+
 $v = new Validator($_POST);
 $v->rule('required', 'email')
   ->rule('email', 'email')
@@ -133,6 +136,8 @@ $v->rule('required', 'email')
 ### Alternative Syntax
 
 ```php
+use Frostybee\Valicomb\Validator;
+
 $v = new Validator($_POST);
 $v->rules([
     'required' => ['name', 'email'],
@@ -144,9 +149,35 @@ $v->rules([
 ]);
 ```
 
+### Specifying Validation Rules as Arrays
+
+Valicomb provides two ways to specify validation rules as arrays:
+
+#### 1. Field-based array (field names as keys)
+```php
+$rules = [
+    'name' => ['required', ['lengthMin', 2]]
+];
+$v->mapManyFieldsToRules($rules);
+```
+
+#### 2. Rule-based array (rule names as keys)
+```php
+$rules = [
+    'required' => [['name']],
+    'lengthMin' => [['name', 2]]
+];
+$v->rules($rules);
+```
+
+> - The field-based array is **more intuitive** when organizing validation rules by field.
+> - The rule-based array is **more useful** when applying the same rule to many fields.
+
 ### Custom Error Messages
 
 ```php
+use Frostybee\Valicomb\Validator;
+
 $v = new Validator(['email' => 'invalid']);
 $v->rule('email', 'email')->message('Please enter a valid email address');
 
@@ -157,6 +188,8 @@ $v->rule('required', 'name')->message('{field} is absolutely required');
 ### Field Labels
 
 ```php
+use Frostybee\Valicomb\Validator;
+
 $v = new Validator($_POST);
 $v->labels([
     'email' => 'Email Address',
@@ -167,6 +200,8 @@ $v->labels([
 ### Custom Validation Rules
 
 ```php
+use Frostybee\Valicomb\Validator;
+
 $v = new Validator(['username' => 'admin']);
 
 // Closure-based rule
@@ -182,7 +217,11 @@ Validator::addRule('strongPassword', function($field, $value, $params) {
 
 ### Stop on First Failure
 
+By default, validation continues checking all rules even after encountering failures. You can configure the validator to stop the validation process as soon as the first failure occurs, which can improve performance when validating large datasets.
+
 ```php
+use Frostybee\Valicomb\Validator;
+
 $v = new Validator($_POST);
 $v->stopOnFirstFail(true);
 $v->rule('required', ['email', 'password']);
@@ -191,9 +230,11 @@ $v->rule('email', 'email');
 
 ### Form Data Handling
 
-Valitron properly handles form data where all values come as strings:
+Valicomb properly handles form data where all values come as strings:
 
 ```php
+use Frostybee\Valicomb\Validator;
+
 // $_POST data - everything is strings
 $_POST = [
     'age' => '25',      // String, not int
@@ -210,6 +251,8 @@ $v->rule('boolean', 'active'); // Works with string '1'
 ### Nested Field Validation
 
 ```php
+use Frostybee\Valicomb\Validator;
+
 $data = [
     'user' => [
         'email' => 'test@example.com',
@@ -227,6 +270,8 @@ $v->rule('integer', 'user.profile.age');
 ### Array Field Validation
 
 ```php
+use Frostybee\Valicomb\Validator;
+
 $data = [
     'users' => [
         ['email' => 'user1@example.com'],
@@ -243,6 +288,8 @@ $v->rule('email', 'users.*.email'); // Validates all emails
 Check if an array field contains a specific value:
 
 ```php
+use Frostybee\Valicomb\Validator;
+
 // Check if tags array contains 'php'
 $v = new Validator(['tags' => ['php', 'javascript', 'python']]);
 $v->rule('listContains', 'tags', 'php'); // true
@@ -257,13 +304,15 @@ $v->rule('listContains', 'data', 'name'); // true (checks keys)
 $v->rule('listContains', 'data', 'John'); // false (doesn't check values)
 ```
 
-## 🔒 Security Features
+## Security Features
 
 ### ReDoS Protection
 
 Regular expression validation includes automatic protection against catastrophic backtracking:
 
 ```php
+use Frostybee\Valicomb\Validator;
+
 $v = new Validator(['field' => 'aaaaaaaaaaaa!']);
 $v->rule('regex', 'field', '/^(a+)+$/'); // Throws RuntimeException on ReDoS pattern
 ```
@@ -273,6 +322,8 @@ $v->rule('regex', 'field', '/^(a+)+$/'); // Throws RuntimeException on ReDoS pat
 All comparisons use strict equality (`===`) to prevent type juggling attacks:
 
 ```php
+use Frostybee\Valicomb\Validator;
+
 $v = new Validator([
     'field1' => '0e123456',
     'field2' => '0e789012'
@@ -285,6 +336,8 @@ $v->rule('equals', 'field1', 'field2'); // Returns false (strict comparison)
 URL validation uses proper prefix checking to prevent bypass attacks:
 
 ```php
+use Frostybee\Valicomb\Validator;
+
 // FAIL - http:// not at start
 $v = new Validator(['url' => 'evil.com?redirect=http://trusted.com']);
 $v->rule('url', 'url'); // Returns false
@@ -299,6 +352,8 @@ $v->rule('url', 'url'); // Returns true
 Language loading validates against directory traversal:
 
 ```php
+use Frostybee\Valicomb\Validator;
+
 // Blocked - invalid language
 new Validator([], [], '../../etc/passwd'); // Throws InvalidArgumentException
 ```
@@ -315,15 +370,19 @@ Email validation includes:
 Fixed regex properly validates all integers, not just single digits:
 
 ```php
+use Frostybee\Valicomb\Validator;
+
 $v = new Validator(['num' => '1000']);
 $v->rule('integer', 'num', true); // Works correctly (strict mode)
 ```
 
-## 🌍 Internationalization
+## Internationalization
 
-Valitron supports 22 languages out of the box:
+Valicomb supports 22 languages out of the box:
 
 ```php
+use Frostybee\Valicomb\Validator;
+
 // Set default language
 Validator::lang('es'); // Spanish
 
@@ -333,11 +392,13 @@ $v = new Validator($data, [], 'fr'); // French
 
 Available languages: ar, cs, da, de, en, es, fa, fi, fr, hu, id, it, ja, nl, no, pl, pt, ru, sv, tr, uk, zh
 
-## 🎯 Advanced Features
+## Advanced Features
 
 ### Conditional Validation
 
 ```php
+use Frostybee\Valicomb\Validator;
+
 $v = new Validator($_POST);
 
 // Required only if other field is present
@@ -350,6 +411,8 @@ $v->rule('requiredWithout', 'phone', ['email']);
 ### Optional Fields
 
 ```php
+use Frostybee\Valicomb\Validator;
+
 $v = new Validator($_POST);
 $v->rule('optional', 'middle_name');
 $v->rule('alpha', 'middle_name'); // Only validated if present
@@ -358,6 +421,10 @@ $v->rule('alpha', 'middle_name'); // Only validated if present
 ### Credit Card Validation
 
 ```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($_POST);
+
 // Any valid card
 $v->rule('creditCard', 'card_number');
 
@@ -371,6 +438,8 @@ $v->rule('creditCard', 'card_number', ['visa', 'mastercard']);
 ### Instance Validation
 
 ```php
+use Frostybee\Valicomb\Validator;
+
 $v = new Validator(['date' => new DateTime()]);
 $v->rule('instanceOf', 'date', DateTime::class);
 ```
@@ -378,6 +447,8 @@ $v->rule('instanceOf', 'date', DateTime::class);
 ### Reusing Validators
 
 ```php
+use Frostybee\Valicomb\Validator;
+
 $baseValidator = new Validator([]);
 $baseValidator->rule('required', 'email')
               ->rule('email', 'email');
@@ -390,11 +461,17 @@ $v2 = $baseValidator->withData(['email' => 'another@example.com']);
 $v2->validate();
 ```
 
-## 🔍 Error Handling
+## Error Handling
 
 ### Get All Errors
 
 ```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($_POST);
+$v->rule('required', 'email');
+$v->rule('integer', 'age');
+
 if (!$v->validate()) {
     $errors = $v->errors();
     // [
@@ -407,6 +484,12 @@ if (!$v->validate()) {
 ### Get Errors for Specific Field
 
 ```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($_POST);
+$v->rule('required', 'email')->rule('email', 'email');
+$v->validate();
+
 $emailErrors = $v->errors('email');
 // ['Email is required', 'Email is not a valid email address']
 ```
@@ -414,6 +497,8 @@ $emailErrors = $v->errors('email');
 ### Custom Error Messages
 
 ```php
+use Frostybee\Valicomb\Validator;
+
 $v = new Validator($_POST);
 $v->rule('required', 'email')->message('We need your email!');
 $v->rule('email', 'email')->message('That doesn\'t look like a valid email');
@@ -422,26 +507,14 @@ $v->rule('email', 'email')->message('That doesn\'t look like a valid email');
 ### Message Placeholders
 
 ```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($_POST);
 $v->rule('lengthBetween', 'username', 3, 20)
   ->message('Username must be between {0} and {1} characters');
 ```
 
-## 🧪 Testing
-
-Run the test suite:
-
-```bash
-# Run all tests
-composer test
-
-# Run PHPStan static analysis
-composer analyse
-
-# Run both
-composer check
-```
-
-## 📋 Available Composer Commands
+## Testing & Development Commands
 
 | Command | Description | When to Use |
 |---------|-------------|-------------|
@@ -483,130 +556,50 @@ composer check-all
 composer benchmark
 ```
 
-## 🏗️ Architecture
-
-### Type Safety
-
-Every method includes full type declarations:
-
-```php
-protected function validateEmail(string $field, mixed $value): bool
-{
-    // Implementation with strict types
-}
-```
-
-### Modern PHP Features
-
-- **Union Types**: `string|array $fields`
-- **Match Expressions**: For error messages
-- **Named Arguments**: Full support
-- **Null-Safe Operator**: `$value?->method()`
-- **Constructor Property Promotion**: Where applicable
-
-### PHPStan Level 8
-
-The entire codebase passes PHPStan at the maximum strictness level, ensuring complete type safety and correctness.
-
-## 📖 API Reference
-
-### Constructor
-
-```php
-public function __construct(
-    array $data = [],
-    array $fields = [],
-    ?string $lang = null,
-    ?string $langDir = null
-)
-```
-
-### Core Methods
-
-- `rule(string|callable $rule, string|array $fields, mixed ...$params): self`
-- `rules(array $rules): void`
-- `validate(): bool`
-- `errors(?string $field = null): array`
-- `data(): array`
-
-### Configuration
-
-- `labels(array $labels): self`
-- `stopOnFirstFail(bool $stop = true): self`
-- `setPrependLabels(bool $prepend): self`
-
-### Static Methods
-
-- `static addRule(string $name, callable $callback, string $message = ''): void`
-- `static lang(?string $lang = null): string`
-- `static langDir(?string $langDir = null): string`
-
-## 🤝 Contributing
-
-Contributions are welcome! Please ensure:
-
-1. Code follows PSR-12 standards
-2. All tests pass (`composer test`)
-3. PHPStan analysis passes (`composer analyse`)
-4. New features include tests
-5. Security considerations are documented
-
-## 📄 License
-
-Valicomb is open-source software licensed under the [BSD 3-Clause License](LICENSE).
-
 ## 🙏 Credits
 
 Originally created by [Vance Lucas](https://www.vancelucas.com/)
 
 Modernized for PHP 8.2+ with security enhancements and strict type safety.
 
-## 📚 Resources
+## Support
 
-- [Documentation](https://github.com/vlucas/valitron)
-- [Issue Tracker](https://github.com/vlucas/valitron/issues)
-- [Changelog](CHANGELOG.md)
-
-## 💬 Support
-
-- GitHub Issues: [Report bugs or request features](https://github.com/vlucas/valitron/issues)
-- Stack Overflow: Tag your questions with `valitron`
-
----
-
-## Running Tests
-
-The test suite depends on the Composer autoloader to load and run the
-Valitron files. Please ensure you have downloaded and installed Composer
-before running the tests:
-
-1. Download Composer `curl -s http://getcomposer.org/installer | php`
-2. Run 'install' `php composer.phar install`
-3. Run the tests `composer test`
-
-### Quality Checks
-
-```bash
-composer test          # Run PHPUnit test suite
-composer analyse       # Run PHPStan static analysis (Level 8)
-composer cs-check      # Check code style (PSR-12)
-composer cs-fix        # Auto-fix code style issues
-composer check-all     # Run all quality checks
-```
-
-**For a complete list of available commands and workflows, see [docs/COMPOSER_COMMANDS.MD](docs/COMPOSER_COMMANDS.MD)**
+- **GitHub Issues**: [Report bugs or request features](https://github.com/frostybee/valicomb/issues)
+- **Stack Overflow**: Tag your questions with `valicomb` or `php-validation`
 
 ## Contributing
 
-1. Fork it
+Contributions are welcome! Please ensure:
+
+1. Fork the repository
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Make your changes
-4. Run the tests, adding new ones for your own code if necessary (`phpunit`)
-5. Commit your changes (`git commit -am 'Added some feature'`)
-6. Push to the branch (`git push origin my-new-feature`)
-7. Create new Pull Request
-8. Pat yourself on the back for being so awesome
+4. Run all quality checks (`composer check-all`)
+5. Code follows PSR-12 standards (`composer cs-fix`)
+6. All tests pass (`composer test`)
+7. PHPStan analysis passes (`composer analyse`)
+8. Add tests for new features
+9. Commit your changes (`git commit -am 'Add some feature'`)
+10. Push to the branch (`git push origin my-new-feature`)
+11. Create a Pull Request
 
-## Security Disclosures and Contact Information
+### Development Workflow
 
-To report a security vulnerability, please use the [Tidelift security contact](https://tidelift.com/security). Tidelift will coordinate the fix and disclosure.
+```bash
+# Before committing code
+composer check-all          # Run all quality checks
+
+# Fix any issues found
+composer cs-fix            # Auto-fix code style
+
+# Verify everything passes
+composer check-all
+```
+
+## Security
+
+To report a security vulnerability, please create a private security advisory on GitHub or email the maintainer directly. Do not create public issues for security vulnerabilities.
+
+## License
+
+Valicomb is open-source software licensed under the [BSD 3-Clause License](LICENSE).
