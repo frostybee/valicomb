@@ -14,4 +14,12 @@
       <directory suffix="Test.php">tests/Valicomb</directory>
     </testsuite>
   </testsuites>
+  <coverage>
+    <report>
+      <clover outputFile="coverage.xml"/>
+    </report>
+    <include>
+      <directory suffix=".php">src/Valicomb</directory>
+    </include>
+  </coverage>
 </phpunit>
