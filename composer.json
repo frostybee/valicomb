@@ -41,11 +41,6 @@
         "cs-fix": "php-cs-fixer fix",
         "cs-check": "php-cs-fixer fix --dry-run --diff",
         "benchmark": "php benchmarks/ValidationBenchmark.php",
-        "check": [
-            "@test",
-            "@analyse",
-            "@cs-check"
-        ],
         "check-all": [
             "@test",
             "@analyse",

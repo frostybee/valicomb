@@ -13,7 +13,7 @@ class LangTest extends BaseTestCase
 {
     protected function getLangDir(): string
     {
-        return __DIR__ . '/../../lang';
+        return __DIR__ . '/../../src/lang';
     }
 
     /**

@@ -373,7 +373,7 @@ class Validator
             static::$langDir = $dir;
         }
 
-        return static::$langDir ?? dirname(__DIR__, 2) . '/lang';
+        return static::$langDir ?? dirname(__DIR__) . '/lang';
     }
 
     /**

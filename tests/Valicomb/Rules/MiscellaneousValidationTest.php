@@ -303,7 +303,7 @@ class MiscellaneousValidationTest extends BaseTestCase
         $this->assertEquals(['test' => [$expected]], $v->errors());
     }
 
-    public function dataProviderFor_testError(): array
+    public static function dataProviderFor_testError(): array
     {
         return [
             [
