@@ -1,0 +1,216 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Frostybee\Valicomb\Validators;
+
+use function bccomp;
+use function filter_var;
+use function function_exists;
+use function in_array;
+use function is_int;
+use function is_numeric;
+use function is_string;
+use function preg_match;
+
+use const FILTER_VALIDATE_INT;
+
+/**
+ * Numeric Validators Trait
+ *
+ * Contains all numeric-related validation methods including:
+ * - Numeric/Integer validation
+ * - Min/Max value validation with bcmath support
+ * - Between range validation
+ * - Boolean validation
+ *
+ * @package Valicomb\Validators
+ */
+trait NumericValidatorsTrait
+{
+    /**
+     * Validate that a field is numeric
+     *
+     * Validates that a value is numeric, accepting integers, floats, and numeric strings.
+     * Uses PHP's is_numeric() function which accepts formats like: "123", "123.45", "-123", "1.23e4".
+     *
+     * This is more permissive than validateInteger() as it accepts decimal values.
+     *
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
+     *
+     * @return bool True if value is numeric, false otherwise.
+     */
+    protected function validateNumeric(string $field, mixed $value): bool
+    {
+        return is_numeric($value);
+    }
+
+    /**
+     * Validate that a field is an integer
+     *
+     * Validates integer values with optional strict mode. In strict mode, rejects strings with
+     * leading zeros (except "0" itself) to prevent octal interpretation issues.
+     *
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
+     * @param array $params Parameters: [0] => bool $strict (default: false).
+     *
+     * @return bool True if value is a valid integer, false otherwise.
+     */
+    protected function validateInteger(string $field, mixed $value, array $params): bool
+    {
+        $strict = isset($params[0]) && (bool)$params[0];
+
+        if ($strict) {
+            // Strict mode: reject strings with leading zeros (except "0" itself)
+            // but accept native integers
+            if (is_int($value)) {
+                return true;
+            }
+
+            if (!is_string($value)) {
+                return false;
+            }
+
+            // Fixed regex: matches 0, or optional negative sign followed by 1-9 then any digits
+            return preg_match('/^(0|-?[1-9]\d*)$/', $value) === 1;
+        }
+
+        // Non-strict: also accept actual integers and numeric strings
+        return filter_var($value, FILTER_VALIDATE_INT) !== false;
+    }
+
+    /**
+     * Validate the size of a field is greater than a minimum value
+     *
+     * Validates that a numeric value is greater than or equal to a specified minimum threshold.
+     * Uses high-precision decimal comparison via bccomp() when available (from bcmath extension),
+     * otherwise falls back to standard PHP comparison operators.
+     *
+     * The minimum bound is inclusive, meaning a value equal to the minimum passes validation.
+     * For example, with param [5]:
+     * - 4.99 fails
+     * - 5 passes
+     * - 5.01 passes
+     *
+     * The bccomp() function provides 14 decimal places of precision, making this suitable for
+     * financial calculations, scientific data, or any scenario requiring precise decimal handling.
+     * Non-numeric values (strings, arrays, objects) are rejected.
+     *
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate (should be numeric).
+     * @param array $params Minimum threshold: [0] => minimum numeric value.
+     *
+     * @return bool True if value is numeric and >= minimum, false otherwise.
+     */
+    protected function validateMin(string $field, mixed $value, array $params): bool
+    {
+        if (!is_numeric($value)) {
+            return false;
+        }
+
+        if (function_exists('bccomp')) {
+            return bccomp((string)$params[0], (string)$value, 14) !== 1;
+        }
+
+        return $params[0] <= $value;
+    }
+
+    /**
+     * Validate the size of a field is less than a maximum value
+     *
+     * Validates that a numeric value is less than or equal to a specified maximum threshold.
+     * Uses high-precision decimal comparison via bccomp() when available (from bcmath extension),
+     * otherwise falls back to standard PHP comparison operators.
+     *
+     * The maximum bound is inclusive, meaning a value equal to the maximum passes validation.
+     * For example, with param [10]:
+     * - 9.99 passes
+     * - 10 passes
+     * - 10.01 fails
+     *
+     * The bccomp() function provides 14 decimal places of precision, making this suitable for
+     * financial calculations, scientific data, or any scenario requiring precise decimal handling.
+     * Non-numeric values (strings, arrays, objects) are rejected.
+     *
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate (should be numeric).
+     * @param array $params Maximum threshold: [0] => maximum numeric value.
+     *
+     * @return bool True if value is numeric and <= maximum, false otherwise.
+     */
+    protected function validateMax(string $field, mixed $value, array $params): bool
+    {
+        if (!is_numeric($value)) {
+            return false;
+        }
+
+        if (function_exists('bccomp')) {
+            return bccomp((string)$value, (string)$params[0], 14) !== 1;
+        }
+
+        return $params[0] >= $value;
+    }
+
+    /**
+     * Validate the size of a field is between min and max values
+     *
+     * Validates that a numeric value falls within a specified range (inclusive on both ends).
+     * Internally delegates to validateMin() and validateMax(), inheriting their high-precision
+     * decimal comparison capabilities via bccomp() when available.
+     *
+     * Both bounds are inclusive, meaning values equal to either the minimum or maximum pass
+     * validation. For example, with param [[5, 10]]:
+     * - 4.99 fails
+     * - 5 passes
+     * - 7.5 passes
+     * - 10 passes
+     * - 10.01 fails
+     *
+     * Important: This method has a unique parameter structure - the first parameter must be
+     * an array containing exactly two elements: [min, max]. Invalid parameter structures
+     * (missing array, wrong element count) will cause validation to fail.
+     *
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate (should be numeric).
+     * @param array $params Range constraint: [0] => [minimum, maximum] (must be 2-element array).
+     *
+     * @return bool True if value is numeric and between min/max (inclusive), false otherwise or if params invalid.
+     */
+    protected function validateBetween(string $field, mixed $value, array $params): bool
+    {
+        if (!is_numeric($value)) {
+            return false;
+        }
+
+        if (!isset($params[0]) || !is_array($params[0]) || count($params[0]) !== 2) {
+            return false;
+        }
+
+        [$min, $max] = $params[0];
+
+        return $this->validateMin($field, $value, [$min]) && $this->validateMax($field, $value, [$max]);
+    }
+
+    /**
+     * Validate that a field contains a boolean
+     *
+     * Validates that a value represents a boolean using strict type checking.
+     * Only accepts actual booleans, integers 1/0, and string representations '1'/'0'.
+     * This is stricter than PHP's native boolean casting to prevent unexpected type coercion.
+     *
+     * Accepted values: true, false, 1, 0, '1', '0'
+     * Rejected values: 'true', 'false', 'yes', 'no', 2, -1, etc.
+     *
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
+     *
+     * @return bool True if value is a valid boolean representation, false otherwise.
+     */
+    protected function validateBoolean(string $field, mixed $value): bool
+    {
+        // Only accept actual booleans, integers 1/0, and strings '1'/'0'
+        return in_array($value, [true, false, 1, 0, '1', '0'], true);
+    }
+}
