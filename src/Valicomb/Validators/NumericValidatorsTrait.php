@@ -12,6 +12,13 @@ use function is_int;
 use function is_numeric;
 use function is_string;
 use function preg_match;
+use function is_array;
+use function count;
+use function strpos;
+use function explode;
+use function strlen;
+use function rtrim;
+
 
 use const FILTER_VALIDATE_INT;
 
@@ -212,5 +219,153 @@ trait NumericValidatorsTrait
     {
         // Only accept actual booleans, integers 1/0, and strings '1'/'0'
         return in_array($value, [true, false, 1, 0, '1', '0'], true);
+    }
+
+    /**
+     * Validate that a field is a positive number
+     *
+     * Validates that a numeric value is strictly greater than 0.
+     * Uses high-precision decimal comparison via bccomp() when available (from bcmath extension),
+     * otherwise falls back to standard PHP comparison operators.
+     *
+     * This validation is exclusive of zero, meaning:
+     * - Values > 0 pass validation
+     * - Zero (0) fails validation
+     * - Negative values fail validation
+     * - Non-numeric values fail validation
+     *
+     * Common use cases:
+     * - Quantities that must be positive (inventory, purchases)
+     * - Prices and monetary amounts
+     * - Ages
+     * - Counts that cannot be zero
+     *
+     * The bccomp() function provides 14 decimal places of precision, making this suitable for
+     * financial calculations, scientific data, or any scenario requiring precise decimal handling.
+     *
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate (should be numeric).
+     *
+     * @return bool True if value is numeric and > 0, false otherwise.
+     *
+     * @example Basic usage:
+     * ```php
+     * $v = new Validator(['quantity' => 5]);
+     * $v->rule('positive', 'quantity'); // passes
+     *
+     * $v = new Validator(['price' => 0]);
+     * $v->rule('positive', 'price'); // fails
+     *
+     * $v = new Validator(['amount' => -10]);
+     * $v->rule('positive', 'amount'); // fails
+     * ```
+     */
+    protected function validatePositive(string $field, mixed $value): bool
+    {
+        if (!is_numeric($value)) {
+            return false;
+        }
+
+        if (function_exists('bccomp')) {
+            return bccomp((string)$value, '0', 14) === 1;
+        }
+
+        return $value > 0;
+    }
+
+    /**
+     * Validate that a field has a maximum number of decimal places
+     *
+     * Validates that a numeric value does not exceed a specified number of decimal places.
+     * This is particularly useful for financial calculations, currency formatting, percentages,
+     * and scientific measurements where decimal precision matters.
+     *
+     * The validation counts decimal places by converting the value to a string representation
+     * and examining characters after the decimal point. Trailing zeros are considered significant
+     * (e.g., "10.00" has 2 decimal places, not 0).
+     *
+     * Integer values (numbers without a decimal point) are considered to have 0 decimal places
+     * and will always pass validation.
+     *
+     * For example, with param [2]:
+     * - 10 passes (0 decimal places)
+     * - 10.5 passes (1 decimal place)
+     * - 10.99 passes (2 decimal places)
+     * - 10.999 fails (3 decimal places)
+     * - "5.00" passes (2 decimal places with trailing zeros)
+     *
+     * Common use cases:
+     * - Currency validation (typically 2 decimal places: $19.99)
+     * - Percentage values (variable precision: 3.14%, 99.9%, 0.125%)
+     * - Scientific measurements (specific precision requirements)
+     * - Tax calculations (often 2-4 decimal places)
+     * - Coordinate systems (latitude/longitude with controlled precision)
+     *
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate (should be numeric).
+     * @param array $params Maximum decimal places: [0] => int $maxPlaces.
+     *
+     * @return bool True if value has <= maxPlaces decimal places, false otherwise.
+     *
+     * @example Basic usage:
+     * ```php
+     * // Currency validation (2 decimal places max)
+     * $v = new Validator(['price' => 19.99]);
+     * $v->rule('decimalPlaces', 'price', 2); // passes
+     *
+     * $v = new Validator(['price' => 19.999]);
+     * $v->rule('decimalPlaces', 'price', 2); // fails
+     *
+     * // Integer values are always valid
+     * $v = new Validator(['quantity' => 100]);
+     * $v->rule('decimalPlaces', 'quantity', 2); // passes
+     *
+     * // Percentage with up to 4 decimal places
+     * $v = new Validator(['percentage' => 3.1416]);
+     * $v->rule('decimalPlaces', 'percentage', 4); // passes
+     *
+     * // Scientific notation is converted to decimal
+     * $v = new Validator(['value' => 1.5e2]); // 150.0
+     * $v->rule('decimalPlaces', 'value', 1); // passes
+     * ```
+     */
+    protected function validateDecimalPlaces(string $field, mixed $value, array $params): bool
+    {
+        if (!is_numeric($value)) {
+            return false;
+        }
+
+        if (!isset($params[0]) || !is_int($params[0]) || $params[0] < 0) {
+            return false;
+        }
+
+        $maxPlaces = (int)$params[0];
+
+        // Convert to string to avoid float precision issues
+        // This also handles scientific notation (e.g., 1.5e2 becomes "150")
+        $stringValue = (string)$value;
+
+        // Check if the value contains a decimal point
+        if (strpos($stringValue, '.') === false) {
+            // No decimal point means 0 decimal places (integer)
+            return true;
+        }
+
+        // Split at the decimal point and count characters after it
+        $parts = explode('.', $stringValue);
+        $decimalPart = $parts[1];
+
+        // Remove trailing zeros for the actual decimal place count
+        // e.g., "10.500" becomes "10.5" (1 decimal place, not 3)
+        $decimalPart = rtrim($decimalPart, '0');
+
+        // If all trailing zeros removed, it's effectively an integer
+        if ($decimalPart === '') {
+            return true;
+        }
+
+        $decimalPlaces = strlen($decimalPart);
+
+        return $decimalPlaces <= $maxPlaces;
     }
 }

@@ -17,7 +17,10 @@ use function mb_detect_encoding;
 use function preg_last_error;
 use function preg_match;
 use function str_contains;
+use function str_ends_with;
+use function str_starts_with;
 use function stripos;
+use function strtolower;
 
 use const PREG_NO_ERROR;
 use const PREG_INTERNAL_ERROR;
@@ -248,6 +251,229 @@ trait StringValidatorsTrait
             ini_set('pcre.backtrack_limit', (string)$oldBacktrackLimit);
             ini_set('pcre.recursion_limit', (string)$oldRecursionLimit);
         }
+    }
+
+    /**
+     * Validate that a field starts with a given string
+     *
+     * Validates that a string starts with a specific prefix or one of multiple prefixes.
+     * By default, performs case-sensitive matching. Set the second parameter to false for case-insensitive.
+     *
+     * Common use cases:
+     * - URL protocol validation (https://, http://)
+     * - Phone number country codes (+1, +44, +61)
+     * - File path validation (/var/www/, /home/)
+     * - SKU/Code prefixes (PROD-, DEV-, TEST-)
+     * - Reference numbers (INV-, ORD-, CUST-)
+     *
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
+     * @param array $params Parameters: [0] => string|array $prefix, [1] => bool $caseSensitive (default: true).
+     *
+     * @return bool True if value starts with the prefix, false otherwise.
+     *
+     * @example Basic usage (single prefix):
+     * ```php
+     * $v = new Validator(['url' => 'https://example.com']);
+     * $v->rule('startsWith', 'url', 'https://'); // passes
+     * ```
+     *
+     * @example Multiple prefixes:
+     * ```php
+     * $v = new Validator(['phone' => '+44123456789']);
+     * $v->rule('startsWith', 'phone', ['+1', '+44', '+61']); // passes
+     * ```
+     *
+     * @example Case-insensitive:
+     * ```php
+     * $v = new Validator(['code' => 'prod-12345']);
+     * $v->rule('startsWith', 'code', 'PROD-', false); // passes (case-insensitive)
+     * ```
+     */
+    protected function validateStartsWith(string $field, mixed $value, array $params): bool
+    {
+        if (!is_string($value)) {
+            return false;
+        }
+
+        if (!isset($params[0])) {
+            return false;
+        }
+
+        // Convert single prefix to array for uniform handling
+        $prefixes = is_array($params[0]) ? $params[0] : [$params[0]];
+        $caseSensitive = $params[1] ?? true;
+
+        // Validate all prefixes are strings
+        foreach ($prefixes as $prefix) {
+            if (!is_string($prefix)) {
+                continue;
+            }
+
+            // Case-sensitive check
+            if ($caseSensitive) {
+                if (str_starts_with($value, $prefix)) {
+                    return true;
+                }
+            } else {
+                // Case-insensitive check
+                if (str_starts_with(strtolower($value), strtolower($prefix))) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Validate that a field ends with a given string
+     *
+     * Validates that a string ends with a specific suffix or one of multiple suffixes.
+     * By default, performs case-sensitive matching. Set the second parameter to false for case-insensitive.
+     *
+     * Common use cases:
+     * - Domain validation (.com, .org, .net)
+     * - File extension validation (.jpg, .png, .pdf)
+     * - Email domain validation (@company.com)
+     * - Formatted codes/IDs with suffixes
+     * - URL path validation (/api, /admin)
+     *
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
+     * @param array $params Parameters: [0] => string|array $suffix, [1] => bool $caseSensitive (default: true).
+     *
+     * @return bool True if value ends with the suffix, false otherwise.
+     *
+     * @example Basic usage (single suffix):
+     * ```php
+     * $v = new Validator(['email' => 'user@company.com']);
+     * $v->rule('endsWith', 'email', '@company.com'); // passes
+     * ```
+     *
+     * @example Multiple suffixes:
+     * ```php
+     * $v = new Validator(['domain' => 'example.org']);
+     * $v->rule('endsWith', 'domain', ['.com', '.org', '.net']); // passes
+     * ```
+     *
+     * @example Case-insensitive:
+     * ```php
+     * $v = new Validator(['file' => 'image.JPG']);
+     * $v->rule('endsWith', 'file', '.jpg', false); // passes (case-insensitive)
+     * ```
+     */
+    protected function validateEndsWith(string $field, mixed $value, array $params): bool
+    {
+        if (!is_string($value)) {
+            return false;
+        }
+
+        if (!isset($params[0])) {
+            return false;
+        }
+
+        // Convert single suffix to array for uniform handling
+        $suffixes = is_array($params[0]) ? $params[0] : [$params[0]];
+        $caseSensitive = $params[1] ?? true;
+
+        // Validate all suffixes are strings
+        foreach ($suffixes as $suffix) {
+            if (!is_string($suffix)) {
+                continue;
+            }
+
+            // Case-sensitive check
+            if ($caseSensitive) {
+                if (str_ends_with($value, $suffix)) {
+                    return true;
+                }
+            } else {
+                // Case-insensitive check
+                if (str_ends_with(strtolower($value), strtolower($suffix))) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Validate that a field is a valid UUID
+     *
+     * Validates that a string is a valid UUID (Universally Unique Identifier) format.
+     * By default, validates against all UUID versions (1-5). Optionally validates a specific version.
+     *
+     * UUID Format: 8-4-4-4-12 hexadecimal digits (xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx)
+     * where M is the version digit (1-5) and N is the variant digit (8, 9, a, or b).
+     *
+     * Supported UUID versions:
+     * - Version 1: Time-based UUID (uses timestamp and MAC address)
+     * - Version 2: DCE Security UUID (rarely used)
+     * - Version 3: Name-based UUID using MD5 hashing
+     * - Version 4: Random UUID (most common, uses random numbers)
+     * - Version 5: Name-based UUID using SHA-1 hashing
+     *
+     * Common use cases:
+     * - API resource identifiers
+     * - Database primary keys (especially in distributed systems)
+     * - Session tokens
+     * - Request tracking IDs
+     * - Unique document identifiers
+     *
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
+     * @param array $params Parameters: [0] => int|null $version (optional: specific UUID version 1-5).
+     *
+     * @return bool True if value is a valid UUID, false otherwise.
+     *
+     * @example Basic usage (any version):
+     * ```php
+     * $v = new Validator(['id' => '550e8400-e29b-41d4-a716-446655440000']);
+     * $v->rule('uuid', 'id'); // passes (valid UUIDv4)
+     * ```
+     *
+     * @example Specific version:
+     * ```php
+     * $v = new Validator(['id' => '550e8400-e29b-41d4-a716-446655440000']);
+     * $v->rule('uuid', 'id', 4); // passes (valid UUIDv4)
+     *
+     * $v = new Validator(['id' => '550e8400-e29b-11d4-a716-446655440000']);
+     * $v->rule('uuid', 'id', 4); // fails (this is UUIDv1, not v4)
+     * ```
+     */
+    protected function validateUuid(string $field, mixed $value, array $params = []): bool
+    {
+        if (!is_string($value)) {
+            return false;
+        }
+
+        // Normalize to lowercase for comparison
+        $value = strtolower($value);
+
+        // Optional: specific version to validate
+        $version = $params[0] ?? null;
+
+        // Validate version parameter if provided
+        if ($version !== null && (!is_int($version) || $version < 1 || $version > 5)) {
+            return false;
+        }
+
+        // UUID regex pattern:
+        // 8 hex digits - 4 hex - 4 hex - 4 hex - 12 hex
+        // Version digit is at position 14 (M in the pattern)
+        // Variant digit is at position 19 (N in the pattern, must be 8, 9, a, or b)
+
+        if ($version !== null) {
+            // Validate specific UUID version
+            $pattern = '/^[0-9a-f]{8}-[0-9a-f]{4}-' . $version . '[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/';
+        } else {
+            // Validate any UUID version (1-5)
+            $pattern = '/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/';
+        }
+
+        return preg_match($pattern, $value) === 1;
     }
 
     /**

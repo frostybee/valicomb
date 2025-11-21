@@ -442,4 +442,395 @@ class NumericValidationTest extends BaseTestCase
         $v4->rule('integer', 'num', false);
         $this->assertTrue($v4->validate(), 'Actual integer should pass');
     }
+
+    // Positive Number Tests
+    public function testPositiveValid(): void
+    {
+        $v = new Validator(['num' => 1]);
+        $v->rule('positive', 'num');
+        $this->assertTrue($v->validate());
+
+        $v = new Validator(['num' => 100]);
+        $v->rule('positive', 'num');
+        $this->assertTrue($v->validate());
+
+        $v = new Validator(['num' => 0.1]);
+        $v->rule('positive', 'num');
+        $this->assertTrue($v->validate());
+    }
+
+    public function testPositiveValidString(): void
+    {
+        $v = new Validator(['num' => '42']);
+        $v->rule('positive', 'num');
+        $this->assertTrue($v->validate());
+
+        $v = new Validator(['num' => '3.14']);
+        $v->rule('positive', 'num');
+        $this->assertTrue($v->validate());
+    }
+
+    public function testPositiveValidFloat(): void
+    {
+        if (!function_exists('bccomp')) {
+            $this->markTestSkipped("BC Math extension required for high-precision decimal tests");
+        }
+
+        $v = new Validator(['num' => 0.0001]);
+        $v->rule('positive', 'num');
+        $this->assertTrue($v->validate());
+
+        $v = new Validator(['num' => '0.00000000000001']);
+        $v->rule('positive', 'num');
+        $this->assertTrue($v->validate());
+    }
+
+    public function testPositiveInvalidZero(): void
+    {
+        $v = new Validator(['num' => 0]);
+        $v->rule('positive', 'num');
+        $this->assertFalse($v->validate());
+
+        $v = new Validator(['num' => '0']);
+        $v->rule('positive', 'num');
+        $this->assertFalse($v->validate());
+
+        $v = new Validator(['num' => 0.0]);
+        $v->rule('positive', 'num');
+        $this->assertFalse($v->validate());
+    }
+
+    public function testPositiveInvalidNegative(): void
+    {
+        $v = new Validator(['num' => -1]);
+        $v->rule('positive', 'num');
+        $this->assertFalse($v->validate());
+
+        $v = new Validator(['num' => -100]);
+        $v->rule('positive', 'num');
+        $this->assertFalse($v->validate());
+
+        $v = new Validator(['num' => -0.1]);
+        $v->rule('positive', 'num');
+        $this->assertFalse($v->validate());
+
+        $v = new Validator(['num' => '-42']);
+        $v->rule('positive', 'num');
+        $this->assertFalse($v->validate());
+    }
+
+    public function testPositiveInvalidNonNumeric(): void
+    {
+        $v = new Validator(['num' => 'abc']);
+        $v->rule('positive', 'num');
+        $this->assertFalse($v->validate());
+
+        $v = new Validator(['num' => []]);
+        $v->rule('positive', 'num');
+        $this->assertFalse($v->validate());
+
+        $v = new Validator(['num' => new stdClass()]);
+        $v->rule('positive', 'num');
+        $this->assertFalse($v->validate());
+    }
+
+    public function testPositiveValidAltSyntax(): void
+    {
+        $v = new Validator(['quantity' => 5]);
+        $v->rules([
+            'positive' => [
+                ['quantity'],
+            ],
+        ]);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testPositiveInvalidAltSyntax(): void
+    {
+        $v = new Validator(['quantity' => -5]);
+        $v->rules([
+            'positive' => [
+                ['quantity'],
+            ],
+        ]);
+        $this->assertFalse($v->validate());
+    }
+
+    public function testPositiveWithLargeNumbers(): void
+    {
+        $v = new Validator(['num' => '999999999999']);
+        $v->rule('positive', 'num');
+        $this->assertTrue($v->validate());
+    }
+
+    public function testPositiveWithVerySmallPositiveNumber(): void
+    {
+        if (!function_exists('bccomp')) {
+            $this->markTestSkipped("BC Math extension required for high-precision decimal tests");
+        }
+
+        $v = new Validator(['num' => '0.00000000000001']);
+        $v->rule('positive', 'num');
+        $this->assertTrue($v->validate());
+    }
+
+    // Decimal Places Tests
+    public function testDecimalPlacesValid(): void
+    {
+        // Integer values should pass (0 decimal places)
+        $v = new Validator(['price' => 100]);
+        $v->rule('decimalPlaces', 'price', 2);
+        $this->assertTrue($v->validate());
+
+        // 1 decimal place should pass with max 2
+        $v = new Validator(['price' => 10.5]);
+        $v->rule('decimalPlaces', 'price', 2);
+        $this->assertTrue($v->validate());
+
+        // Exactly 2 decimal places
+        $v = new Validator(['price' => 19.99]);
+        $v->rule('decimalPlaces', 'price', 2);
+        $this->assertTrue($v->validate());
+
+        // String with 2 decimals
+        $v = new Validator(['price' => '19.99']);
+        $v->rule('decimalPlaces', 'price', 2);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testDecimalPlacesValidAltSyntax(): void
+    {
+        $v = new Validator(['amount' => 3.14]);
+        $v->rules([
+            'decimalPlaces' => [
+                ['amount', 2],
+            ],
+        ]);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testDecimalPlacesInvalid(): void
+    {
+        // 3 decimal places with max 2
+        $v = new Validator(['price' => 19.999]);
+        $v->rule('decimalPlaces', 'price', 2);
+        $this->assertFalse($v->validate());
+
+        // 4 decimal places with max 2
+        $v = new Validator(['price' => 19.9999]);
+        $v->rule('decimalPlaces', 'price', 2);
+        $this->assertFalse($v->validate());
+
+        // String with 3 decimals
+        $v = new Validator(['price' => '10.123']);
+        $v->rule('decimalPlaces', 'price', 2);
+        $this->assertFalse($v->validate());
+    }
+
+    public function testDecimalPlacesInvalidAltSyntax(): void
+    {
+        $v = new Validator(['amount' => 3.1416]);
+        $v->rules([
+            'decimalPlaces' => [
+                ['amount', 2],
+            ],
+        ]);
+        $this->assertFalse($v->validate());
+    }
+
+    public function testDecimalPlacesWithZeroDecimals(): void
+    {
+        // Only integers allowed
+        $v = new Validator(['quantity' => 100]);
+        $v->rule('decimalPlaces', 'quantity', 0);
+        $this->assertTrue($v->validate());
+
+        // Any decimal should fail
+        $v = new Validator(['quantity' => 100.1]);
+        $v->rule('decimalPlaces', 'quantity', 0);
+        $this->assertFalse($v->validate());
+    }
+
+    public function testDecimalPlacesWithTrailingZeros(): void
+    {
+        // "10.50" as string has trailing zero
+        // After rtrim('0'), becomes "10.5" = 1 decimal place
+        $v = new Validator(['price' => '10.50']);
+        $v->rule('decimalPlaces', 'price', 2);
+        $this->assertTrue($v->validate());
+
+        // "10.00" becomes "10" after rtrim = 0 decimal places
+        $v = new Validator(['price' => '10.00']);
+        $v->rule('decimalPlaces', 'price', 2);
+        $this->assertTrue($v->validate());
+
+        // "10.000" becomes "10" after rtrim = 0 decimal places
+        $v = new Validator(['price' => '10.000']);
+        $v->rule('decimalPlaces', 'price', 1);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testDecimalPlacesWithHighPrecision(): void
+    {
+        // Financial calculations often need 4 decimals
+        $v = new Validator(['rate' => 0.1234]);
+        $v->rule('decimalPlaces', 'rate', 4);
+        $this->assertTrue($v->validate());
+
+        // 5 decimals should fail
+        $v = new Validator(['rate' => 0.12345]);
+        $v->rule('decimalPlaces', 'rate', 4);
+        $this->assertFalse($v->validate());
+
+        // Very high precision
+        $v = new Validator(['measurement' => '3.14159265359']);
+        $v->rule('decimalPlaces', 'measurement', 11);
+        $this->assertTrue($v->validate());
+
+        $v = new Validator(['measurement' => '3.14159265359']);
+        $v->rule('decimalPlaces', 'measurement', 10);
+        $this->assertFalse($v->validate());
+    }
+
+    public function testDecimalPlacesWithNegativeNumbers(): void
+    {
+        // Negative numbers should work the same
+        $v = new Validator(['temp' => -10.5]);
+        $v->rule('decimalPlaces', 'temp', 2);
+        $this->assertTrue($v->validate());
+
+        $v = new Validator(['temp' => -10.555]);
+        $v->rule('decimalPlaces', 'temp', 2);
+        $this->assertFalse($v->validate());
+    }
+
+    public function testDecimalPlacesWithNonNumeric(): void
+    {
+        // Non-numeric values should fail
+        $v = new Validator(['price' => 'abc']);
+        $v->rule('decimalPlaces', 'price', 2);
+        $this->assertFalse($v->validate());
+
+        $v = new Validator(['price' => []]);
+        $v->rule('decimalPlaces', 'price', 2);
+        $this->assertFalse($v->validate());
+
+        $v = new Validator(['price' => new stdClass()]);
+        $v->rule('decimalPlaces', 'price', 2);
+        $this->assertFalse($v->validate());
+    }
+
+    public function testDecimalPlacesWithInvalidParams(): void
+    {
+        // Negative max places (invalid)
+        $v = new Validator(['price' => 19.99]);
+        $v->rule('decimalPlaces', 'price', -1);
+        $this->assertFalse($v->validate());
+
+        // Non-integer parameter
+        $v = new Validator(['price' => 19.99]);
+        $v->rule('decimalPlaces', 'price', 2.5);
+        $this->assertFalse($v->validate());
+
+        // String parameter
+        $v = new Validator(['price' => 19.99]);
+        $v->rule('decimalPlaces', 'price', '2');
+        $this->assertFalse($v->validate());
+    }
+
+    public function testDecimalPlacesErrorMessage(): void
+    {
+        $v = new Validator(['price' => 19.999]);
+        $v->rule('decimalPlaces', 'price', 2);
+        $this->assertFalse($v->validate());
+
+        $errors = $v->errors();
+        $this->assertArrayHasKey('price', $errors);
+        $this->assertStringContainsString('must have at most 2 decimal places', $errors['price'][0]);
+    }
+
+    public function testDecimalPlacesCurrencyUseCase(): void
+    {
+        // Typical currency validation (2 decimal places)
+        $validPrices = [19.99, 0.99, 100, 5.5, '10.00'];
+        foreach ($validPrices as $price) {
+            $v = new Validator(['price' => $price]);
+            $v->rule('decimalPlaces', 'price', 2);
+            $this->assertTrue($v->validate(), "Price {$price} should be valid");
+        }
+
+        $invalidPrices = [19.999, 0.9999, 5.123];
+        foreach ($invalidPrices as $price) {
+            $v = new Validator(['price' => $price]);
+            $v->rule('decimalPlaces', 'price', 2);
+            $this->assertFalse($v->validate(), "Price {$price} should be invalid");
+        }
+    }
+
+    public function testDecimalPlacesPercentageUseCase(): void
+    {
+        // Percentage with up to 4 decimal places
+        $v = new Validator(['percentage' => 3.1416]);
+        $v->rule('decimalPlaces', 'percentage', 4);
+        $this->assertTrue($v->validate());
+
+        $v = new Validator(['percentage' => 99.9]);
+        $v->rule('decimalPlaces', 'percentage', 4);
+        $this->assertTrue($v->validate());
+
+        $v = new Validator(['percentage' => 0.12345]);
+        $v->rule('decimalPlaces', 'percentage', 4);
+        $this->assertFalse($v->validate());
+    }
+
+    public function testDecimalPlacesWithScientificNotation(): void
+    {
+        // Scientific notation gets converted to decimal string
+        // 1.5e2 = 150 (integer, 0 decimals)
+        $v = new Validator(['value' => 1.5e2]);
+        $v->rule('decimalPlaces', 'value', 0);
+        // This depends on how PHP converts 1.5e2 to string
+        // If it becomes "150", it passes. If it becomes "150.0", it might fail
+        // Let's test the actual behavior
+        $stringValue = (string)(1.5e2);
+        if (strpos($stringValue, '.') === false) {
+            $this->assertTrue($v->validate());
+        }
+    }
+
+    public function testDecimalPlacesZeroValue(): void
+    {
+        // Zero as integer
+        $v = new Validator(['value' => 0]);
+        $v->rule('decimalPlaces', 'value', 2);
+        $this->assertTrue($v->validate());
+
+        // Zero as float
+        $v = new Validator(['value' => 0.0]);
+        $v->rule('decimalPlaces', 'value', 2);
+        $this->assertTrue($v->validate());
+
+        // Zero as string
+        $v = new Validator(['value' => '0']);
+        $v->rule('decimalPlaces', 'value', 2);
+        $this->assertTrue($v->validate());
+
+        // Zero with decimals
+        $v = new Validator(['value' => '0.00']);
+        $v->rule('decimalPlaces', 'value', 2);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testDecimalPlacesVeryLargeNumbers(): void
+    {
+        // Large number with 2 decimals
+        $v = new Validator(['amount' => '999999999999.99']);
+        $v->rule('decimalPlaces', 'amount', 2);
+        $this->assertTrue($v->validate());
+
+        // Large number with 3 decimals
+        $v = new Validator(['amount' => '999999999999.999']);
+        $v->rule('decimalPlaces', 'amount', 2);
+        $this->assertFalse($v->validate());
+    }
 }

@@ -41,4 +41,9 @@ return [
     'requiredWithout' => "is required",
     'subset' => "contains an item that is not in the list",
     'arrayHasKeys' => "does not contain all required keys",
+    'positive' => "must be a positive number",
+    'decimalPlaces' => "must have at most %d decimal places",
+    'uuid' => "must be a valid UUID",
+    'startsWith' => "must start with '%s'",
+    'endsWith' => "must end with '%s'",
 ];
