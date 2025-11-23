@@ -11,6 +11,8 @@ use function function_exists;
 
 use stdClass;
 
+use function strpos;
+
 class NumericValidationTest extends BaseTestCase
 {
     // Numeric Tests

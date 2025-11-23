@@ -5,22 +5,22 @@ declare(strict_types=1);
 namespace Frostybee\Valicomb\Validators;
 
 use function bccomp;
+use function count;
+use function explode;
+
+use const FILTER_VALIDATE_INT;
+
 use function filter_var;
 use function function_exists;
 use function in_array;
+use function is_array;
 use function is_int;
 use function is_numeric;
 use function is_string;
 use function preg_match;
-use function is_array;
-use function count;
-use function strpos;
-use function explode;
-use function strlen;
 use function rtrim;
-
-
-use const FILTER_VALIDATE_INT;
+use function strlen;
+use function strpos;
 
 /**
  * Numeric Validators Trait

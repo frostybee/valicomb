@@ -288,4 +288,192 @@ class DateValidationTest extends BaseTestCase
         $v->rule('dateAfter', 'date'); // Missing parameter
         $v->validate();
     }
+
+    // Past Date Tests
+    public function testPastDateValid(): void
+    {
+        // A date from 2020 should be in the past
+        $v = new Validator(['birth_date' => '2020-01-01']);
+        $v->rule('past', 'birth_date');
+        $this->assertTrue($v->validate());
+    }
+
+    public function testPastDateValidWithDateTime(): void
+    {
+        // DateTime from 2020 should be in the past
+        $v = new Validator(['event_date' => new DateTime('2020-06-15')]);
+        $v->rule('past', 'event_date');
+        $this->assertTrue($v->validate());
+    }
+
+    public function testPastDateValidWithReferenceDate(): void
+    {
+        // 2024-01-01 is before 2024-12-31
+        $v = new Validator(['date' => '2024-01-01']);
+        $v->rule('past', 'date', '2024-12-31');
+        $this->assertTrue($v->validate());
+    }
+
+    public function testPastDateInvalidWithFutureDate(): void
+    {
+        // A date far in the future should not be in the past
+        $v = new Validator(['appointment' => '2030-01-01']);
+        $v->rule('past', 'appointment');
+        $this->assertFalse($v->validate());
+    }
+
+    public function testPastDateInvalidWithTodayDate(): void
+    {
+        // Use current timestamp to ensure we're testing "now"
+        // A date/time exactly now or in the future should not pass
+        $now = new DateTime();
+        $v = new Validator(['date' => $now]);
+        $v->rule('past', 'date');
+        $this->assertFalse($v->validate());
+    }
+
+    public function testPastDateHandlesInvalidDate(): void
+    {
+        $v = new Validator(['date' => 'invalid-date']);
+        $v->rule('past', 'date');
+        $this->assertFalse($v->validate());
+    }
+
+    public function testPastDateHandlesInvalidReferenceDate(): void
+    {
+        $v = new Validator(['date' => '2024-01-01']);
+        $v->rule('past', 'date', 'not-a-date');
+        $this->assertFalse($v->validate());
+    }
+
+    public function testPastDateWithDateTimeReference(): void
+    {
+        $v = new Validator(['date' => new DateTime('2024-01-01')]);
+        $v->rule('past', 'date', new DateTime('2024-12-31'));
+        $this->assertTrue($v->validate());
+    }
+
+    // Future Date Tests
+    public function testFutureDateValid(): void
+    {
+        // A date far in the future should be valid
+        $v = new Validator(['appointment' => '2030-12-31']);
+        $v->rule('future', 'appointment');
+        $this->assertTrue($v->validate());
+    }
+
+    public function testFutureDateValidWithDateTime(): void
+    {
+        // DateTime in the future should be valid
+        $v = new Validator(['expiry_date' => new DateTime('2030-06-15')]);
+        $v->rule('future', 'expiry_date');
+        $this->assertTrue($v->validate());
+    }
+
+    public function testFutureDateValidWithReferenceDate(): void
+    {
+        // 2024-12-31 is after 2024-01-01
+        $v = new Validator(['date' => '2024-12-31']);
+        $v->rule('future', 'date', '2024-01-01');
+        $this->assertTrue($v->validate());
+    }
+
+    public function testFutureDateInvalidWithPastDate(): void
+    {
+        // A date from 2020 should not be in the future
+        $v = new Validator(['event_date' => '2020-01-01']);
+        $v->rule('future', 'event_date');
+        $this->assertFalse($v->validate());
+    }
+
+    public function testFutureDateInvalidWithTodayDate(): void
+    {
+        // Use current timestamp to ensure we're testing "now"
+        // A date/time exactly now or in the past should not pass
+        $now = new DateTime();
+        $v = new Validator(['date' => $now]);
+        $v->rule('future', 'date');
+        $this->assertFalse($v->validate());
+    }
+
+    public function testFutureDateHandlesInvalidDate(): void
+    {
+        $v = new Validator(['date' => 'invalid-date']);
+        $v->rule('future', 'date');
+        $this->assertFalse($v->validate());
+    }
+
+    public function testFutureDateHandlesInvalidReferenceDate(): void
+    {
+        $v = new Validator(['date' => '2030-01-01']);
+        $v->rule('future', 'date', 'not-a-date');
+        $this->assertFalse($v->validate());
+    }
+
+    public function testFutureDateWithDateTimeReference(): void
+    {
+        $v = new Validator(['date' => new DateTime('2024-12-31')]);
+        $v->rule('future', 'date', new DateTime('2024-01-01'));
+        $this->assertTrue($v->validate());
+    }
+
+    // Alternative Syntax Tests
+    public function testPastDateValidAltSyntax(): void
+    {
+        $v = new Validator(['birth_date' => '2020-01-01']);
+        $v->rules([
+            'past' => [
+                ['birth_date'],
+            ],
+        ]);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testFutureDateValidAltSyntax(): void
+    {
+        $v = new Validator(['appointment' => '2030-01-01']);
+        $v->rules([
+            'future' => [
+                ['appointment'],
+            ],
+        ]);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testPastDateInvalidAltSyntax(): void
+    {
+        $v = new Validator(['date' => '2030-01-01']);
+        $v->rules([
+            'past' => [
+                ['date'],
+            ],
+        ]);
+        $this->assertFalse($v->validate());
+    }
+
+    public function testFutureDateInvalidAltSyntax(): void
+    {
+        $v = new Validator(['date' => '2020-01-01']);
+        $v->rules([
+            'future' => [
+                ['date'],
+            ],
+        ]);
+        $this->assertFalse($v->validate());
+    }
+
+    // Empty value tests (should pass when not required)
+    public function testPastDateValidWhenEmptyButNotRequired(): void
+    {
+        $v = new Validator(['date' => '']);
+        $v->rule('past', 'date');
+        $this->assertTrue($v->validate());
+    }
+
+    public function testFutureDateValidWhenEmptyButNotRequired(): void
+    {
+        $v = new Validator(['date' => '']);
+        $v->rule('future', 'date');
+        $this->assertTrue($v->validate());
+    }
 }

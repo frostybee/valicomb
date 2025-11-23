@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace Frostybee\Valicomb\Core;
 
+use function array_keys;
+
 use DateTime;
 
 use function implode;
 use function is_array;
+use function is_numeric;
 use function is_object;
 use function is_string;
 use function str_replace;
-use function str_starts_with;
 use function ucwords;
 use function vsprintf;
 
@@ -22,6 +24,7 @@ use function vsprintf;
  * with support for field labels and multilingual messages.
  *
  * @package Valicomb\Core
+ *
  * @internal
  */
 class ErrorManager

@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Frostybee\Valicomb\Core;
 
+use function implode;
+
 use InvalidArgumentException;
 
+use function is_array;
 use function method_exists;
 use function random_int;
 use function ucfirst;
@@ -17,6 +20,7 @@ use function ucfirst;
  * Handles rule callbacks, messages, and rule existence checking.
  *
  * @package Valicomb\Core
+ *
  * @internal
  */
 class RuleRegistry
@@ -68,12 +72,12 @@ class RuleRegistry
     public static function addGlobalRule(string $name, callable $callback, ?string $message = null): void
     {
         if ($message === null) {
-            $message = static::ERROR_DEFAULT;
+            $message = self::ERROR_DEFAULT;
         }
 
-        static::assertRuleCallback($callback);
+        self::assertRuleCallback($callback);
 
-        static::$rules[$name] = $callback;
+        self::$rules[$name] = $callback;
         LanguageManager::addRuleMessage($name, $message);
     }
 
@@ -88,7 +92,7 @@ class RuleRegistry
      */
     public function addInstanceRule(string $name, callable $callback, ?string $message = null): void
     {
-        static::assertRuleCallback($callback);
+        self::assertRuleCallback($callback);
 
         $this->instanceRules[$name] = $callback;
         $this->instanceRuleMessages[$name] = $message;
@@ -101,7 +105,7 @@ class RuleRegistry
      */
     public function getAllRules(): array
     {
-        return [...$this->instanceRules, ...static::$rules];
+        return [...$this->instanceRules, ...self::$rules];
     }
 
     /**
@@ -180,7 +184,7 @@ class RuleRegistry
      */
     public static function getGlobalRules(): array
     {
-        return static::$rules;
+        return self::$rules;
     }
 
     /**

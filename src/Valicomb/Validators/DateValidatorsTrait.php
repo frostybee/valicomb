@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Frostybee\Valicomb\Validators;
 
+use function date_parse_from_format;
+
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
 
-use function count;
-use function date_parse_from_format;
-use function explode;
 use function is_string;
 use function preg_match;
 use function strtotime;
@@ -233,5 +232,99 @@ trait DateValidatorsTrait
         }
 
         return $vtime > $ptime;
+    }
+
+    /**
+     * Validate that a date is in the past
+     *
+     * Validates that a date value is chronologically before the current date/time.
+     * Accepts both DateTime objects and string representations of dates.
+     *
+     * By default, compares against the current date/time (now), but can optionally
+     * accept a custom reference date for comparison.
+     *
+     * The comparison is strictly less-than (<), meaning:
+     * - Dates equal to "now" will FAIL validation
+     * - Only dates in the past will PASS validation
+     *
+     * Use cases:
+     * - Birth date validation (must be in the past)
+     * - Historical event dates
+     * - Completed activity timestamps
+     * - Audit log entries
+     * - Age verification
+     *
+     * Examples:
+     * - validatePast('birth_date', '1990-01-01', []) → true (assuming today is later)
+     * - validatePast('event_date', '2024-01-01', ['2024-12-31']) → true
+     * - validatePast('date', date('Y-m-d'), []) → false (today is not in the past)
+     *
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate (DateTime or string).
+     * @param array $params Optional reference date: [0] => DateTime object or string (default: now).
+     *
+     * @return bool True if value is in the past relative to reference date, false otherwise.
+     */
+    protected function validatePast(string $field, mixed $value, array $params = []): bool
+    {
+        // Determine reference date (default to current timestamp)
+        $referenceDate = $params[0] ?? 'now';
+
+        $vtime = ($value instanceof DateTime) ? $value->getTimestamp() : strtotime((string)$value);
+        $rtime = ($referenceDate instanceof DateTime) ? $referenceDate->getTimestamp() : strtotime((string)$referenceDate);
+
+        // If either strtotime() failed, return false
+        if ($vtime === false || $rtime === false) {
+            return false;
+        }
+
+        return $vtime < $rtime;
+    }
+
+    /**
+     * Validate that a date is in the future
+     *
+     * Validates that a date value is chronologically after the current date/time.
+     * Accepts both DateTime objects and string representations of dates.
+     *
+     * By default, compares against the current date/time (now), but can optionally
+     * accept a custom reference date for comparison.
+     *
+     * The comparison is strictly greater-than (>), meaning:
+     * - Dates equal to "now" will FAIL validation
+     * - Only dates in the future will PASS validation
+     *
+     * Use cases:
+     * - Appointment scheduling (must be in the future)
+     * - Event registration deadlines
+     * - Expiration dates (must be future)
+     * - Scheduled task dates
+     * - Future delivery dates
+     *
+     * Examples:
+     * - validateFuture('appointment', '2025-12-31', []) → true (assuming today is earlier)
+     * - validateFuture('expiry_date', '2025-01-01', ['2024-01-01']) → true
+     * - validateFuture('date', date('Y-m-d'), []) → false (today is not in the future)
+     *
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate (DateTime or string).
+     * @param array $params Optional reference date: [0] => DateTime object or string (default: now).
+     *
+     * @return bool True if value is in the future relative to reference date, false otherwise.
+     */
+    protected function validateFuture(string $field, mixed $value, array $params = []): bool
+    {
+        // Determine reference date (default to current timestamp)
+        $referenceDate = $params[0] ?? 'now';
+
+        $vtime = ($value instanceof DateTime) ? $value->getTimestamp() : strtotime((string)$value);
+        $rtime = ($referenceDate instanceof DateTime) ? $referenceDate->getTimestamp() : strtotime((string)$referenceDate);
+
+        // If either strtotime() failed, return false
+        if ($vtime === false || $rtime === false) {
+            return false;
+        }
+
+        return $vtime > $rtime;
     }
 }

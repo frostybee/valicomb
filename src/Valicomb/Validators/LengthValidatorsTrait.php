@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Frostybee\Valicomb\Validators;
 
+use function function_exists;
+
 use InvalidArgumentException;
 
-use function function_exists;
 use function is_int;
 use function is_string;
 use function mb_strlen;

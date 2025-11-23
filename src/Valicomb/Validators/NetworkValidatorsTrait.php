@@ -5,27 +5,36 @@ declare(strict_types=1);
 namespace Frostybee\Valicomb\Validators;
 
 use function checkdnsrr;
+use function count;
 use function defined;
-use function filter_var;
-use function function_exists;
-use function idn_to_ascii;
-use function is_string;
-use function ltrim;
-use function parse_url;
-use function preg_match;
-use function str_contains;
-use function str_ends_with;
-use function str_starts_with;
-use function strlen;
-use function stristr;
-use function strtolower;
+use function explode;
 
 use const FILTER_FLAG_IPV4;
 use const FILTER_FLAG_IPV6;
 use const FILTER_VALIDATE_EMAIL;
 use const FILTER_VALIDATE_IP;
 use const FILTER_VALIDATE_URL;
+
+use function filter_var;
+use function function_exists;
+use function idn_to_ascii;
+use function in_array;
+use function is_array;
+use function is_string;
+use function ltrim;
+use function parse_url;
+
 use const PHP_URL_HOST;
+
+use function preg_match;
+use function preg_replace;
+use function str_contains;
+use function str_ends_with;
+use function str_starts_with;
+use function stristr;
+use function strlen;
+use function strtolower;
+use function strtoupper;
 
 /**
  * Network Validators Trait
@@ -355,5 +364,151 @@ trait NetworkValidatorsTrait
         }
 
         return false;
+    }
+
+    /**
+     * Validate that a field is a valid phone number
+     *
+     * Validates phone numbers in various international formats. Supports:
+     * - International format with country code: +1234567890, +44 20 1234 5678
+     * - National format with area code: (123) 456-7890, 123-456-7890
+     * - Various separators: spaces, dashes, dots, parentheses
+     * - Optional country code parameter for country-specific validation
+     *
+     * Validation approach:
+     * - Removes common formatting characters (spaces, dashes, dots, parentheses)
+     * - Validates digit count (7-15 digits for international, allows country-specific rules)
+     * - Validates country code prefix if provided
+     * - Ensures only valid characters are present
+     *
+     * Accepted formats (examples):
+     * - "+1234567890"
+     * - "+1 (234) 567-8900"
+     * - "+44 20 1234 5678"
+     * - "(123) 456-7890"
+     * - "123-456-7890"
+     * - "123.456.7890"
+     * - "1234567890"
+     *
+     * Country code support:
+     * - 'US' or 'CA': 10 digits, optional +1 prefix
+     * - 'UK' or 'GB': 10-11 digits, optional +44 prefix
+     * - 'AU': 9-10 digits, optional +61 prefix
+     * - 'IN': 10 digits, optional +91 prefix
+     * - 'DE': 10-11 digits, optional +49 prefix
+     * - 'FR': 9-10 digits, optional +33 prefix
+     * - 'IT': 9-10 digits, optional +39 prefix
+     * - 'ES': 9 digits, optional +34 prefix
+     * - 'BR': 10-11 digits, optional +55 prefix
+     * - 'MX': 10 digits, optional +52 prefix
+     *
+     * This validation is format-based only - it does NOT:
+     * - Verify the number is active or in service
+     * - Check against a phone number database
+     * - Validate carrier or network
+     * - Perform number portability lookups
+     *
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
+     * @param array $params Optional country code: [0] => string country code (e.g., 'US', 'UK', 'FR').
+     *
+     * @return bool True if value is a valid phone number format, false otherwise.
+     */
+    protected function validatePhone(string $field, mixed $value, array $params = []): bool
+    {
+        if (!is_string($value)) {
+            return false;
+        }
+
+        // Country code if provided
+        $countryCode = $params[0] ?? null;
+        if ($countryCode !== null && !is_string($countryCode)) {
+            return false;
+        }
+
+        // Normalize country code to uppercase
+        $countryCode = $countryCode !== null ? strtoupper($countryCode) : null;
+
+        // Strip common formatting characters
+        $stripped = preg_replace('/[\s\-\.\(\)]/', '', $value);
+
+        if ($stripped === null) {
+            return false;
+        }
+
+        // Check if starts with + (international format)
+        $hasPlus = str_starts_with($stripped, '+');
+
+        // Remove + for digit counting
+        $digitsOnly = ltrim($stripped, '+');
+
+        // Validate that only digits remain
+        if (!preg_match('/^\d+$/', $digitsOnly)) {
+            return false;
+        }
+
+        // Country-specific validation
+        if ($countryCode !== null) {
+            return $this->validatePhoneByCountry($digitsOnly, $countryCode, $hasPlus);
+        }
+
+        // General validation: 7-15 digits (international standard)
+        $length = strlen($digitsOnly);
+
+        return $length >= 7 && $length <= 15;
+    }
+
+    /**
+     * Validate phone number for specific country
+     *
+     * Internal helper method that validates phone numbers against country-specific rules
+     * including digit count and country code prefix requirements.
+     *
+     * @param string $digitsOnly The phone number with only digits (no + or formatting).
+     * @param string $countryCode The country code (e.g., 'US', 'UK').
+     * @param bool $hasPlus Whether the original number started with +.
+     *
+     * @return bool True if number is valid for the specified country, false otherwise.
+     */
+    private function validatePhoneByCountry(string $digitsOnly, string $countryCode, bool $hasPlus): bool
+    {
+        $length = strlen($digitsOnly);
+
+        // Country-specific rules
+        $rules = [
+            'US' => ['prefix' => '1', 'length' => 10, 'withPrefix' => 11],
+            'CA' => ['prefix' => '1', 'length' => 10, 'withPrefix' => 11],
+            'UK' => ['prefix' => '44', 'length' => [10, 11], 'withPrefix' => [12, 13]],
+            'GB' => ['prefix' => '44', 'length' => [10, 11], 'withPrefix' => [12, 13]],
+            'AU' => ['prefix' => '61', 'length' => [9, 10], 'withPrefix' => [11, 12]],
+            'IN' => ['prefix' => '91', 'length' => 10, 'withPrefix' => 12],
+            'DE' => ['prefix' => '49', 'length' => [10, 11], 'withPrefix' => [12, 13]],
+            'FR' => ['prefix' => '33', 'length' => [9, 10], 'withPrefix' => [11, 12]],
+            'IT' => ['prefix' => '39', 'length' => [9, 10], 'withPrefix' => [11, 12]],
+            'ES' => ['prefix' => '34', 'length' => 9, 'withPrefix' => 11],
+            'BR' => ['prefix' => '55', 'length' => [10, 11], 'withPrefix' => [12, 13]],
+            'MX' => ['prefix' => '52', 'length' => 10, 'withPrefix' => 12],
+        ];
+
+        if (!isset($rules[$countryCode])) {
+            // Unknown country code - fall back to general validation
+            return $length >= 7 && $length <= 15;
+        }
+
+        $rule = $rules[$countryCode];
+        $prefix = $rule['prefix'];
+
+        // Check if number starts with country code
+        if (str_starts_with($digitsOnly, $prefix)) {
+            // Number includes country code prefix
+            $expectedLengths = is_array($rule['withPrefix']) ? $rule['withPrefix'] : [$rule['withPrefix']];
+
+            return in_array($length, $expectedLengths, true);
+        }
+
+        // Number without country code prefix
+        $expectedLengths = is_array($rule['length']) ? $rule['length'] : [$rule['length']];
+
+        return in_array($length, $expectedLengths, true);
     }
 }

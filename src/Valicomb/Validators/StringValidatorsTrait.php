@@ -4,31 +4,37 @@ declare(strict_types=1);
 
 namespace Frostybee\Valicomb\Validators;
 
-use InvalidArgumentException;
-use RuntimeException;
-
 use function function_exists;
 use function ini_get;
 use function ini_set;
+
+use InvalidArgumentException;
+
 use function is_array;
+use function is_int;
 use function is_string;
 use function mb_check_encoding;
 use function mb_detect_encoding;
+
+use const PREG_BACKTRACK_LIMIT_ERROR;
+use const PREG_BAD_UTF8_ERROR;
+use const PREG_BAD_UTF8_OFFSET_ERROR;
+use const PREG_INTERNAL_ERROR;
+use const PREG_JIT_STACKLIMIT_ERROR;
+
 use function preg_last_error;
 use function preg_match;
+
+use const PREG_NO_ERROR;
+use const PREG_RECURSION_LIMIT_ERROR;
+
+use RuntimeException;
+
 use function str_contains;
 use function str_ends_with;
 use function str_starts_with;
 use function stripos;
 use function strtolower;
-
-use const PREG_NO_ERROR;
-use const PREG_INTERNAL_ERROR;
-use const PREG_BACKTRACK_LIMIT_ERROR;
-use const PREG_RECURSION_LIMIT_ERROR;
-use const PREG_BAD_UTF8_ERROR;
-use const PREG_BAD_UTF8_OFFSET_ERROR;
-use const PREG_JIT_STACKLIMIT_ERROR;
 
 /**
  * String Validators Trait
@@ -277,13 +283,11 @@ trait StringValidatorsTrait
      * $v = new Validator(['url' => 'https://example.com']);
      * $v->rule('startsWith', 'url', 'https://'); // passes
      * ```
-     *
      * @example Multiple prefixes:
      * ```php
      * $v = new Validator(['phone' => '+44123456789']);
      * $v->rule('startsWith', 'phone', ['+1', '+44', '+61']); // passes
      * ```
-     *
      * @example Case-insensitive:
      * ```php
      * $v = new Validator(['code' => 'prod-12345']);
@@ -350,13 +354,11 @@ trait StringValidatorsTrait
      * $v = new Validator(['email' => 'user@company.com']);
      * $v->rule('endsWith', 'email', '@company.com'); // passes
      * ```
-     *
      * @example Multiple suffixes:
      * ```php
      * $v = new Validator(['domain' => 'example.org']);
      * $v->rule('endsWith', 'domain', ['.com', '.org', '.net']); // passes
      * ```
-     *
      * @example Case-insensitive:
      * ```php
      * $v = new Validator(['file' => 'image.JPG']);
@@ -433,7 +435,6 @@ trait StringValidatorsTrait
      * $v = new Validator(['id' => '550e8400-e29b-41d4-a716-446655440000']);
      * $v->rule('uuid', 'id'); // passes (valid UUIDv4)
      * ```
-     *
      * @example Specific version:
      * ```php
      * $v = new Validator(['id' => '550e8400-e29b-41d4-a716-446655440000']);

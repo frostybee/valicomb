@@ -4,82 +4,37 @@ declare(strict_types=1);
 
 namespace Frostybee\Valicomb;
 
+use function array_filter;
+use function array_flip;
+use function array_intersect_key;
+use function array_keys;
+use function array_shift;
+use function array_unshift;
+use function call_user_func;
+use function count;
+
+use DateTime;
+
+use function defined;
+use function explode;
+
 use Frostybee\Valicomb\Core\ErrorManager;
 use Frostybee\Valicomb\Core\FieldAccessor;
 use Frostybee\Valicomb\Core\LanguageManager;
 use Frostybee\Valicomb\Core\RuleRegistry;
 
-use function array_diff;
-use function array_filter;
-use function array_flip;
-use function array_intersect_key;
-use function array_key_exists;
-use function array_keys;
-use function array_shift;
-use function array_unique;
-use function array_unshift;
-use function basename;
-use function bccomp;
-use function call_user_func;
-use function checkdnsrr;
-use function count;
-use function date_parse_from_format;
-
-use DateTime;
-use DateTimeImmutable;
-use DateTimeInterface;
-
-use function defined;
-use function dirname;
-use function explode;
-use function filter_var;
-use function function_exists;
-use function idn_to_ascii;
 use function implode;
 use function in_array;
-use function ini_get;
-use function ini_set;
 
 use InvalidArgumentException;
 
 use function is_array;
 use function is_callable;
-use function is_file;
-use function is_int;
-use function is_null;
-use function is_numeric;
-use function is_object;
-use function is_readable;
-use function is_scalar;
 use function is_string;
-use function ltrim;
-use function mb_check_encoding;
-use function mb_detect_encoding;
-use function mb_strlen;
 use function method_exists;
-use function parse_url;
-use function preg_last_error;
 use function preg_match;
-use function preg_replace;
-use function random_int;
-use function realpath;
-
-use RuntimeException;
-
 use function str_contains;
-use function str_ends_with;
-use function str_replace;
-use function str_starts_with;
-use function stripos;
-use function stristr;
-use function strlen;
-use function strtolower;
-use function strtotime;
-use function substr;
-use function trim;
 use function ucfirst;
-use function ucwords;
-use function vsprintf;
 
 /**
  * Validation Class.
@@ -233,7 +188,6 @@ class Validator
         // Initialize language files.
         LanguageManager::loadLanguage($lang, $langDir);
     }
-
 
     /**
      * Get/set language to use for validation messages.
@@ -541,7 +495,6 @@ class Validator
         return $this;
     }
 
-
     /**
      * Set whether to stop validation on first failure
      *
@@ -618,7 +571,6 @@ class Validator
 
         return false;
     }
-
 
     /**
      * Adds a new validation rule callback that is tied to the current instance only
@@ -986,7 +938,6 @@ class Validator
             $this->mapOneFieldToRules($field, $rules[$field]);
         }
     }
-
 
     /**
      * Determine if validation must be executed for a specific rule

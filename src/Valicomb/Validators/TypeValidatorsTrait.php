@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Frostybee\Valicomb\Validators;
 
+use function array_keys;
+use function in_array;
+
 use InvalidArgumentException;
 
-use function in_array;
 use function is_array;
-use function is_int;
 use function is_object;
 use function is_string;
 use function preg_match;
 use function preg_replace;
 use function strlen;
 use function substr;
-use function array_keys;
 
 /**
  * Type Validators Trait

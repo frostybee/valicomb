@@ -46,4 +46,7 @@ return [
     'uuid' => "must be a valid UUID",
     'startsWith' => "must start with '%s'",
     'endsWith' => "must end with '%s'",
+    'past' => "must be a date in the past",
+    'future' => "must be a date in the future",
+    'phone' => "must be a valid phone number",
 ];

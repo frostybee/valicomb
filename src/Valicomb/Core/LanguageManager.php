@@ -4,18 +4,20 @@ declare(strict_types=1);
 
 namespace Frostybee\Valicomb\Core;
 
-use InvalidArgumentException;
-
 use function basename;
+
+use const DIRECTORY_SEPARATOR;
+
 use function dirname;
 use function implode;
 use function in_array;
+
+use InvalidArgumentException;
+
 use function is_array;
 use function is_file;
 use function is_readable;
 use function realpath;
-
-use const DIRECTORY_SEPARATOR;
 
 /**
  * Language Manager
@@ -24,6 +26,7 @@ use const DIRECTORY_SEPARATOR;
  * language loading, validation, and secure file access.
  *
  * @package Valicomb\Core
+ *
  * @internal
  */
 class LanguageManager
@@ -61,10 +64,10 @@ class LanguageManager
     public static function lang(?string $lang = null): string
     {
         if ($lang !== null) {
-            static::$lang = $lang;
+            self::$lang = $lang;
         }
 
-        return static::$lang ?? 'en';
+        return self::$lang ?? 'en';
     }
 
     /**
@@ -77,10 +80,10 @@ class LanguageManager
     public static function langDir(?string $dir = null): string
     {
         if ($dir !== null) {
-            static::$langDir = $dir;
+            self::$langDir = $dir;
         }
 
-        return static::$langDir ?? dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lang';
+        return self::$langDir ?? dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lang';
     }
 
     /**
@@ -89,9 +92,9 @@ class LanguageManager
      * @param string|null $lang The language code to load.
      * @param string|null $langDir The directory containing language files.
      *
-     * @return array The loaded language messages.
-     *
      * @throws InvalidArgumentException If language code is invalid or file cannot be loaded
+     *
+     * @return array The loaded language messages.
      */
     public static function loadLanguage(?string $lang = null, ?string $langDir = null): array
     {
@@ -134,7 +137,7 @@ class LanguageManager
         }
 
         // Merge with existing messages
-        static::$ruleMessages = [...static::$ruleMessages, ...$langMessages];
+        self::$ruleMessages = [...self::$ruleMessages, ...$langMessages];
 
         return $langMessages;
     }
@@ -146,7 +149,7 @@ class LanguageManager
      */
     public static function getRuleMessages(): array
     {
-        return static::$ruleMessages;
+        return self::$ruleMessages;
     }
 
     /**
@@ -157,7 +160,7 @@ class LanguageManager
      */
     public static function addRuleMessage(string $rule, string $message): void
     {
-        static::$ruleMessages[$rule] = $message;
+        self::$ruleMessages[$rule] = $message;
     }
 
     /**
@@ -167,7 +170,7 @@ class LanguageManager
      */
     public static function addRuleMessages(array $messages): void
     {
-        static::$ruleMessages = [...static::$ruleMessages, ...$messages];
+        self::$ruleMessages = [...self::$ruleMessages, ...$messages];
     }
 
     /**
@@ -175,7 +178,7 @@ class LanguageManager
      */
     public static function clearRuleMessages(): void
     {
-        static::$ruleMessages = [];
+        self::$ruleMessages = [];
     }
 
     /**

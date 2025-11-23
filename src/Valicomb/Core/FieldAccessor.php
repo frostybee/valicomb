@@ -9,7 +9,6 @@ use function array_key_exists;
 use function array_keys;
 use function array_shift;
 use function is_array;
-use function is_string;
 
 /**
  * Field Accessor
@@ -18,6 +17,7 @@ use function is_string;
  * for validating complex array structures.
  *
  * @package Valicomb\Core
+ *
  * @internal
  */
 class FieldAccessor

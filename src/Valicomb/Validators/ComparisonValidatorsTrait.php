@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Frostybee\Valicomb\Validators;
 
-use InvalidArgumentException;
-
 use function explode;
 use function in_array;
+
+use InvalidArgumentException;
+
 use function is_null;
 use function is_string;
 use function trim;
