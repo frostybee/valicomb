@@ -196,4 +196,29 @@ class RuleRegistry
     {
         return $this->instanceRules;
     }
+
+    /**
+     * Get instance rule messages.
+     *
+     * @return array The instance rule messages array.
+     */
+    public function getInstanceRuleMessages(): array
+    {
+        return $this->instanceRuleMessages;
+    }
+
+    /**
+     * Create a clone of this registry for a new validator instance.
+     *
+     * @param object $validator The new validator instance.
+     *
+     * @return self A new RuleRegistry with copied instance rules.
+     */
+    public function cloneForValidator(object $validator): self
+    {
+        $clone = new self($validator);
+        $clone->instanceRules = $this->instanceRules;
+        $clone->instanceRuleMessages = $this->instanceRuleMessages;
+        return $clone;
+    }
 }

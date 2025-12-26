@@ -23,6 +23,11 @@ use function is_array;
 class FieldAccessor
 {
     /**
+     * Maximum recursion depth for nested field access.
+     * Prevents stack overflow on extremely deep structures.
+     */
+    private const MAX_DEPTH = 32;
+    /**
      * Get part of the data array (supports nested arrays with dot notation).
      *
      * Navigates nested array structures using an array of identifiers (from dot notation parsing).
@@ -31,11 +36,17 @@ class FieldAccessor
      * @param mixed $data The data array to navigate.
      * @param array $identifiers Array of keys to navigate through (e.g., ['user', 'email']).
      * @param bool $allowEmpty Whether to check for key existence even if value is empty.
+     * @param int $depth Current recursion depth (internal use).
      *
      * @return array Tuple: [0] => mixed $value (the found value or null), [1] => bool $isMultiple (true if wildcard used).
      */
-    public function getPart(mixed $data, array $identifiers, bool $allowEmpty = false): array
+    public function getPart(mixed $data, array $identifiers, bool $allowEmpty = false, int $depth = 0): array
     {
+        // Prevent stack overflow on extremely deep structures
+        if ($depth > self::MAX_DEPTH) {
+            return [null, false];
+        }
+
         // Catches the case where the field is an array of discrete values
         if ($identifiers === []) {
             return [$data, false];
@@ -52,7 +63,7 @@ class FieldAccessor
         if ($identifier === '*') {
             $values = [];
             foreach ($data as $row) {
-                [$value, $multiple] = $this->getPart($row, $identifiers, $allowEmpty);
+                [$value, $multiple] = $this->getPart($row, $identifiers, $allowEmpty, $depth + 1);
                 if ($multiple) {
                     $values = [...$values, ...$value];
                 } else {
@@ -77,11 +88,12 @@ class FieldAccessor
                 // When empty values are allowed, we only care if the key exists
                 return [null, array_key_exists($identifier, $data)];
             }
-            return [$data[$identifier], $allowEmpty];
+            // Return the value and false (not multiple values, since no wildcard)
+            return [$data[$identifier], false];
         }
 
         // We need to go deeper
-        return $this->getPart($data[$identifier], $identifiers, $allowEmpty);
+        return $this->getPart($data[$identifier], $identifiers, $allowEmpty, $depth + 1);
     }
 
     /**

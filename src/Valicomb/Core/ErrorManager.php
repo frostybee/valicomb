@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Frostybee\Valicomb\Core;
 
 use function array_keys;
+use function count;
 
 use DateTime;
 
@@ -13,6 +14,7 @@ use function is_array;
 use function is_numeric;
 use function is_object;
 use function is_string;
+use function preg_match_all;
 use function str_replace;
 use function ucwords;
 use function vsprintf;
@@ -122,7 +124,39 @@ class ErrorManager
             $values[] = $param;
         }
 
-        $this->errors[$field][] = vsprintf($message, $values);
+        $this->errors[$field][] = $this->safeVsprintf($message, $values);
+    }
+
+    /**
+     * Safely format a string with vsprintf, handling potential format string issues.
+     *
+     * @param string $format The format string.
+     * @param array $values The values to substitute.
+     *
+     * @return string The formatted string, or the original format if vsprintf fails.
+     */
+    private function safeVsprintf(string $format, array $values): string
+    {
+        // Count format specifiers in the message (e.g., %s, %d, %1$s)
+        // This prevents issues with mismatched placeholder counts
+        $specifierCount = preg_match_all('/%(?:\d+\$)?[-+]?(?:\d+)?(?:\.\d+)?[sdfFeEgGoxXbcuU%]/', $format);
+
+        // If no values provided, or format has no specifiers, return as-is
+        if ($values === [] || $specifierCount === 0) {
+            return $format;
+        }
+
+        // Ensure we have the right number of values
+        // Pad with empty strings if fewer values than specifiers
+        while (count($values) < $specifierCount) {
+            $values[] = '';
+        }
+
+        // Use error suppression and fallback for safety
+        $result = @vsprintf($format, $values);
+
+        // If vsprintf fails (returns false), return the original format
+        return $result !== false ? $result : $format;
     }
 
     /**

@@ -375,6 +375,8 @@ class Validator
      *
      * @param string $message The custom error message to use.
      *
+     * @throws InvalidArgumentException If called before any rule has been added.
+     *
      * @return self Returns $this for method chaining.
      *
      * @example Custom error message:
@@ -393,6 +395,12 @@ class Validator
      */
     public function message(string $message): self
     {
+        if ($this->validations === []) {
+            throw new InvalidArgumentException(
+                'Cannot set message: no validation rule has been added yet. Call rule() first.',
+            );
+        }
+
         $this->validations[count($this->validations) - 1]['message'] = $message;
 
         return $this;
@@ -840,7 +848,8 @@ class Validator
         // Clone the Core service instances to prevent shared state
         $this->errorManager = clone $this->errorManager;
         $this->fieldAccessor = clone $this->fieldAccessor;
-        $this->ruleRegistry = new RuleRegistry($this);
+        // Clone the rule registry with its instance rules preserved
+        $this->ruleRegistry = $this->ruleRegistry->cloneForValidator($this);
     }
 
     /**

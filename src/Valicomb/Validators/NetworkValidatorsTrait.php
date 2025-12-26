@@ -197,8 +197,23 @@ trait NetworkValidatorsTrait
         if (str_contains($local, '..')) {
             return false;
         }
+
         // Reject leading/trailing dots in local part
-        return !str_starts_with($local, '.') && !str_ends_with($local, '.');
+        if (str_starts_with($local, '.') || str_ends_with($local, '.')) {
+            return false;
+        }
+
+        // Reject leading/trailing dots in domain part
+        if (str_starts_with($domain, '.') || str_ends_with($domain, '.')) {
+            return false;
+        }
+
+        // Reject consecutive dots in domain part
+        if (str_contains($domain, '..')) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -298,7 +313,12 @@ trait NetworkValidatorsTrait
             return false;
         }
 
-        // Check if URL starts with valid prefix (FIXED: using str_starts_with)
+        // Reject extremely long URLs (max 2048 chars is a common limit)
+        if (strlen($value) > 2048) {
+            return false;
+        }
+
+        // Check if URL starts with valid prefix
         foreach ($this->validUrlPrefixes as $prefix) {
             if (str_starts_with($value, (string) $prefix)) {
                 return filter_var($value, FILTER_VALIDATE_URL) !== false;
@@ -348,7 +368,12 @@ trait NetworkValidatorsTrait
             return false;
         }
 
-        // Check if URL starts with valid prefix (FIXED: using str_starts_with)
+        // Reject extremely long URLs (max 2048 chars is a common limit)
+        if (strlen($value) > 2048) {
+            return false;
+        }
+
+        // Check if URL starts with valid prefix
         foreach ($this->validUrlPrefixes as $prefix) {
             if (str_starts_with($value, (string) $prefix)) {
                 $host = parse_url(strtolower($value), PHP_URL_HOST);
@@ -432,7 +457,7 @@ trait NetworkValidatorsTrait
         // Strip common formatting characters
         $stripped = preg_replace('/[\s\-\.\(\)]/', '', $value);
 
-        if ($stripped === null) {
+        if ($stripped === null || $stripped === '') {
             return false;
         }
 

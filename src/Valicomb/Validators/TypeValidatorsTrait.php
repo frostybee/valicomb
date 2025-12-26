@@ -124,6 +124,12 @@ trait TypeValidatorsTrait
         /** @var string|null $cardType */
         $cardType = null;
 
+        // Strip non-numeric characters once for consistent validation
+        $strippedNumber = preg_replace('/[^0-9]+/', '', (string)$value);
+        if (!is_string($strippedNumber) || $strippedNumber === '') {
+            return false;
+        }
+
         /**
          * If there has been an array of valid cards supplied, or the name of the users card
          * or the name and an array of valid cards
@@ -148,23 +154,18 @@ trait TypeValidatorsTrait
         /**
          * Luhn algorithm
          */
-        $numberIsValid = function () use ($value): bool {
-            $number = preg_replace('/[^0-9]+/', '', (string)$value);
-            if (!is_string($number) || $number === '') {
-                return false;
-            }
-
+        $numberIsValid = function () use ($strippedNumber): bool {
             $sum = 0;
 
-            $strlen = strlen($number);
+            $strlen = strlen($strippedNumber);
 
-            // Check length bounds (FIXED: added max length)
+            // Check length bounds
             if ($strlen < 13 || $strlen > 19) {
                 return false;
             }
 
             for ($i = 0; $i < $strlen; $i++) {
-                $digit = (int)substr($number, $strlen - $i - 1, 1);
+                $digit = (int)substr($strippedNumber, $strlen - $i - 1, 1);
                 if ($i % 2 === 1) {
                     $subTotal = $digit * 2;
                     if ($subTotal > 9) {
@@ -198,14 +199,14 @@ trait TypeValidatorsTrait
                     return false;
                 }
 
-                // We only need to test against one card type
-                return preg_match($cardRegex[$cardType], (string)$value) === 1;
+                // Use stripped number for type validation (consistent with Luhn check)
+                return preg_match($cardRegex[$cardType], $strippedNumber) === 1;
             }
 
             // At this point, $cards must be non-null (from the early return check above)
             // Check our users card against only the ones we have
             foreach ($cards as $card) {
-                if (in_array($card, array_keys($cardRegex), true) && preg_match($cardRegex[$card], (string)$value) === 1) {
+                if (in_array($card, array_keys($cardRegex), true) && preg_match($cardRegex[$card], $strippedNumber) === 1) {
                     // If the card is valid, we want to stop looping
                     return true;
                 }

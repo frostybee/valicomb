@@ -352,17 +352,9 @@ trait NumericValidatorsTrait
         }
 
         // Split at the decimal point and count characters after it
+        // Trailing zeros ARE significant (e.g., "10.00" has 2 decimal places)
         $parts = explode('.', $stringValue);
         $decimalPart = $parts[1];
-
-        // Remove trailing zeros for the actual decimal place count
-        // e.g., "10.500" becomes "10.5" (1 decimal place, not 3)
-        $decimalPart = rtrim($decimalPart, '0');
-
-        // If all trailing zeros removed, it's effectively an integer
-        if ($decimalPart === '') {
-            return true;
-        }
 
         $decimalPlaces = strlen($decimalPart);
 

@@ -655,21 +655,31 @@ class NumericValidationTest extends BaseTestCase
 
     public function testDecimalPlacesWithTrailingZeros(): void
     {
-        // "10.50" as string has trailing zero
-        // After rtrim('0'), becomes "10.5" = 1 decimal place
+        // Trailing zeros ARE significant (per documentation)
+        // "10.50" has 2 decimal places
         $v = new Validator(['price' => '10.50']);
         $v->rule('decimalPlaces', 'price', 2);
         $this->assertTrue($v->validate());
 
-        // "10.00" becomes "10" after rtrim = 0 decimal places
+        // "10.00" has 2 decimal places (trailing zeros count)
         $v = new Validator(['price' => '10.00']);
         $v->rule('decimalPlaces', 'price', 2);
         $this->assertTrue($v->validate());
 
-        // "10.000" becomes "10" after rtrim = 0 decimal places
-        $v = new Validator(['price' => '10.000']);
+        // "10.00" should fail if max is 1 (has 2 decimal places)
+        $v = new Validator(['price' => '10.00']);
         $v->rule('decimalPlaces', 'price', 1);
+        $this->assertFalse($v->validate());
+
+        // "10.000" has 3 decimal places
+        $v = new Validator(['price' => '10.000']);
+        $v->rule('decimalPlaces', 'price', 3);
         $this->assertTrue($v->validate());
+
+        // "10.000" should fail if max is 2 (has 3 decimal places)
+        $v = new Validator(['price' => '10.000']);
+        $v->rule('decimalPlaces', 'price', 2);
+        $this->assertFalse($v->validate());
     }
 
     public function testDecimalPlacesWithHighPrecision(): void

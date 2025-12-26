@@ -235,12 +235,12 @@ trait StringValidatorsTrait
             );
         }
 
-        // Set limits to prevent ReDoS (lower limits for better security)
+        // Set limits to prevent ReDoS (low limits for better security)
         $oldBacktrackLimit = ini_get('pcre.backtrack_limit');
         $oldRecursionLimit = ini_get('pcre.recursion_limit');
 
-        ini_set('pcre.backtrack_limit', '10000');
-        ini_set('pcre.recursion_limit', '10000');
+        ini_set('pcre.backtrack_limit', '1000');
+        ini_set('pcre.recursion_limit', '1000');
 
         try {
             $result = @preg_match($pattern, $value);
