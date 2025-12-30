@@ -14,13 +14,17 @@ use function filter_var;
 use function function_exists;
 use function in_array;
 use function is_array;
+use function is_float;
 use function is_int;
 use function is_numeric;
 use function is_string;
+use function number_format;
 use function preg_match;
 use function rtrim;
+use function str_contains;
 use function strlen;
 use function strpos;
+use function strtoupper;
 
 /**
  * Numeric Validators Trait
@@ -35,6 +39,41 @@ use function strpos;
  */
 trait NumericValidatorsTrait
 {
+    /**
+     * Convert a numeric value to a bccomp-compatible string.
+     *
+     * bccomp() does NOT support scientific notation (e.g., "1.0E+10").
+     * This method converts numeric values to plain decimal strings.
+     *
+     * @param mixed $value The numeric value to convert.
+     *
+     * @return string A plain decimal string representation.
+     */
+    private function toBcString(mixed $value): string
+    {
+        $str = (string) $value;
+
+        // Check if the string contains scientific notation (e.g., "1.5E+10", "1e-5")
+        if (str_contains(strtoupper($str), 'E')) {
+            // Use number_format to convert to plain decimal
+            // We use 14 decimal places to match bccomp precision
+            // This handles both very large and very small numbers
+            $floatVal = (float) $value;
+
+            // Determine if we need decimal places
+            if ($floatVal == (int) $floatVal && abs($floatVal) < PHP_INT_MAX) {
+                // It's effectively an integer
+                return number_format($floatVal, 0, '.', '');
+            }
+
+            // Format with enough precision, then trim trailing zeros
+            $formatted = number_format($floatVal, 14, '.', '');
+            return rtrim(rtrim($formatted, '0'), '.');
+        }
+
+        return $str;
+    }
+
     /**
      * Validate that a field is numeric
      *
@@ -118,7 +157,8 @@ trait NumericValidatorsTrait
         }
 
         if (function_exists('bccomp')) {
-            return bccomp((string)$params[0], (string)$value, 14) !== 1;
+            // Use toBcString to handle scientific notation (e.g., "1.0E+10")
+            return bccomp($this->toBcString($params[0]), $this->toBcString($value), 14) !== 1;
         }
 
         return $params[0] <= $value;
@@ -154,7 +194,8 @@ trait NumericValidatorsTrait
         }
 
         if (function_exists('bccomp')) {
-            return bccomp((string)$value, (string)$params[0], 14) !== 1;
+            // Use toBcString to handle scientific notation (e.g., "1.0E+10")
+            return bccomp($this->toBcString($value), $this->toBcString($params[0]), 14) !== 1;
         }
 
         return $params[0] >= $value;
@@ -267,7 +308,8 @@ trait NumericValidatorsTrait
         }
 
         if (function_exists('bccomp')) {
-            return bccomp((string)$value, '0', 14) === 1;
+            // Use toBcString to handle scientific notation (e.g., "1.0E+10")
+            return bccomp($this->toBcString($value), '0', 14) === 1;
         }
 
         return $value > 0;

@@ -152,11 +152,7 @@ class ErrorManager
             $values[] = '';
         }
 
-        // Use error suppression and fallback for safety
-        $result = @vsprintf($format, $values);
-
-        // If vsprintf fails (returns false), return the original format
-        return $result !== false ? $result : $format;
+        return vsprintf($format, $values);
     }
 
     /**

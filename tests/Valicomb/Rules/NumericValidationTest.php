@@ -370,6 +370,66 @@ class NumericValidationTest extends BaseTestCase
     }
 
     /**
+     * Test min/max with scientific notation values.
+     * bccomp() does NOT support scientific notation, so we must convert it.
+     * This reproduces the bug: bccomp(): Argument #2 ($num2) is not well-formed
+     */
+    public function testMinMaxWithScientificNotation(): void
+    {
+        if (!function_exists('bccomp')) {
+            $this->markTestSkipped("BC Math extension required for this test");
+        }
+
+        // Test with scientific notation string
+        $v1 = new Validator(['age' => '1e10']);
+        $v1->rule('min', 'age', 0);
+        $this->assertTrue($v1->validate());
+
+        // Test with large float that may convert to scientific notation
+        $v2 = new Validator(['age' => 10000000000]);
+        $v2->rule('min', 'age', 0);
+        $this->assertTrue($v2->validate());
+
+        // Test max with scientific notation
+        $v3 = new Validator(['value' => '1.5e9']);
+        $v3->rule('max', 'value', 2000000000);
+        $this->assertTrue($v3->validate());
+
+        // Test with very small scientific notation
+        $v4 = new Validator(['value' => '1e-5']);
+        $v4->rule('min', 'value', 0);
+        $this->assertTrue($v4->validate());
+
+        // Test positive with scientific notation
+        $v5 = new Validator(['value' => '1e10']);
+        $v5->rule('positive', 'value');
+        $this->assertTrue($v5->validate());
+    }
+
+    /**
+     * Test min validation with real-world star data (reproduces reported bug)
+     */
+    public function testMinWithStarAgeData(): void
+    {
+        if (!function_exists('bccomp')) {
+            $this->markTestSkipped("BC Math extension required for this test");
+        }
+
+        // Real data from the reported bug
+        $stars = [
+            ['name' => 'Sun', 'age' => 4600000000],
+            ['name' => 'TRAPPIST-1', 'age' => 7600000000],
+            ['name' => "Barnard's Star", 'age' => 10000000000],
+        ];
+
+        foreach ($stars as $star) {
+            $v = new Validator(['age' => $star['age']]);
+            $v->rule('min', 'age', 0);
+            $this->assertTrue($v->validate(), "Failed for {$star['name']} with age {$star['age']}");
+        }
+    }
+
+    /**
      * Test between with negative range
      */
     public function testBetweenWithNegativeRange(): void
