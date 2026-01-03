@@ -31,4 +31,6 @@ return [
     'boolean' => "laukam jābūt ir/nav vērtībai",
     'lengthBetween' => "lauka garumam jābūt no %d līdz %d simbolu garam",
     'creditCard' => "laukam jābūt derīgam kredītkartes numuram",
+    'passwordStrength' => "jābūt stiprākai parolei (minimālais stiprums: %d/10)",
+    'nullable' => "var būt null vai jābūt derīgam",
 ];

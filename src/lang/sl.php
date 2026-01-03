@@ -41,4 +41,6 @@ return [
     'requiredWithout' => "je potrebno",
     'subset' => "vsebuje element, ki ga ni na seznamu",
     'arrayHasKeys' => "ne vsebuje vseh potrebnih tipk",
+    'passwordStrength' => "mora biti močnejše geslo (minimalna moč: %d/10)",
+    'nullable' => "je lahko null ali mora biti veljaven",
 ];

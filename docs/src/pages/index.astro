@@ -1,0 +1,630 @@
+---
+import Landing from '../layouts/Landing.astro';
+import { Code } from 'astro:components';
+
+const codeExample = `use Frostybee\\Valicomb\\Validator;
+
+$v = new Validator([
+    'email' => 'test@example.com',
+    'age'   => '25'
+]);
+
+$v->rule('required', ['email', 'age']);
+$v->rule('email', 'email');
+$v->rule('integer', 'age');
+
+if ($v->validate()) {
+    echo "Validation passed!";
+} else {
+    print_r($v->errors());
+}`;
+---
+
+<Landing title="Valicomb - Simple, Modern PHP Validation Library" description="A zero-dependency, security-first PHP validation library for PHP 8.2+">
+  <div class="page">
+    <!-- Header -->
+    <header class="header">
+      <a href="/" class="logo">Valicomb</a>
+      <nav class="nav">
+        <a href="/getting-started/installation/" class="nav-link">Docs</a>
+        <a href="https://github.com/frostybee/valicomb" class="nav-link" target="_blank" rel="noopener noreferrer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+          </svg>
+          GitHub
+        </a>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">
+          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <svg class="icon-moon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M17.293 13.293A8 8 0 0 1 6.707 2.707a8.002 8.002 0 1 0 10.586 10.586z"/>
+          </svg>
+        </button>
+      </nav>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-content">
+        <div class="hero-badge">PHP 8.2+</div>
+        <h1 class="hero-title">Valicomb</h1>
+        <p class="hero-tagline">
+          A zero-dependency, security-first PHP validation library
+        </p>
+        <div class="hero-actions">
+          <a href="/getting-started/installation/" class="btn btn-primary">
+            Get Started
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+          <a href="https://github.com/frostybee/valicomb" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">
+            View on GitHub
+          </a>
+        </div>
+      </div>
+      <div class="hero-code">
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <span class="code-filename">Quick Example</span>
+          </div>
+          <div class="code-dark">
+            <Code code={codeExample} lang="php" theme="github-dark" />
+          </div>
+          <div class="code-light">
+            <Code code={codeExample} lang="php" theme="github-light" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features">
+      <div class="section-header">
+        <span class="section-label">Features</span>
+        <h2 class="section-title">Built for modern PHP development</h2>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <h3>Modern PHP 8.2+</h3>
+          <p>Strict types, fully typed codebase with maximum static analysis at PHPStan Level 8.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M8 12l2 2 4-4"/>
+            </svg>
+          </div>
+          <h3>Zero Dependencies</h3>
+          <p>Only requires the standard <code>ext-mbstring</code> extension. No external packages needed.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"/>
+              <rect x="14" y="3" width="7" height="7"/>
+              <rect x="14" y="14" width="7" height="7"/>
+              <rect x="3" y="14" width="7" height="7"/>
+            </svg>
+          </div>
+          <h3>53 Validation Rules</h3>
+          <p>Comprehensive rule set covering strings, numbers, dates, arrays, networks, and more.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <h3>Security First</h3>
+          <p>Built-in protection against ReDoS, type juggling, path traversal, and injection attacks.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+          </div>
+          <h3>22 Languages</h3>
+          <p>Internationalization support with 22 languages included out of the box.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+            </svg>
+          </div>
+          <h3>Easy to Extend</h3>
+          <p>Add custom validation rules with simple closures or global rule registration.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>
+        <a href="https://github.com/frostybee/valicomb" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <span class="footer-sep">/</span>
+        <a href="/getting-started/installation/">Documentation</a>
+        <span class="footer-sep">/</span>
+        <a href="/development/changelog/">Changelog</a>
+      </p>
+      <p class="footer-copy">MIT License</p>
+    </footer>
+  </div>
+
+  <script>
+    const toggle = document.getElementById('theme-toggle');
+    toggle?.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('starlight-theme', next);
+    });
+
+    // Listen for system preference changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+      const theme = event.matches ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('starlight-theme', theme);
+    });
+  </script>
+</Landing>
+
+<style>
+  .page {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  /* Header */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .logo {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.9375rem;
+    color: var(--color-text-muted);
+    position: relative;
+    transition: color 0.2s ease;
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--color-accent);
+    transition: width 0.3s ease, left 0.3s ease;
+  }
+
+  .nav-link:hover {
+    color: var(--color-text);
+  }
+
+  .nav-link:hover::after {
+    width: 100%;
+    left: 0;
+  }
+
+  :global(:root:not([data-theme="dark"])) .nav-link {
+    color: var(--color-text);
+  }
+
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+
+  .theme-toggle:hover {
+    color: var(--color-text);
+    border-color: var(--color-text-muted);
+  }
+
+  .icon-moon {
+    display: none;
+  }
+
+  :global([data-theme="dark"]) .icon-sun {
+    display: none;
+  }
+
+  :global([data-theme="dark"]) .icon-moon {
+    display: block;
+  }
+
+  /* Hero */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    padding: 5rem 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .hero-content {
+    text-align: left;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    padding: 0.375rem 0.875rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    background: var(--color-accent-bg);
+    border-radius: 100px;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-title {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 1rem;
+  }
+
+  .hero-tagline {
+    font-size: clamp(1.125rem, 2vw, 1.25rem);
+    color: var(--color-text-muted);
+    line-height: 1.5;
+    margin-bottom: 2rem;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    border: 1px solid transparent;
+  }
+
+  .btn-primary {
+    background: var(--color-accent);
+    color: #fff;
+    border-color: var(--color-accent);
+  }
+
+  .btn-primary:hover {
+    background: var(--color-accent-hover);
+    border-color: var(--color-accent-hover);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--color-text-muted);
+  }
+
+  /* Hero Code Block */
+  .hero-code {
+    min-width: 0;
+    justify-self: end;
+    width: 100%;
+    max-width: 28rem;
+  }
+
+  .code-block {
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background: var(--color-bg-alt);
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  :global(:root:not([data-theme="dark"])) .code-header {
+    background: #e1e4e8;
+    border-bottom-color: #d0d7de;
+  }
+
+  :global(:root:not([data-theme="dark"])) .code-header .code-filename {
+    color: #57606a;
+  }
+
+  :global(:root:not([data-theme="dark"])) .code-header .code-dots span {
+    background: #c9ccd1;
+  }
+
+  .code-dots {
+    display: flex;
+    gap: 0.375rem;
+  }
+
+  .code-dots span {
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 50%;
+    background: var(--color-border);
+  }
+
+  .code-filename {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+  }
+
+  .code-block pre {
+    margin: 0;
+    padding: 1.25rem 1.5rem;
+    overflow-x: auto;
+  }
+
+  .code-block code {
+    font-size: 0.8125rem;
+    line-height: 1.7;
+  }
+
+  .code-block :global(pre) {
+    margin: 0;
+    padding: 1.25rem 1.5rem;
+    border-radius: 0;
+  }
+
+  .code-light :global(pre) {
+    background: #f6f8fa !important;
+  }
+
+  .code-dark :global(pre) {
+    background: #24292e !important;
+  }
+
+  /* Theme-based code block visibility */
+  .code-light {
+    display: block;
+  }
+
+  .code-dark {
+    display: none;
+  }
+
+  :global([data-theme="dark"]) .code-light {
+    display: none;
+  }
+
+  :global([data-theme="dark"]) .code-dark {
+    display: block;
+  }
+
+  /* Section Headers */
+  .section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .section-label {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin-bottom: 0.75rem;
+  }
+
+  .section-title {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  /* Features */
+  .features {
+    padding: 5rem 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .feature-card {
+    padding: 1.75rem;
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+  }
+
+  .feature-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--color-accent);
+    background: var(--color-accent-bg);
+    border-radius: 0.5rem;
+  }
+
+  .feature-icon svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .feature-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .feature-card p {
+    font-size: 0.9375rem;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+  }
+
+  .feature-card code {
+    font-size: 0.85em;
+    padding: 0.125rem 0.375rem;
+    background: var(--color-bg-alt);
+    border-radius: 0.25rem;
+  }
+
+  /* Footer */
+  .footer {
+    padding: 3rem 0;
+    text-align: center;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .footer a {
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+  }
+
+  .footer a:hover {
+    color: var(--color-text);
+  }
+
+  .footer-sep {
+    margin: 0 0.75rem;
+    color: var(--color-border);
+  }
+
+  .footer-copy {
+    margin-top: 1rem;
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 900px) {
+    .hero {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+      padding: 4rem 0;
+    }
+
+    .hero-content {
+      text-align: center;
+    }
+
+    .hero-actions {
+      justify-content: center;
+    }
+
+    .hero-code {
+      justify-self: center;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .nav {
+      gap: 1rem;
+    }
+
+    .nav-link span {
+      display: none;
+    }
+
+    .hero {
+      padding: 3rem 0;
+      gap: 2rem;
+    }
+
+    .hero-actions {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .btn {
+      width: 100%;
+      max-width: 16rem;
+      justify-content: center;
+    }
+
+    .features {
+      padding: 3.5rem 0;
+    }
+
+    .feature-grid {
+      gap: 1rem;
+    }
+
+    .feature-card {
+      padding: 1.25rem;
+    }
+
+    .code-block pre {
+      padding: 1rem;
+    }
+  }
+</style>

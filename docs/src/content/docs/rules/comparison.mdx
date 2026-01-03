@@ -1,0 +1,171 @@
+---
+title: Comparison Rules
+description: Validation rules for comparing field values
+---
+
+Comparison validation rules check field presence and compare values between fields.
+
+## required
+
+Validates that the field is present and not empty.
+
+### Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `allowEmpty` | bool | No | `false` | Allow empty value if key exists |
+
+### Basic Usage
+
+```php
+$v->rule('required', 'email');
+```
+
+### Apply to Multiple Fields
+
+```php
+$v->rule('required', ['email', 'name', 'password']);
+```
+
+### Allow Empty Values
+
+With the `allowEmpty` flag, the rule only checks if the key exists:
+
+```php
+$v = new Validator(['required_but_null' => null]);
+$v->rules([
+    'required' => [
+        ['required_but_null', true] // Passes because key exists
+    ]
+]);
+$v->validate();
+```
+
+### What Counts as Empty
+
+- `null`
+- Empty string `''`
+- Not set in data array
+
+### Error Message
+
+Default: `"{field} is required"`
+
+---
+
+## equals
+
+Validates that the field matches another field's value (strict comparison).
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `field` | string | Yes | The other field to compare against |
+
+### Basic Usage
+
+```php
+$v->rule('equals', 'password', 'confirmPassword');
+```
+
+### Security: Strict Comparison
+
+Uses strict comparison (`===`) to prevent type juggling attacks:
+
+```php
+$v = new Validator([
+    'field1' => '0e123456',
+    'field2' => '0e789012'
+]);
+$v->rule('equals', 'field1', 'field2'); // false (strict comparison)
+```
+
+### Error Message
+
+Default: `"{field} must match {0}"`
+
+---
+
+## different
+
+Validates that the field is different from another field's value.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `field` | string | Yes | The other field to compare against |
+
+### Basic Usage
+
+```php
+$v->rule('different', 'new_password', 'old_password');
+```
+
+### Nested Field Support
+
+Use dot notation for nested fields:
+
+```php
+$v->rule('different', 'user.newEmail', 'user.oldEmail');
+```
+
+### Error Message
+
+Default: `"{field} must be different from {0}"`
+
+---
+
+## accepted
+
+Validates that the field is "accepted" (checkbox/agreement validation).
+
+### Basic Usage
+
+```php
+$v->rule('accepted', 'terms_of_service');
+```
+
+### Accepted Values
+
+| Value | Accepted |
+|-------|----------|
+| `'yes'` | Yes |
+| `'on'` | Yes |
+| `1` | Yes |
+| `'1'` | Yes |
+| `true` | Yes |
+| `'no'` | No |
+| `'off'` | No |
+| `0` | No |
+| `'0'` | No |
+| `false` | No |
+
+### Error Message
+
+Default: `"{field} must be accepted"`
+
+---
+
+## Combining Comparison Rules
+
+Common patterns for form validation:
+
+```php
+$v = new Validator($_POST);
+
+// Password confirmation
+$v->rule('required', ['password', 'password_confirmation']);
+$v->rule('equals', 'password', 'password_confirmation');
+
+// Email confirmation
+$v->rule('required', ['email', 'email_confirmation']);
+$v->rule('equals', 'email', 'email_confirmation');
+
+// New password different from old
+$v->rule('different', 'new_password', 'current_password');
+
+// Terms acceptance
+$v->rule('accepted', 'terms');
+```

@@ -39,4 +39,6 @@ return [
     "requiredWithout" => "est requis",
     "subset" => "contient un élement qui n'est pas dans la liste",
     "arrayHasKeys" => "ne contient pas toutes les clés requises",
+    'passwordStrength' => "doit être un mot de passe plus fort (force minimale: %d/10)",
+    'nullable' => "peut être null ou doit être valide",
 ];

@@ -1,0 +1,205 @@
+---
+title: Error Manager
+description: API reference for the ErrorManager class
+---
+
+The `ErrorManager` class handles validation error collection, formatting, and message generation with support for field labels.
+
+:::note[Internal Class]
+This is an internal class used by the `Validator`. Most users will interact with it through the Validator's public API (`errors()`, `labels()`, etc.).
+:::
+
+```php
+use Frostybee\Valicomb\Core\ErrorManager;
+```
+
+## Error Methods
+
+### addError()
+
+Add an error to the error messages collection.
+
+```php
+public function addError(
+    string $field,
+    string $message,
+    array $params = []
+): void
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$field` | string | The field name to add the error to |
+| `$message` | string | The error message (supports sprintf placeholders) |
+| `$params` | array | Optional parameters for placeholder replacement |
+
+```php
+$errorManager->addError('email', '{field} is required');
+$errorManager->addError('age', 'Must be between %d and %d', [18, 65]);
+```
+
+### getErrors()
+
+Get validation errors.
+
+```php
+public function getErrors(?string $field = null): array|false
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$field` | string\|null | Optional field name |
+
+**Returns:**
+- All errors as array (when `$field` is null)
+- Field errors as array (when field has errors)
+- `false` (when field has no errors)
+
+```php
+// Get all errors
+$allErrors = $errorManager->getErrors();
+// ['email' => ['Email is required']]
+
+// Get errors for specific field
+$emailErrors = $errorManager->getErrors('email');
+// ['Email is required']
+```
+
+### hasNoErrors()
+
+Check if there are no errors.
+
+```php
+public function hasNoErrors(): bool
+```
+
+**Returns:** `true` if no errors, `false` if there are errors.
+
+### clearErrors()
+
+Clear all errors.
+
+```php
+public function clearErrors(): void
+```
+
+---
+
+## Label Methods
+
+### setLabel()
+
+Set a label for a single field.
+
+```php
+public function setLabel(string $field, string $label): void
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$field` | string | The field name |
+| `$label` | string | The human-readable label |
+
+```php
+$errorManager->setLabel('email', 'Email Address');
+```
+
+### setLabels()
+
+Set labels for multiple fields.
+
+```php
+public function setLabels(array $labels): void
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$labels` | array | Associative array of field names to labels |
+
+```php
+$errorManager->setLabels([
+    'email' => 'Email Address',
+    'password' => 'Password'
+]);
+```
+
+### getLabels()
+
+Get all labels.
+
+```php
+public function getLabels(): array
+```
+
+**Returns:** The labels array.
+
+### clearLabels()
+
+Clear all labels.
+
+```php
+public function clearLabels(): void
+```
+
+---
+
+## Display Settings
+
+### setPrependLabels()
+
+Set whether to prepend field labels to error messages.
+
+```php
+public function setPrependLabels(bool $prepend = true): void
+```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `$prepend` | bool | `true` | Whether to prepend labels |
+
+When enabled (default):
+- Error: `"Email Address is required"`
+
+When disabled:
+- Error: `"is required"`
+
+---
+
+## Message Placeholders
+
+Error messages support these placeholders:
+
+| Placeholder | Description |
+|-------------|-------------|
+| `{field}` | Replaced with field name or custom label |
+| `{field1}`, `{field2}`, etc. | For multi-field rules (like `equals`) |
+| `%s`, `%d`, etc. | sprintf-style placeholders for params |
+
+### Example
+
+```php
+$errorManager->setLabel('password', 'Password');
+$errorManager->addError('password', '{field} must be at least %d characters', [8]);
+// Result: "Password must be at least 8 characters"
+```
+
+---
+
+## Parameter Type Handling
+
+The `addError()` method automatically converts parameter types for display:
+
+| Type | Conversion |
+|------|------------|
+| Array | `"['value1', 'value2']"` |
+| DateTime | `"2024-01-15"` (Y-m-d format) |
+| Object | Fully qualified class name (e.g., `\DateTime`) |
+| String/Number | Used as-is |
+
+```php
+$errorManager->addError('date', 'Must be after %s', [new DateTime('2024-01-01')]);
+// Result: "Must be after 2024-01-01"
+
+$errorManager->addError('type', 'Must be instance of %s', [new DateTime()]);
+// Result: "Must be instance of \DateTime"
+```

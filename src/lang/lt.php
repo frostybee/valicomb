@@ -37,4 +37,6 @@ return [
     'instanceOf' => "turi būti „%s“ atvejis",
     'containsUnique' => "turi turėti tik unikalius elementus",
     'subset' => "turi elementą, kurio nėra sąraše",
+    'passwordStrength' => "turi būti stipresnis slaptažodis (minimali stiprumas: %d/10)",
+    'nullable' => "gali būti null arba turi būti teisingas",
 ];

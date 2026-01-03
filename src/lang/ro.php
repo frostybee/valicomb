@@ -33,5 +33,7 @@ return [
     'creditCard' => "trebuie sa fie nu numar de card de credit valid",
     "lengthMin" => "trebuie sa contina caractere mai multe decat %d",
     "lengthMax" => "trebuie sa contina mai putin de  %d caractere",
-    "instanceOf" => "trebuie sa fie un exemplu de '%s’",
+    "instanceOf" => "trebuie sa fie un exemplu de '%s'",
+    'passwordStrength' => "trebuie sa fie o parola mai puternica (putere minima: %d/10)",
+    'nullable' => "poate fi null sau trebuie sa fie valid",
 ];

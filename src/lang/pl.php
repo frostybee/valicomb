@@ -34,4 +34,6 @@ return [
     "lengthMin" => "musi zawierać więcej niż %d znaków",
     "lengthMax" => "musi zawierać mniej niż %d znaków",
     "instanceOf" => "musi być instancją '%s'",
+    'passwordStrength' => "musi być silniejszym hasłem (minimalna siła: %d/10)",
+    'nullable' => "może być puste lub musi być prawidłowe",
 ];

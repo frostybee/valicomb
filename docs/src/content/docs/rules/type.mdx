@@ -1,0 +1,171 @@
+---
+title: Type Rules
+description: Validation rules for type checking and special formats
+---
+
+Type validation rules check object types and special formats like credit cards.
+
+## instanceOf
+
+Validates that the field is an instance of a specified class.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `class` | string\|object | Yes | Class name or object instance |
+
+### Basic Usage
+
+```php
+$v->rule('instanceOf', 'date', DateTime::class);
+```
+
+### Using Object Instance
+
+You can also compare against an existing object:
+
+```php
+$v = new Validator(['date' => new DateTime()]);
+$existingDateObject = new DateTime();
+$v->rules([
+    'instanceOf' => [
+        ['date', $existingDateObject]
+    ]
+]);
+$v->validate();
+```
+
+### Inheritance Support
+
+The rule respects class inheritance:
+
+```php
+class BaseClass {}
+class ChildClass extends BaseClass {}
+
+$v = new Validator(['obj' => new ChildClass()]);
+$v->rule('instanceOf', 'obj', BaseClass::class); // true
+```
+
+### Error Message
+
+Default: `"{field} must be an instance of {0}"`
+
+---
+
+## creditCard
+
+Validates that the field is a valid credit card number using the Luhn algorithm.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `type` | string\|array\|null | No | Card type(s) to validate |
+| `allowedTypes` | array\|null | No | Restrict accepted types |
+
+### Basic Usage
+
+```php
+// Accept any valid card
+$v->rule('creditCard', 'card_number');
+```
+
+### Specific Card Type
+
+```php
+// Only accept Visa
+$v->rule('creditCard', 'card_number', 'visa');
+```
+
+### Multiple Card Types
+
+```php
+// Accept Visa or Mastercard
+$v->rule('creditCard', 'card_number', ['visa', 'mastercard']);
+```
+
+### Client-Provided Type with Restrictions
+
+When card type comes from the client, restrict allowed types:
+
+```php
+$cardType = 'amex';
+$v->rule('creditCard', 'card_number', $cardType, ['visa', 'mastercard']);
+$v->validate(); // false - amex not in allowed list
+```
+
+### Supported Card Types
+
+| Slug | Card Type |
+|------|-----------|
+| `visa` | Visa |
+| `mastercard` | Mastercard |
+| `amex` | American Express |
+| `dinersclub` | Diners Club |
+| `discover` | Discover |
+
+### How It Works
+
+1. **Format Validation**: Checks card number format
+2. **Luhn Algorithm**: Validates checksum digit
+3. **Type Detection**: Matches card prefix patterns
+
+### Card Prefixes
+
+| Type | Prefix Pattern |
+|------|---------------|
+| Visa | 4xxx |
+| Mastercard | 51-55, 2221-2720 |
+| American Express | 34, 37 |
+| Discover | 6011, 644-649, 65 |
+| Diners Club | 300-305, 36, 38 |
+
+### Notes
+
+- Spaces and dashes are stripped before validation
+- Only numeric characters are considered
+- Invalid lengths fail validation
+
+### Error Message
+
+Default: `"{field} must be a valid credit card number"`
+
+---
+
+## Combining Type Rules
+
+### Payment Form Example
+
+```php
+$v = new Validator($_POST);
+
+// Required credit card
+$v->rule('required', 'card_number');
+$v->rule('creditCard', 'card_number', ['visa', 'mastercard', 'amex']);
+
+// Expiration date
+$v->rule('required', 'expiry_date');
+$v->rule('dateFormat', 'expiry_date', 'm/y');
+$v->rule('future', 'expiry_date');
+
+// CVV
+$v->rule('required', 'cvv');
+$v->rule('integer', 'cvv');
+$v->rule('lengthBetween', 'cvv', 3, 4);
+```
+
+### Object Validation Example
+
+```php
+$v = new Validator([
+    'user' => $userObject,
+    'config' => $configObject,
+    'logger' => $loggerObject
+]);
+
+$v->rule('instanceOf', 'user', User::class);
+$v->rule('instanceOf', 'config', ConfigInterface::class);
+$v->rule('instanceOf', 'logger', LoggerInterface::class);
+```

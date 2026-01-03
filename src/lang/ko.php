@@ -34,4 +34,6 @@ return [
     'lengthMin' => "의 길이는 %d 이상이어야 합니다.",
     'lengthMax' => "의 길이는 %d을(를) 넘을 수 없습니다.",
     'instanceOf' => "는 '%s'의 객체여야 합니다.",
+    'passwordStrength' => "은(는) 더 강력한 비밀번호가 필요합니다 (최소 강도: %d/10)",
+    'nullable' => "은(는) null이거나 유효해야 합니다",
 ];

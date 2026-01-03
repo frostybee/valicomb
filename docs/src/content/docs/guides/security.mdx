@@ -1,0 +1,290 @@
+---
+title: Security Features
+description: Built-in security features and best practices in Valicomb
+---
+
+Valicomb is designed with security as a core principle. This guide covers the built-in security features and best practices for secure validation.
+
+## ReDoS Protection
+
+Regular Expression Denial of Service (ReDoS) attacks exploit inefficient regex patterns that cause catastrophic backtracking.
+
+### Automatic Protection
+
+The `regex` rule includes automatic protection against dangerous patterns:
+
+```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator(['field' => 'aaaaaaaaaaaa!']);
+
+// This throws RuntimeException - dangerous pattern detected
+$v->rule('regex', 'field', '/^(a+)+$/');
+```
+
+### Safe Pattern Guidelines
+
+✅ **Good patterns:**
+```php
+$v->rule('regex', 'field', '/^[a-zA-Z0-9]+$/');    // Simple character class
+$v->rule('regex', 'field', '/^\d{3}-\d{4}$/');     // Fixed quantifiers
+$v->rule('regex', 'field', '/^[A-Z]{2}\d{6}$/');   // Bounded patterns
+```
+
+❌ **Dangerous patterns to avoid:**
+```php
+// Nested quantifiers
+'/^(a+)+$/'
+'/^(a*)*$/'
+'/^(a+)*$/'
+
+// Overlapping groups
+'/^(a|aa)+$/'
+
+// Unbounded repetition with alternatives
+'/^([a-zA-Z]+)*$/'
+```
+
+---
+
+## Type Juggling Prevention
+
+PHP's type juggling can lead to security vulnerabilities. Valicomb uses strict comparisons throughout.
+
+### Strict Equality
+
+All comparisons use `===` to prevent type juggling:
+
+```php
+$v = new Validator([
+    'field1' => '0e123456',  // "Scientific notation" string
+    'field2' => '0e789012'
+]);
+
+// In PHP, these would loosely equal 0 == 0
+// Valicomb uses strict comparison, so this correctly returns false
+$v->rule('equals', 'field1', 'field2');
+```
+
+### Boolean Validation
+
+The `boolean` rule accepts only explicit boolean values:
+
+```php
+$v = new Validator(['active' => '1']);
+$v->rule('boolean', 'active'); // true - '1' is accepted
+
+$v = new Validator(['active' => 'yes']);
+$v->rule('boolean', 'active'); // false - 'yes' is not a boolean
+
+// Use 'accepted' for checkbox-style values
+$v->rule('accepted', 'terms'); // Accepts 'yes', 'on', 1, '1', true
+```
+
+---
+
+## URL Validation Security
+
+URL validation includes multiple security checks.
+
+### Prefix Validation
+
+URLs must start with allowed protocols - not just contain them:
+
+```php
+// FAIL - protocol not at start (potential redirect attack)
+$v = new Validator(['url' => 'evil.com?redirect=http://trusted.com']);
+$v->rule('url', 'url'); // false
+
+// PASS - proper URL with protocol at start
+$v = new Validator(['url' => 'https://trusted.com']);
+$v->rule('url', 'url'); // true
+```
+
+### Allowed Protocols
+
+Only safe protocols are allowed by default:
+- `http://`
+- `https://`
+- `ftp://`
+
+Dangerous protocols like `javascript:` and `data:` are not allowed.
+
+---
+
+## Path Traversal Protection
+
+Language file loading validates against directory traversal attacks:
+
+```php
+// This throws InvalidArgumentException - path traversal blocked
+new Validator([], [], '../../etc/passwd');
+
+// This throws InvalidArgumentException - invalid language code
+new Validator([], [], '../../../evil');
+```
+
+### Language Code Validation
+
+Only alphanumeric language codes with optional hyphens are accepted:
+- ✅ `en`, `en-US`, `zh-Hans`
+- ❌ `../etc`, `../../`, `.`
+
+---
+
+## Email Security
+
+Email validation includes comprehensive security measures:
+
+### RFC 5321 Compliance
+
+- Maximum total length: 254 characters
+- Maximum local part (before @): 64 characters
+- Maximum domain part (after @): 255 characters
+
+### Injection Prevention
+
+Dangerous characters that could be used for injection are rejected:
+- Null bytes
+- Newlines
+- Carriage returns
+- Invalid control characters
+
+### Example
+
+```php
+$v = new Validator(['email' => 'user@example.com']);
+$v->rule('email', 'email');
+
+// These would fail:
+// - "user\0@example.com" (null byte)
+// - "user\n@example.com" (newline injection)
+// - Excessively long emails
+```
+
+---
+
+## Integer Validation Fixes
+
+The integer validation properly handles all numeric formats:
+
+```php
+$v = new Validator(['num' => '1000']);
+$v->rule('integer', 'num'); // true - works with multi-digit numbers
+
+$v = new Validator(['num' => '1000']);
+$v->rule('integer', 'num', true); // Strict mode - proper numeric form
+```
+
+### Strict Mode
+
+Strict mode rejects redundant formatting:
+
+```php
+// Strict mode rejects redundant plus sign
+$v = new Validator(['num' => '+27']);
+$v->rule('integer', 'num', true); // false
+
+// Negative numbers are accepted
+$v = new Validator(['num' => '-27']);
+$v->rule('integer', 'num', true); // true
+```
+
+---
+
+## High-Precision Comparisons
+
+When BCMath is available, numeric comparisons use high-precision arithmetic:
+
+```php
+// With BCMath, this comparison is precise
+$v = new Validator(['price' => '0.1']);
+$v->rule('min', 'price', 0.1); // Correctly returns true
+
+// Without BCMath, floating-point issues could occur
+```
+
+:::tip
+Install the BCMath extension for financial/decimal validation:
+```bash
+# Ubuntu/Debian
+sudo apt-get install php-bcmath
+
+# Windows (uncomment in php.ini)
+extension=bcmath
+```
+:::
+
+---
+
+## Security Best Practices
+
+### 1. Always Validate Input
+
+```php
+// Never trust user input
+$v = new Validator($_POST);
+$v->rule('required', ['email', 'password']);
+$v->rule('email', 'email');
+$v->rule('lengthMin', 'password', 8);
+```
+
+### 2. Use Specific Rules
+
+```php
+// Specific is better than generic
+$v->rule('email', 'email');        // ✅ Validates email format
+$v->rule('lengthMax', 'email', 5); // ❌ Just checks length
+```
+
+### 3. Validate Before Use
+
+```php
+if ($v->validate()) {
+    // Only use data after validation passes
+    $email = $v->data()['email'];
+}
+```
+
+### 4. Don't Expose Internal Errors
+
+```php
+if (!$v->validate()) {
+    // Return user-friendly errors
+    $errors = $v->errors();
+
+    // Log detailed errors internally
+    error_log(json_encode($errors));
+}
+```
+
+### 5. Whitelist, Don't Blacklist
+
+```php
+// Whitelist allowed values
+$v->rule('in', 'status', ['active', 'inactive', 'pending']);
+
+// Rather than trying to block bad values
+```
+
+### 6. Validate File Uploads Separately
+
+Valicomb validates data, not files. For file uploads:
+- Validate MIME types server-side
+- Use a dedicated file validation library
+- Never trust client-provided file extensions
+
+---
+
+## Reporting Security Issues
+
+If you discover a security vulnerability in Valicomb:
+
+1. **Do NOT** create a public GitHub issue
+2. Create a private security advisory on GitHub
+3. Or email the maintainer directly
+
+Provide details about:
+- The vulnerability
+- Steps to reproduce
+- Potential impact

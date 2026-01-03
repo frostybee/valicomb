@@ -1,0 +1,273 @@
+---
+title: Nested & Array Fields
+description: Validate nested arrays and collections in Valicomb
+---
+
+Valicomb supports validating nested arrays using dot notation and wildcards, making it easy to validate complex data structures.
+
+## Dot Notation
+
+Access nested fields using dot notation:
+
+```php
+$data = [
+    'user' => [
+        'email' => 'test@example.com',
+        'profile' => [
+            'age' => 25
+        ]
+    ]
+];
+
+$v = new Validator($data);
+$v->rule('email', 'user.email');
+$v->rule('integer', 'user.profile.age');
+```
+
+### Multiple Levels
+
+You can go as deep as needed:
+
+```php
+$data = [
+    'order' => [
+        'customer' => [
+            'billing' => [
+                'address' => [
+                    'street' => '123 Main St'
+                ]
+            ]
+        ]
+    ]
+];
+
+$v = new Validator($data);
+$v->rule('required', 'order.customer.billing.address.street');
+```
+
+---
+
+## Array Wildcard Validation
+
+Use `*` to validate all items in an array:
+
+```php
+$data = [
+    'users' => [
+        ['email' => 'user1@example.com'],
+        ['email' => 'user2@example.com'],
+        ['email' => 'user3@example.com']
+    ]
+];
+
+$v = new Validator($data);
+$v->rule('email', 'users.*.email'); // Validates all emails
+```
+
+### Indexed Arrays
+
+Validate each element in an indexed array:
+
+```php
+$data = [
+    'tags' => ['php', 'javascript', 'python']
+];
+
+$v = new Validator($data);
+$v->rule('alpha', 'tags.*'); // Each tag must be alphabetic
+```
+
+### Nested Wildcards
+
+Combine wildcards with nested access:
+
+```php
+$data = [
+    'orders' => [
+        [
+            'items' => [
+                ['price' => 10.00],
+                ['price' => 25.50]
+            ]
+        ],
+        [
+            'items' => [
+                ['price' => 5.00]
+            ]
+        ]
+    ]
+];
+
+$v = new Validator($data);
+$v->rule('numeric', 'orders.*.items.*.price');
+```
+
+---
+
+## Common Patterns
+
+### Form with Repeating Fields
+
+```php
+// HTML: <input name="contacts[0][email]">, <input name="contacts[1][email]">
+$data = [
+    'contacts' => [
+        ['email' => 'contact1@example.com', 'phone' => '555-1234'],
+        ['email' => 'contact2@example.com', 'phone' => '555-5678']
+    ]
+];
+
+$v = new Validator($data);
+$v->rule('required', 'contacts.*.email');
+$v->rule('email', 'contacts.*.email');
+$v->rule('required', 'contacts.*.phone');
+```
+
+### Product Variants
+
+```php
+$data = [
+    'product' => [
+        'name' => 'T-Shirt',
+        'variants' => [
+            ['size' => 'S', 'price' => 19.99, 'stock' => 100],
+            ['size' => 'M', 'price' => 19.99, 'stock' => 150],
+            ['size' => 'L', 'price' => 21.99, 'stock' => 80]
+        ]
+    ]
+];
+
+$v = new Validator($data);
+$v->rule('required', 'product.name');
+$v->rule('required', 'product.variants.*.size');
+$v->rule('in', 'product.variants.*.size', ['XS', 'S', 'M', 'L', 'XL']);
+$v->rule('numeric', 'product.variants.*.price');
+$v->rule('positive', 'product.variants.*.price');
+$v->rule('integer', 'product.variants.*.stock');
+$v->rule('min', 'product.variants.*.stock', 0);
+```
+
+### Nested Configuration
+
+```php
+$data = [
+    'settings' => [
+        'notifications' => [
+            'email' => true,
+            'sms' => false
+        ],
+        'preferences' => [
+            'theme' => 'dark',
+            'language' => 'en'
+        ]
+    ]
+];
+
+$v = new Validator($data);
+$v->rule('boolean', 'settings.notifications.email');
+$v->rule('boolean', 'settings.notifications.sms');
+$v->rule('in', 'settings.preferences.theme', ['light', 'dark', 'auto']);
+$v->rule('length', 'settings.preferences.language', 2);
+```
+
+---
+
+## Error Keys
+
+Errors are keyed by the full field path:
+
+```php
+$data = [
+    'users' => [
+        ['email' => 'valid@example.com'],
+        ['email' => 'invalid-email']
+    ]
+];
+
+$v = new Validator($data);
+$v->rule('email', 'users.*.email');
+$v->validate();
+
+$errors = $v->errors();
+// [
+//     'users.1.email' => ['users.1.email is not a valid email address']
+// ]
+```
+
+### Using Labels with Nested Fields
+
+```php
+$v->labels([
+    'users.*.email' => 'User Email',
+    'users.*.name' => 'User Name'
+]);
+
+// Or more specific
+$v->labels([
+    'users.0.email' => 'Primary Contact Email',
+    'users.1.email' => 'Secondary Contact Email'
+]);
+```
+
+---
+
+## Required Nested Fields
+
+### Require Nested Values
+
+```php
+$v = new Validator($data);
+$v->rule('required', 'user.profile.name');
+```
+
+### Require Array Items
+
+```php
+// Require at least one item exists with email
+$v->rule('required', 'contacts.*.email');
+```
+
+---
+
+## Combining with Other Rules
+
+### Complete Form Example
+
+```php
+$data = $_POST;
+
+$v = new Validator($data);
+
+// Basic fields
+$v->rule('required', ['title', 'description']);
+$v->rule('lengthMax', 'title', 100);
+
+// Author (nested object)
+$v->rule('required', 'author.name');
+$v->rule('email', 'author.email');
+
+// Tags (simple array)
+$v->rule('array', 'tags');
+$v->rule('alpha', 'tags.*');
+
+// Images (array of objects)
+$v->rule('array', 'images');
+$v->rule('required', 'images.*.url');
+$v->rule('url', 'images.*.url');
+$v->rule('optional', 'images.*.caption');
+$v->rule('lengthMax', 'images.*.caption', 200);
+
+if (!$v->validate()) {
+    // Handle errors
+}
+```
+
+---
+
+## Best Practices
+
+1. **Use Descriptive Labels**: Nested field names can be long; use labels for cleaner errors
+2. **Validate Parent Arrays**: Use `array` rule on parent before validating children
+3. **Handle Missing Parents**: If `users` doesn't exist, `users.*.email` won't error on "required"
+4. **Test Empty Arrays**: Ensure validation works when arrays are empty
+5. **Consider Performance**: Deep nesting with wildcards can be expensive on large datasets

@@ -3,7 +3,9 @@ composer.phar
 composer.lock
 vendor/
 .idea/
-docs/
+docs/og-image.html
+
+doc-files/
 helios/
 .php-cs-fixer.cache
 .phpunit.cache/

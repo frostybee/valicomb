@@ -38,4 +38,6 @@ return [
     'instanceOf' => "må være en instans av '%s'",
     'containsUnique' => "må inneholde kun unike elementer",
     'subset' => "inneholder et element som ikke er i listen",
+    'passwordStrength' => "må være et sterkere passord (minimum styrke: %d/10)",
+    'nullable' => "kan være null eller må være gyldig",
 ];

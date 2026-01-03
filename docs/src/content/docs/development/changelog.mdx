@@ -1,0 +1,117 @@
+---
+title: Changelog
+description: Version history and release notes for Valicomb
+---
+
+All notable changes to Valicomb are documented on this page.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
+
+---
+
+## [Unreleased]
+
+### Added
+
+- Documentation website using Astro Starlight
+- Comprehensive API reference documentation
+
+---
+
+## Recent Updates
+
+### Enhanced Validation Rules
+
+#### Numeric Validation
+
+- The `numeric` rule now properly handles scientific notation (e.g., `1.2e3`)
+- New `decimalPlaces` rule for controlling decimal precision
+- New `positive` rule for strictly positive numbers
+
+#### String Validation
+
+- New `uuid` rule with support for versions 1-5
+- New `startsWith` and `endsWith` rules for string prefix and suffix validation
+- Added case-insensitive option to string matching rules
+
+#### Date Validation
+
+- New `past` and `future` rules for validating dates in the past or future
+- Can specify a reference date for comparison
+
+#### Phone Validation
+
+- New `phone` rule with support for 12 countries
+- Validates against country-specific phone number patterns
+
+---
+
+## Version History
+
+### Modernization from Valitron
+
+Valicomb is a modernized fork of [vlucas/valitron](https://github.com/vlucas/valitron) with significant improvements:
+
+#### PHP 8.2+ Requirements
+
+- Strict types throughout
+- Typed properties and return types
+- Modern PHP syntax
+
+#### Security Improvements
+
+- ReDoS protection in regex validation
+- Type juggling prevention with strict comparisons
+- Path traversal protection in language loading
+- Email validation security hardening
+
+#### Code Quality
+
+- PHPStan Level 8 compliance
+- PSR-12 code style
+- Over 430 tests
+- Comprehensive docblocks
+
+#### Architecture
+
+- Extracted core classes (ErrorManager, LanguageManager, RuleRegistry)
+- Organized validation rules into trait files
+- Clean separation of concerns
+
+---
+
+## Upgrade Notes
+
+### Migrating from Valitron
+
+If you're migrating from vlucas/valitron:
+
+1. **Namespace change**
+   ```php
+   // Before
+   use Valitron\Validator;
+
+   // After
+   use Frostybee\Valicomb\Validator;
+   ```
+
+2. **PHP version requirement**
+   - Valicomb requires PHP 8.2+
+   - Update your `composer.json` accordingly
+
+3. **Strict types**
+   - All code uses strict types
+   - Ensure your data types are correct
+
+4. **Deprecated methods**
+   - `mapFieldRules()` → Use `mapOneFieldToRules()`
+   - `mapFieldsRules()` → Use `mapManyFieldsToRules()`
+
+---
+
+## Reporting Issues
+
+Found a bug? Have a feature request?
+
+- [GitHub Issues](https://github.com/frostybee/valicomb/issues)
+- For security issues, please use GitHub's private security advisory feature

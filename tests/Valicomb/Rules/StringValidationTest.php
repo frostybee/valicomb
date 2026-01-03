@@ -1209,4 +1209,380 @@ class StringValidationTest extends BaseTestCase
         $v->rule('endsWith', 'message', '🔥');
         $this->assertTrue($v->validate());
     }
+
+    // Password Strength Tests
+    public function testPasswordStrengthStrongPassword(): void
+    {
+        // Strong password with all character types (score: 10)
+        $v = new Validator(['password' => 'MyStr0ng@Pass123!']);
+        $v->rule('passwordStrength', 'password');
+        $this->assertTrue($v->validate());
+    }
+
+    public function testPasswordStrengthMediumPassword(): void
+    {
+        // Medium password (score: 6) - 8 chars, upper, lower, number
+        $v = new Validator(['password' => 'MyPass12']);
+        $v->rule('passwordStrength', 'password');
+        $this->assertTrue($v->validate());
+    }
+
+    public function testPasswordStrengthWeakPasswordFails(): void
+    {
+        // Weak password (score < 6)
+        $v = new Validator(['password' => 'password']);
+        $v->rule('passwordStrength', 'password');
+        $this->assertFalse($v->validate());
+
+        // Just lowercase
+        $v = new Validator(['password' => 'abcdefgh']);
+        $v->rule('passwordStrength', 'password');
+        $this->assertFalse($v->validate());
+    }
+
+    public function testPasswordStrengthCustomMinScore(): void
+    {
+        // Password with score 5 should fail with default minScore 6
+        $v = new Validator(['password' => 'password1']);
+        $v->rule('passwordStrength', 'password');
+        $this->assertFalse($v->validate());
+
+        // Same password should pass with minScore 4
+        $v = new Validator(['password' => 'password1']);
+        $v->rule('passwordStrength', 'password', 4);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testPasswordStrengthHighMinScore(): void
+    {
+        // Require very strong password (score 9)
+        $v = new Validator(['password' => 'MyP@ss123']);
+        $v->rule('passwordStrength', 'password', 9);
+        $this->assertFalse($v->validate());
+
+        // Strong enough to meet score 9
+        $v = new Validator(['password' => 'MyStr0ng@Pass!']);
+        $v->rule('passwordStrength', 'password', 9);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testPasswordStrengthWithArrayConfig(): void
+    {
+        // Full configuration via array
+        $v = new Validator(['password' => 'MyP@ssword123']);
+        $v->rule('passwordStrength', 'password', [
+            'minScore' => 7,
+            'minLength' => 10,
+            'requireUppercase' => true,
+            'requireNumber' => true,
+        ]);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testPasswordStrengthRequireUppercase(): void
+    {
+        // Password without uppercase should fail when required
+        $v = new Validator(['password' => 'myp@ssword123!']);
+        $v->rule('passwordStrength', 'password', [
+            'minScore' => 1,
+            'requireUppercase' => true,
+        ]);
+        $this->assertFalse($v->validate());
+
+        // Password with uppercase should pass
+        $v = new Validator(['password' => 'MyP@ssword123!']);
+        $v->rule('passwordStrength', 'password', [
+            'minScore' => 1,
+            'requireUppercase' => true,
+        ]);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testPasswordStrengthRequireLowercase(): void
+    {
+        // Password without lowercase should fail when required
+        $v = new Validator(['password' => 'MYP@SSWORD123!']);
+        $v->rule('passwordStrength', 'password', [
+            'minScore' => 1,
+            'requireLowercase' => true,
+        ]);
+        $this->assertFalse($v->validate());
+
+        // Password with lowercase should pass
+        $v = new Validator(['password' => 'MyP@ssword123!']);
+        $v->rule('passwordStrength', 'password', [
+            'minScore' => 1,
+            'requireLowercase' => true,
+        ]);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testPasswordStrengthRequireNumber(): void
+    {
+        // Password without number should fail when required
+        $v = new Validator(['password' => 'MyP@ssword!!']);
+        $v->rule('passwordStrength', 'password', [
+            'minScore' => 1,
+            'requireNumber' => true,
+        ]);
+        $this->assertFalse($v->validate());
+
+        // Password with number should pass
+        $v = new Validator(['password' => 'MyP@ssword123']);
+        $v->rule('passwordStrength', 'password', [
+            'minScore' => 1,
+            'requireNumber' => true,
+        ]);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testPasswordStrengthRequireSymbol(): void
+    {
+        // Password without symbol should fail when required
+        $v = new Validator(['password' => 'MyPassword123']);
+        $v->rule('passwordStrength', 'password', [
+            'minScore' => 1,
+            'requireSymbol' => true,
+        ]);
+        $this->assertFalse($v->validate());
+
+        // Password with symbol should pass
+        $v = new Validator(['password' => 'MyP@ssword123']);
+        $v->rule('passwordStrength', 'password', [
+            'minScore' => 1,
+            'requireSymbol' => true,
+        ]);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testPasswordStrengthMinLength(): void
+    {
+        // Password shorter than minLength should fail
+        $v = new Validator(['password' => 'MyP@ss1']);
+        $v->rule('passwordStrength', 'password', [
+            'minScore' => 1,
+            'minLength' => 10,
+        ]);
+        $this->assertFalse($v->validate());
+
+        // Password meeting minLength should pass
+        $v = new Validator(['password' => 'MyP@ssword1']);
+        $v->rule('passwordStrength', 'password', [
+            'minScore' => 1,
+            'minLength' => 10,
+        ]);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testPasswordStrengthScoreCalculation(): void
+    {
+        // Score 2.5: 8+ chars + lowercase only
+        $v = new Validator(['password' => 'abcdefgh']);
+        $v->rule('passwordStrength', 'password', 3);
+        $this->assertFalse($v->validate()); // score 2.5 (1 + 1.5), fails minScore 3
+
+        // Score 3: 8+ chars + upper + lower
+        $v = new Validator(['password' => 'Abcdefgh']);
+        $v->rule('passwordStrength', 'password', 4);
+        $this->assertTrue($v->validate()); // score 4 (1 + 1.5 + 1.5)
+
+        // Score 6: 8+ chars + upper + lower + number
+        $v = new Validator(['password' => 'Abcdefg1']);
+        $v->rule('passwordStrength', 'password', 6);
+        $this->assertTrue($v->validate()); // score 6 (1 + 1.5 + 1.5 + 2)
+
+        // Score 8: 8+ chars + upper + lower + number + symbol
+        $v = new Validator(['password' => 'Abcdef1!']);
+        $v->rule('passwordStrength', 'password', 8);
+        $this->assertTrue($v->validate()); // score 8 (1 + 1.5 + 1.5 + 2 + 2)
+
+        // Score 10: 16+ chars + all character types
+        $v = new Validator(['password' => 'Abcdefghij1234!@']);
+        $v->rule('passwordStrength', 'password', 10);
+        $this->assertTrue($v->validate()); // score 10 (3 + 1.5 + 1.5 + 2 + 2)
+    }
+
+    public function testPasswordStrengthLengthBonus(): void
+    {
+        // 8 chars = +1
+        $v = new Validator(['password' => 'Abcdefg!']);
+        $v->rule('passwordStrength', 'password', 5);
+        $this->assertTrue($v->validate()); // 1 + 1.5 + 1.5 + 2 = 6
+
+        // 12 chars = +2
+        $v = new Validator(['password' => 'Abcdefghijk!']);
+        $v->rule('passwordStrength', 'password', 6);
+        $this->assertTrue($v->validate()); // 2 + 1.5 + 1.5 + 2 = 7
+
+        // 16 chars = +3
+        $v = new Validator(['password' => 'Abcdefghijklmno!']);
+        $v->rule('passwordStrength', 'password', 8);
+        $this->assertTrue($v->validate()); // 3 + 1.5 + 1.5 + 2 = 8
+    }
+
+    public function testPasswordStrengthNonStringFails(): void
+    {
+        // Array
+        $v = new Validator(['password' => ['password123']]);
+        $v->rule('passwordStrength', 'password');
+        $this->assertFalse($v->validate());
+
+        // Integer
+        $v = new Validator(['password' => 12345678]);
+        $v->rule('passwordStrength', 'password');
+        $this->assertFalse($v->validate());
+
+        // Boolean
+        $v = new Validator(['password' => true]);
+        $v->rule('passwordStrength', 'password');
+        $this->assertFalse($v->validate());
+    }
+
+    public function testPasswordStrengthEmptyString(): void
+    {
+        // Empty string (treated as not provided, passes without required)
+        $v = new Validator(['password' => '']);
+        $v->rule('passwordStrength', 'password');
+        $this->assertTrue($v->validate());
+
+        // Empty string with required should fail
+        $v = new Validator(['password' => '']);
+        $v->rule('required', 'password')
+          ->rule('passwordStrength', 'password');
+        $this->assertFalse($v->validate());
+    }
+
+    public function testPasswordStrengthShortPasswordFails(): void
+    {
+        // Password shorter than 8 chars fails (default minLength)
+        $v = new Validator(['password' => 'Abc1!']);
+        $v->rule('passwordStrength', 'password', 1);
+        $this->assertFalse($v->validate());
+    }
+
+    public function testPasswordStrengthUnicodeSupport(): void
+    {
+        // Unicode uppercase (German ß -> SS)
+        $v = new Validator(['password' => 'PäsSwörd123!']);
+        $v->rule('passwordStrength', 'password', [
+            'minScore' => 1,
+            'requireUppercase' => true,
+            'requireLowercase' => true,
+        ]);
+        $this->assertTrue($v->validate());
+
+        // Unicode numbers (Arabic numerals)
+        $v = new Validator(['password' => 'Password١٢٣!']);
+        $v->rule('passwordStrength', 'password', [
+            'minScore' => 1,
+            'requireNumber' => true,
+        ]);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testPasswordStrengthAltSyntax(): void
+    {
+        $v = new Validator(['user_password' => 'MyStr0ng@Pass123!']);
+        $v->rules([
+            'passwordStrength' => [
+                ['user_password'],
+            ],
+        ]);
+        $this->assertTrue($v->validate());
+
+        // With minScore
+        $v = new Validator(['user_password' => 'MyStr0ng@Pass123!']);
+        $v->rules([
+            'passwordStrength' => [
+                ['user_password', 8],
+            ],
+        ]);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testPasswordStrengthErrorMessage(): void
+    {
+        $v = new Validator(['password' => 'weak']);
+        $v->rule('passwordStrength', 'password', 6);
+        $this->assertFalse($v->validate());
+
+        $errors = $v->errors();
+        $this->assertArrayHasKey('password', $errors);
+        $this->assertStringContainsString('must be a stronger password', $errors['password'][0]);
+    }
+
+    public function testPasswordStrengthWithLabel(): void
+    {
+        $v = new Validator(['user_pass' => 'weak']);
+        $v->rule('passwordStrength', 'user_pass')
+          ->label('Password');
+        $this->assertFalse($v->validate());
+
+        $errors = $v->errors();
+        $this->assertArrayHasKey('user_pass', $errors);
+        $this->assertStringContainsString('Password must be a stronger password', $errors['user_pass'][0]);
+    }
+
+    public function testPasswordStrengthWithOtherRules(): void
+    {
+        // Combine with required
+        $v = new Validator(['password' => 'MyStr0ng@Pass!']);
+        $v->rule('required', 'password')
+          ->rule('passwordStrength', 'password');
+        $this->assertTrue($v->validate());
+
+        // Combine with lengthMax
+        $v = new Validator(['password' => 'MyStr0ng@Pass!']);
+        $v->rule('passwordStrength', 'password')
+          ->rule('lengthMax', 'password', 50);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testPasswordStrengthMinScoreClamping(): void
+    {
+        // minScore below 1 is clamped to 1
+        $v = new Validator(['password' => 'Abcdefgh']);
+        $v->rule('passwordStrength', 'password', 0);
+        $this->assertTrue($v->validate()); // score 4 >= 1
+
+        // minScore above 10 is clamped to 10
+        $v = new Validator(['password' => 'VeryStrongP@ss123!']);
+        $v->rule('passwordStrength', 'password', 15);
+        $this->assertTrue($v->validate()); // score 10 >= 10
+    }
+
+    public function testPasswordStrengthCommonPasswords(): void
+    {
+        // Common weak passwords should fail with default settings
+        $weakPasswords = [
+            'password',
+            '12345678',
+            'qwerty123',
+            'abcdefgh',
+            'PASSWORD',
+        ];
+
+        foreach ($weakPasswords as $password) {
+            $v = new Validator(['password' => $password]);
+            $v->rule('passwordStrength', 'password');
+            $this->assertFalse($v->validate(), "Weak password should fail: $password");
+        }
+    }
+
+    public function testPasswordStrengthStrongPasswords(): void
+    {
+        // Strong passwords should pass
+        $strongPasswords = [
+            'MyP@ssw0rd!',
+            'Secure#Password123',
+            'C0mplex!Pass',
+            'Str0ng@Pwd99',
+        ];
+
+        foreach ($strongPasswords as $password) {
+            $v = new Validator(['password' => $password]);
+            $v->rule('passwordStrength', 'password');
+            $this->assertTrue($v->validate(), "Strong password should pass: $password");
+        }
+    }
 }

@@ -34,4 +34,6 @@ return [
     'lengthMin' => "måste vara minst %d tecken långt",
     'lengthMax' => "får inte överstiga %d tecken",
     'instanceOf' => "måste vara en instans av '%s'",
+    'passwordStrength' => "måste vara ett starkare lösenord (minsta styrka: %d/10)",
+    'nullable' => "kan vara null eller måste vara giltigt",
 ];

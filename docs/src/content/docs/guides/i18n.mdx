@@ -1,0 +1,220 @@
+---
+title: Internationalization
+description: Use Valicomb with multiple languages
+---
+
+Valicomb includes built-in support for 22 languages, making it easy to display validation error messages in your users' preferred language.
+
+## Available Languages
+
+| Code | Language |
+|------|----------|
+| `ar` | Arabic |
+| `cs` | Czech |
+| `da` | Danish |
+| `de` | German |
+| `en` | English (default) |
+| `es` | Spanish |
+| `fa` | Persian (Farsi) |
+| `fi` | Finnish |
+| `fr` | French |
+| `hu` | Hungarian |
+| `id` | Indonesian |
+| `it` | Italian |
+| `ja` | Japanese |
+| `nl` | Dutch |
+| `no` | Norwegian |
+| `pl` | Polish |
+| `pt` | Portuguese |
+| `ru` | Russian |
+| `sv` | Swedish |
+| `tr` | Turkish |
+| `uk` | Ukrainian |
+| `zh` | Chinese |
+
+---
+
+## Setting the Language
+
+### Global Setting
+
+Set the language for all Validator instances:
+
+```php
+use Frostybee\Valicomb\Validator;
+
+// Set French as default
+Validator::lang('fr');
+
+// All new validators use French
+$v = new Validator($data);
+$v->rule('required', 'email');
+// Error: "Email est requis"
+```
+
+### Per-Instance Setting
+
+Set language for a specific validator:
+
+```php
+// Global default is English
+Validator::lang('en');
+
+// This instance uses Spanish
+$v = new Validator($data, [], 'es');
+$v->rule('required', 'email');
+// Error: "Email es requerido"
+```
+
+### Getting Current Language
+
+```php
+$currentLang = Validator::lang(); // Returns 'en' by default
+```
+
+---
+
+## Custom Language Directory
+
+Use your own translation files:
+
+```php
+// Set custom language directory
+Validator::langDir('/path/to/my/translations');
+
+// Then set language
+Validator::lang('custom');
+```
+
+### Per-Instance Custom Directory
+
+```php
+$v = new Validator($data, [], 'en', '/path/to/custom/lang');
+```
+
+---
+
+## Language File Format
+
+Language files are PHP files returning an associative array:
+
+```php
+// lang/en.php
+return [
+    'required' => '{field} is required',
+    'email' => '{field} is not a valid email address',
+    'min' => '{field} must be at least {0}',
+    'max' => '{field} must be at most {0}',
+    'between' => '{field} must be between {0} and {1}',
+    // ... more rules
+];
+```
+
+### Creating Custom Translations
+
+1. Copy an existing language file as a template
+2. Translate each message
+3. Place in your custom language directory
+4. Use `langDir()` to point to your directory
+
+```php
+// my-translations/pt-BR.php
+return [
+    'required' => '{field} é obrigatório',
+    'email' => '{field} não é um endereço de e-mail válido',
+    'min' => '{field} deve ser pelo menos {0}',
+    // ...
+];
+```
+
+---
+
+## Dynamic Language Selection
+
+### Based on User Preference
+
+```php
+// Get user's preferred language
+$userLang = $_SESSION['language'] ?? 'en';
+
+// Validate with user's language
+$v = new Validator($data, [], $userLang);
+```
+
+### Based on HTTP Header
+
+```php
+// Parse Accept-Language header
+$acceptLang = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? 'en';
+$lang = substr($acceptLang, 0, 2); // Get first 2 chars
+
+// Fallback if not supported
+$supported = ['en', 'es', 'fr', 'de', 'pt'];
+if (!in_array($lang, $supported)) {
+    $lang = 'en';
+}
+
+$v = new Validator($data, [], $lang);
+```
+
+---
+
+## Message Placeholders
+
+All languages support the same placeholders:
+
+| Placeholder | Description |
+|-------------|-------------|
+| `{field}` | Field name or label |
+| `{0}` | First parameter |
+| `{1}` | Second parameter |
+| `{2}` | Third parameter |
+
+Example in different languages:
+
+```php
+// English
+'between' => '{field} must be between {0} and {1}'
+// "Age must be between 18 and 65"
+
+// Spanish
+'between' => '{field} debe estar entre {0} y {1}'
+// "Edad debe estar entre 18 y 65"
+
+// French
+'between' => '{field} doit être compris entre {0} et {1}'
+// "Âge doit être compris entre 18 et 65"
+```
+
+---
+
+## Combining with Field Labels
+
+Labels work with any language:
+
+```php
+Validator::lang('es');
+
+$v = new Validator(['correo' => '']);
+$v->labels(['correo' => 'Correo Electrónico']);
+$v->rule('required', 'correo');
+
+$v->validate();
+// Error: "Correo Electrónico es requerido"
+```
+
+---
+
+## Contributing Translations
+
+To contribute a new language or improve existing translations:
+
+1. Fork the repository
+2. Copy `lang/en.php` to `lang/{code}.php`
+3. Translate all messages
+4. Submit a pull request
+
+Guidelines:
+- Keep placeholders exactly as they are: `{field}`, `{0}`, `{1}`, etc.
+- Match the tone and style of the English version
+- Test your translations with actual validation

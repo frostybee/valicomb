@@ -34,4 +34,6 @@ return [
     "lengthMin" => "ít nhất %d kí tự",
     "lengthMax" => "tối đa %d kí tự",
     "instanceOf" => "phải là instance của '%s'",
+    'passwordStrength' => "phải là mật khẩu mạnh hơn (độ mạnh tối thiểu: %d/10)",
+    'nullable' => "có thể null hoặc phải hợp lệ",
 ];

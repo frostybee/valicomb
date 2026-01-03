@@ -91,4 +91,141 @@ class ErrorMessagesTest extends BaseTestCase
         $v->validate();
         $this->assertEquals($v->errors('name'), ['A value is required for my name']);
     }
+
+    // {value} Placeholder Tests
+
+    /**
+     * Test that {value} placeholder is replaced with string value
+     */
+    public function testValuePlaceholderWithString(): void
+    {
+        $v = new Validator(['email' => 'not-an-email']);
+        $v->rule('email', 'email')->message('{field} "{value}" is not a valid email');
+        $v->validate();
+        $errors = $v->errors('email');
+        $this->assertSame('Email "not-an-email" is not a valid email', $errors[0]);
+    }
+
+    /**
+     * Test that {value} placeholder displays "null" for null values
+     */
+    public function testValuePlaceholderWithNull(): void
+    {
+        $v = new Validator(['field' => null]);
+        $v->rule('required', 'field')->message('{field} with value {value} is required');
+        $v->validate();
+        $errors = $v->errors('field');
+        $this->assertSame('Field with value null is required', $errors[0]);
+    }
+
+    /**
+     * Test that {value} placeholder displays JSON for array values
+     */
+    public function testValuePlaceholderWithArray(): void
+    {
+        $v = new Validator(['field' => ['a', 'b']]);
+        $v->rule('integer', 'field')->message('{field} value {value} is not an integer');
+        $v->validate();
+        $errors = $v->errors('field');
+        $this->assertStringContainsString('["a","b"]', $errors[0]);
+    }
+
+    /**
+     * Test that {value} placeholder displays "true" for boolean true
+     */
+    public function testValuePlaceholderWithBooleanTrue(): void
+    {
+        $v = new Validator(['field' => true]);
+        // Use email rule which will fail for boolean true
+        $v->rule('email', 'field')->message('{field} value {value} is not valid');
+        $v->validate();
+        $errors = $v->errors('field');
+        $this->assertSame('Field value true is not valid', $errors[0]);
+    }
+
+    /**
+     * Test that {value} placeholder displays "false" for boolean false
+     */
+    public function testValuePlaceholderWithBooleanFalse(): void
+    {
+        $v = new Validator(['field' => false]);
+        // Use email rule which will fail for boolean false
+        $v->rule('email', 'field')->message('{field} value {value} is not valid');
+        $v->validate();
+        $errors = $v->errors('field');
+        $this->assertSame('Field value false is not valid', $errors[0]);
+    }
+
+    /**
+     * Test that {value} placeholder works combined with {field} and sprintf placeholders
+     */
+    public function testValuePlaceholderWithOtherPlaceholders(): void
+    {
+        $v = new Validator(['age' => 5]);
+        $v->rule('min', 'age', 18)->message('{field} "{value}" must be at least %d');
+        $v->validate();
+        $errors = $v->errors('age');
+        $this->assertSame('Age "5" must be at least 18', $errors[0]);
+    }
+
+    /**
+     * Test {value} placeholder with custom field label
+     */
+    public function testValuePlaceholderWithCustomLabel(): void
+    {
+        $v = new Validator(['user_email' => 'invalid']);
+        $v->rule('email', 'user_email')
+          ->message('{field} "{value}" is not valid')
+          ->label('Email Address');
+        $v->validate();
+        $errors = $v->errors('user_email');
+        $this->assertSame('Email Address "invalid" is not valid', $errors[0]);
+    }
+
+    /**
+     * Test {value} placeholder with numeric value
+     */
+    public function testValuePlaceholderWithNumeric(): void
+    {
+        $v = new Validator(['count' => 1000]);
+        $v->rule('max', 'count', 100)->message('{field} value "{value}" exceeds maximum');
+        $v->validate();
+        $errors = $v->errors('count');
+        $this->assertSame('Count value "1000" exceeds maximum', $errors[0]);
+    }
+
+    /**
+     * Test {value} placeholder preserves message without placeholder
+     */
+    public function testMessageWithoutValuePlaceholder(): void
+    {
+        $v = new Validator(['email' => 'invalid']);
+        $v->rule('email', 'email')->message('{field} is not a valid email');
+        $v->validate();
+        $errors = $v->errors('email');
+        $this->assertSame('Email is not a valid email', $errors[0]);
+    }
+
+    /**
+     * Test manual error() method with {value} placeholder
+     */
+    public function testManualErrorWithValuePlaceholder(): void
+    {
+        $v = new Validator(['field' => 'test-value']);
+        $v->error('field', '{field} with value "{value}" failed validation', [], 'test-value');
+        $errors = $v->errors('field');
+        $this->assertSame('Field with value "test-value" failed validation', $errors[0]);
+    }
+
+    /**
+     * Test {value} placeholder with DateTime object
+     */
+    public function testValuePlaceholderWithDateTime(): void
+    {
+        $date = new \DateTime('2024-01-15 14:30:00');
+        $v = new Validator([]);
+        $v->error('field', 'Value {value} is not valid', [], $date);
+        $errors = $v->errors('field');
+        $this->assertSame('Value 2024-01-15 14:30:00 is not valid', $errors[0]);
+    }
 }

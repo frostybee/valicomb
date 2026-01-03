@@ -34,4 +34,6 @@ return [
     'lengthMin' => "deve essere lungo almeno %d caratteri",
     'lengthMax' => "non deve superare %d caratteri",
     'instanceOf' => "deve essere un'istanza di '%s'",
+    'passwordStrength' => "deve essere una password più forte (forza minima: %d/10)",
+    'nullable' => "può essere nullo o deve essere valido",
 ];

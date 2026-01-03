@@ -34,4 +34,6 @@ return [
     "lengthMin" => "%d karakterden fazla içermeli",
     "lengthMax" => "%d karakterden az içermeli",
     "instanceOf" => "bunun bir örneği olmalı '%s'",
+    'passwordStrength' => "daha güçlü bir şifre olmalı (minimum güç: %d/10)",
+    'nullable' => "boş olabilir veya geçerli olmalı",
 ];

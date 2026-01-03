@@ -1,0 +1,427 @@
+---
+title: Validator Class
+description: API reference for the main Validator class
+---
+
+The `Validator` class is the main entry point for validation in Valicomb.
+
+```php
+use Frostybee\Valicomb\Validator;
+```
+
+## Constructor
+
+```php
+public function __construct(
+    array $data = [],
+    array $fields = [],
+    ?string $lang = null,
+    ?string $langDir = null
+)
+```
+
+### Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `$data` | array | `[]` | Data to validate (key-value pairs) |
+| `$fields` | array | `[]` | Optional field whitelist |
+| `$lang` | string\|null | `null` | Language code for error messages |
+| `$langDir` | string\|null | `null` | Custom language file directory |
+
+### Examples
+
+```php
+// Basic usage
+$v = new Validator(['email' => 'test@example.com']);
+
+// With field whitelist (only these fields will be validated)
+$v = new Validator($data, ['email', 'password']);
+
+// With language setting
+$v = new Validator($data, [], 'fr');
+
+// With custom language directory
+$v = new Validator($data, [], 'en', '/path/to/lang');
+```
+
+---
+
+## Rule Definition Methods
+
+### rule()
+
+Add a single validation rule.
+
+```php
+public function rule(
+    string|callable $rule,
+    string|array $fields,
+    mixed ...$params
+): self
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$rule` | string\|callable | Rule name or callback function |
+| `$fields` | string\|array | Field name(s) to validate |
+| `$params` | mixed | Additional parameters for the rule |
+
+**Returns:** `self` (for method chaining)
+
+```php
+$v->rule('required', 'email');
+$v->rule('lengthMin', 'password', 8);
+$v->rule('required', ['email', 'password']);
+```
+
+### rules()
+
+Add multiple validation rules using array syntax.
+
+```php
+public function rules(array $rules): void
+```
+
+```php
+$v->rules([
+    'required' => ['name', 'email'],
+    'email' => 'email',
+    'lengthBetween' => [
+        ['name', 1, 100],
+        ['password', 8, 128]
+    ]
+]);
+```
+
+### mapOneFieldToRules()
+
+Map multiple rules to a single field.
+
+```php
+public function mapOneFieldToRules(string $field, array $rules): void
+```
+
+```php
+$v->mapOneFieldToRules('email', [
+    ['required'],
+    ['email'],
+    ['lengthMax', 254]
+]);
+```
+
+### mapManyFieldsToRules()
+
+Map rules to multiple fields at once.
+
+```php
+public function mapManyFieldsToRules(array $rules): void
+```
+
+```php
+$v->mapManyFieldsToRules([
+    'email' => [['required'], ['email']],
+    'password' => [['required'], ['lengthMin', 8]]
+]);
+```
+
+---
+
+## Validation Methods
+
+### validate()
+
+Run validation and return result.
+
+```php
+public function validate(): bool
+```
+
+**Returns:** `true` if all rules pass, `false` if any fail.
+
+```php
+if ($v->validate()) {
+    // All validations passed
+}
+```
+
+### stopOnFirstFail()
+
+Set whether to stop on first failure.
+
+```php
+public function stopOnFirstFail(bool $stop = true): void
+```
+
+```php
+$v->stopOnFirstFail(true);
+$v->validate(); // Stops at first error
+```
+
+---
+
+## Data Methods
+
+### data()
+
+Get the data being validated.
+
+```php
+public function data(): array
+```
+
+```php
+$validatedData = $v->data();
+```
+
+### withData()
+
+Create a clone with new data.
+
+```php
+public function withData(array $data, array $fields = []): self
+```
+
+**Returns:** A new `Validator` instance with the same rules but different data.
+
+```php
+$baseValidator = new Validator([]);
+$baseValidator->rule('required', 'email');
+
+$v1 = $baseValidator->withData(['email' => 'user1@example.com']);
+$v2 = $baseValidator->withData(['email' => 'user2@example.com']);
+```
+
+### reset()
+
+Reset the validator instance.
+
+```php
+public function reset(): void
+```
+
+Clears data, errors, rules, and labels.
+
+---
+
+## Error Methods
+
+### errors()
+
+Get validation errors.
+
+```php
+public function errors(?string $field = null): array|false
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$field` | string\|null | Optional field name |
+
+**Returns:**
+- All errors as array (when `$field` is null)
+- Field errors as array (when `$field` is provided and has errors)
+- `false` (when field has no errors)
+
+```php
+// Get all errors
+$errors = $v->errors();
+// ['email' => ['Email is required']]
+
+// Get errors for specific field
+$emailErrors = $v->errors('email');
+// ['Email is required']
+```
+
+### error()
+
+Manually add an error.
+
+```php
+public function error(
+    string $field,
+    string $message,
+    array $params = []
+): void
+```
+
+```php
+$v->error('field', 'Custom error message');
+$v->error('age', 'Must be between %d and %d', [18, 65]);
+```
+
+---
+
+## Message & Label Methods
+
+### message()
+
+Set custom message for the last added rule.
+
+```php
+public function message(string $message): self
+```
+
+```php
+$v->rule('required', 'email')
+  ->message('We need your email address!');
+```
+
+### label()
+
+Set label for the last added rule's field.
+
+```php
+public function label(string $value): self
+```
+
+```php
+$v->rule('required', 'email')
+  ->label('Email Address');
+```
+
+### labels()
+
+Set labels for multiple fields.
+
+```php
+public function labels(array $labels = []): self
+```
+
+```php
+$v->labels([
+    'email' => 'Email Address',
+    'password' => 'Password'
+]);
+```
+
+### setPrependLabels()
+
+Set whether to prepend field labels to error messages.
+
+```php
+public function setPrependLabels(bool $prepend = true): void
+```
+
+```php
+$v->setPrependLabels(false); // Error: "is required" instead of "Email is required"
+```
+
+---
+
+## Custom Rule Methods
+
+### addRule() (static)
+
+Register a global custom rule.
+
+```php
+public static function addRule(
+    string $name,
+    callable $callback,
+    ?string $message = null
+): void
+```
+
+```php
+Validator::addRule('strongPassword', function($field, $value, $params) {
+    return preg_match('/[A-Z]/', $value) && preg_match('/[0-9]/', $value);
+}, 'Password must contain uppercase and number');
+```
+
+### addInstanceRule()
+
+Register an instance-specific custom rule.
+
+```php
+public function addInstanceRule(
+    string $name,
+    callable $callback,
+    ?string $message = null
+): void
+```
+
+```php
+$v->addInstanceRule('myRule', function($field, $value) {
+    return $value === 'expected';
+}, 'Value must be expected');
+```
+
+### hasValidator()
+
+Check if a validator exists.
+
+```php
+public function hasValidator(string $name): bool
+```
+
+```php
+if ($v->hasValidator('email')) {
+    // email validator exists
+}
+```
+
+---
+
+## Language Methods
+
+### lang() (static)
+
+Get or set the language.
+
+```php
+public static function lang(?string $lang = null): string
+```
+
+```php
+// Set language
+Validator::lang('fr');
+
+// Get current language
+$currentLang = Validator::lang();
+```
+
+### langDir() (static)
+
+Get or set the language directory.
+
+```php
+public static function langDir(?string $dir = null): string
+```
+
+```php
+Validator::langDir('/path/to/custom/lang');
+```
+
+---
+
+## Utility Methods
+
+### getUniqueRuleName()
+
+Get a unique name for custom rules.
+
+```php
+public function getUniqueRuleName(string|array $fields): string
+```
+
+Used internally for closure-based rules.
+
+---
+
+## Callback Signature
+
+Custom validation callbacks receive these parameters:
+
+```php
+function(string $field, mixed $value, array $params, array $fields): bool
+```
+
+| Parameter | Description |
+|-----------|-------------|
+| `$field` | Field name being validated |
+| `$value` | Current value of the field |
+| `$params` | Additional parameters passed to the rule |
+| `$fields` | All field data (for cross-field validation) |
+
+**Must return:** `true` if valid, `false` if invalid

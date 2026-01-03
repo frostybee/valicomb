@@ -1,0 +1,296 @@
+---
+title: Conditional Rules
+description: Validation rules for conditional field requirements
+---
+
+Conditional validation rules control when fields are required based on other field values.
+
+## nullable
+
+Marks a field as nullable - null values are accepted and skip subsequent validation rules.
+
+### Basic Usage
+
+```php
+// Field can be null OR must be a valid integer
+$v->rule('nullable', 'parent_id');
+$v->rule('integer', 'parent_id');
+```
+
+### How It Works
+
+1. If the field value is `null` - all other rules (except `required`) are skipped
+2. If the field value is NOT `null` - all other rules are applied normally
+3. If the field is missing entirely - validation passes (similar to optional)
+
+### Difference from `optional`
+
+| Rule | Missing Field | Null Value | Empty String |
+|------|---------------|------------|--------------|
+| `optional` | Skips validation | Validates | Skips validation |
+| `nullable` | Skips validation | Skips validation | Validates |
+
+### With Other Rules
+
+```php
+// null passes, valid integer passes, invalid value fails
+$v = new Validator(['age' => null]);
+$v->rule('nullable', 'age')
+  ->rule('integer', 'age')
+  ->rule('min', 'age', 0);
+$v->validate(); // true - null is accepted
+```
+
+```php
+// Non-null values are still validated
+$v = new Validator(['age' => 'not-a-number']);
+$v->rule('nullable', 'age')
+  ->rule('integer', 'age');
+$v->validate(); // false - fails integer rule
+```
+
+### With `required` Rule
+
+When both `nullable` and `required` are used, `required` takes precedence:
+
+```php
+$v = new Validator(['field' => null]);
+$v->rule('required', 'field')
+  ->rule('nullable', 'field')
+  ->rule('integer', 'field');
+$v->validate(); // false - required rejects null
+```
+
+### Nested Fields
+
+Works with dot notation for nested arrays:
+
+```php
+$v = new Validator(['user' => ['parent_id' => null]]);
+$v->rule('nullable', 'user.parent_id')
+  ->rule('integer', 'user.parent_id');
+$v->validate(); // true
+```
+
+### Array Syntax
+
+```php
+$v->rules([
+    'nullable' => [
+        ['parent_id'],
+        ['manager_id']
+    ],
+    'integer' => [
+        ['parent_id'],
+        ['manager_id']
+    ]
+]);
+```
+
+### Use Cases
+
+- Database nullable columns (foreign keys that can be null)
+- Optional relationships (`parent_id`, `manager_id`)
+- API fields that accept null as a valid value
+- JSON fields where null has semantic meaning
+
+### Error Message
+
+Default: `"{field} can be null or must be valid"`
+
+This message rarely displays since nullable passes for null values.
+
+---
+
+## optional
+
+Marks a field as optional - it's only validated if present.
+
+### Basic Usage
+
+```php
+$v->rule('optional', 'middle_name');
+$v->rule('alpha', 'middle_name'); // Only validated if present
+```
+
+### How It Works
+
+1. If the field is not present in data - all other rules are skipped
+2. If the field IS present - all other rules are applied
+
+### Failing Example
+
+```php
+// This fails because field is present but doesn't pass alpha rule
+$v = new Validator(['username' => 'batman123']);
+$v->rules([
+    'alpha' => [['username']],
+    'optional' => [['username']]
+]);
+$v->validate(); // false - contains numbers
+```
+
+### Error Message
+
+This rule always returns true - it only controls whether other rules run.
+
+---
+
+## requiredWith
+
+Validates that the field is required when other specified fields are present.
+
+### Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `fields` | string\|array | Yes | - | Field(s) that trigger requirement |
+| `strict` | bool | No | `false` | Require ALL fields (true) or ANY field (false) |
+
+### Basic Usage
+
+```php
+// Password required if username is present
+$v->rule('requiredWith', 'password', 'username');
+```
+
+### Multiple Fields (ANY mode - default)
+
+If ANY of the specified fields are present, this field is required:
+
+```php
+// Password required if username OR email is present
+$v->rule('requiredWith', 'password', ['username', 'email']);
+```
+
+### Strict Mode (ALL)
+
+With `strict: true`, the field is only required if ALL specified fields are present:
+
+```php
+// Suffix only required if BOTH first_name AND last_name are present
+$v->rule('requiredWith', 'suffix', ['first_name', 'last_name'], true);
+```
+
+### Strict Mode Example
+
+```php
+// Suffix required only when BOTH names are provided
+$v = new Validator(['first_name' => 'steve', 'last_name' => 'holt', 'suffix' => 'Mr']);
+$v->rules([
+    'requiredWith' => [
+        ['suffix', ['first_name', 'last_name'], true]
+    ]
+]);
+$v->validate(); // true
+```
+
+```php
+// Not required when only one name is provided
+$v = new Validator(['first_name' => 'steve']);
+$v->rules([
+    'requiredWith' => [
+        ['suffix', ['first_name', 'last_name'], true]
+    ]
+]);
+$v->validate(); // true - suffix not required
+```
+
+### Error Message
+
+Default: `"{field} is required"`
+
+---
+
+## requiredWithout
+
+Validates that the field is required when other specified fields are NOT present.
+
+### Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `fields` | string\|array | Yes | - | Field(s) whose absence triggers requirement |
+| `strict` | bool | No | `false` | Require when ALL fields absent (true) or ANY absent (false) |
+
+### Basic Usage
+
+```php
+// Username required if first_name is not present
+$v->rule('requiredWithout', 'username', 'first_name');
+```
+
+### Multiple Fields (ANY mode - default)
+
+If ANY of the specified fields are absent, this field is required:
+
+```php
+// Username required if either first_name OR last_name is absent
+$v->rule('requiredWithout', 'username', ['first_name', 'last_name']);
+```
+
+### Strict Mode (ALL)
+
+With `strict: true`, the field is only required if ALL specified fields are absent:
+
+```php
+// Username required only if BOTH first_name AND last_name are absent
+$v->rule('requiredWithout', 'username', ['first_name', 'last_name'], true);
+```
+
+### Strict Mode Example
+
+```php
+// Username required only when BOTH names are absent
+$v = new Validator(['username' => 'BatMan']);
+$v->rules([
+    'requiredWithout' => [
+        ['username', ['first_name', 'last_name'], true]
+    ]
+]);
+$v->validate(); // true
+```
+
+```php
+// Not required when both names are provided
+$v = new Validator(['first_name' => 'steve', 'last_name' => 'holt']);
+$v->rules([
+    'requiredWithout' => [
+        ['username', ['first_name', 'last_name'], true]
+    ]
+]);
+$v->validate(); // true - username not required
+```
+
+### Error Message
+
+Default: `"{field} is required"`
+
+---
+
+## Combining Conditional Rules
+
+### Either/Or Validation
+
+```php
+// Either email OR phone is required
+$v->rule('requiredWithout', 'email', 'phone');
+$v->rule('requiredWithout', 'phone', 'email');
+```
+
+### Progressive Form Fields
+
+```php
+// Shipping address fields only required if "different shipping address" is checked
+$v->rule('requiredWith', 'shipping_street', 'different_shipping');
+$v->rule('requiredWith', 'shipping_city', 'different_shipping');
+$v->rule('requiredWith', 'shipping_zip', 'different_shipping');
+```
+
+### Optional with Validation
+
+```php
+// Bio is optional, but if provided must be at least 10 chars
+$v->rule('optional', 'bio');
+$v->rule('lengthMin', 'bio', 10);
+```

@@ -7,13 +7,17 @@ namespace Frostybee\Valicomb\Core;
 use function array_keys;
 use function count;
 
-use DateTime;
+use DateTimeInterface;
 
+use function get_class;
 use function implode;
 use function is_array;
+use function is_bool;
+use function is_null;
 use function is_numeric;
 use function is_object;
 use function is_string;
+use function json_encode;
 use function preg_match_all;
 use function str_replace;
 use function ucwords;
@@ -94,22 +98,27 @@ class ErrorManager
      * Add an error to error messages array.
      *
      * @param string $field The field name to add the error to.
-     * @param string $message The error message (supports sprintf placeholders).
+     * @param string $message The error message (supports sprintf placeholders and {value}).
      * @param array $params Optional parameters for sprintf placeholder replacement.
+     * @param mixed $value Optional value that failed validation (for {value} placeholder).
      */
-    public function addError(string $field, string $message, array $params = []): void
+    public function addError(string $field, string $message, array $params = [], mixed $value = null): void
     {
         $message = $this->checkAndSetLabel($field, $message, $params);
+
+        // Replace {value} placeholder with the formatted value
+        $displayValue = $this->formatValueForDisplay($value);
+        $message = str_replace('{value}', $displayValue, $message);
 
         $values = [];
         // Printed values need to be in string format
         foreach ($params as $param) {
             if (is_array($param)) {
                 $param = "['" . implode("', '", $param) . "']";
-            } elseif ($param instanceof DateTime) {
+            } elseif ($param instanceof DateTimeInterface) {
                 $param = $param->format('Y-m-d');
             } elseif (is_object($param)) {
-                $param = $param::class;
+                $param = get_class($param);
                 // Add leading backslash for fully qualified class names
                 if ($param[0] !== '\\') {
                     $param = '\\' . $param;
@@ -125,6 +134,40 @@ class ErrorManager
         }
 
         $this->errors[$field][] = $this->safeVsprintf($message, $values);
+    }
+
+    /**
+     * Format a value for display in error messages.
+     *
+     * Converts various types to human-readable string representations
+     * suitable for inclusion in error messages.
+     *
+     * @param mixed $value The value to format.
+     *
+     * @return string The formatted string representation of the value.
+     */
+    private function formatValueForDisplay(mixed $value): string
+    {
+        if (is_null($value)) {
+            return 'null';
+        }
+
+        if (is_bool($value)) {
+            return $value ? 'true' : 'false';
+        }
+
+        if (is_array($value)) {
+            return (string) json_encode($value);
+        }
+
+        if (is_object($value)) {
+            if ($value instanceof DateTimeInterface) {
+                return $value->format('Y-m-d H:i:s');
+            }
+            return get_class($value);
+        }
+
+        return (string) $value;
     }
 
     /**

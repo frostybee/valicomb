@@ -49,4 +49,6 @@ return [
     'past' => "must be a date in the past",
     'future' => "must be a date in the future",
     'phone' => "must be a valid phone number",
+    'passwordStrength' => "must be a stronger password (minimum strength: %d/10)",
+    'nullable' => "can be null or must be valid",
 ];

@@ -34,4 +34,6 @@ return [
     "lengthMin" => "ei ole vähintään %d merkkiä pitkä",
     "lengthMax" => "ei ole enintään %d merkkiä pitkä",
     "instanceOf" => "ei ole luokan '%s' ilmentymä",
+    'passwordStrength' => "on liian heikko salasana (vähimmäisvahvuus: %d/10)",
+    'nullable' => "voi olla null tai sen on oltava kelvollinen",
 ];

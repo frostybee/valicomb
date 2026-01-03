@@ -33,4 +33,6 @@ return [
     'creditCard' => "muss eine gültige Kreditkartennummer sein",
     "lengthMin" => "muss mindestens %d Zeichen enthalten",
     "lengthMax" => "kann nicht mehr als %d Zeichen enthalten",
+    'passwordStrength' => "muss ein stärkeres Passwort sein (Mindeststärke: %d/10)",
+    'nullable' => "kann null sein oder muss gültig sein",
 ];

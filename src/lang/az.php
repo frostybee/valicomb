@@ -34,4 +34,6 @@ return [
     "lengthMin" => "%d -dən çox sinvol olmalıdır",
     "lengthMax" => "%d -dən az sinvol olmalıdır",
     "instanceOf" => "'%s' əvəzinə olmalıdır",
+    'passwordStrength' => "daha güclü parol olmalıdır (minimum güc: %d/10)",
+    'nullable' => "null ola bilər və ya düzgün olmalıdır",
 ];

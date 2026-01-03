@@ -39,4 +39,6 @@ return [
     'requiredWithout' => "是必须的",
     'subset' => "包含不在列表中的项目",
     'arrayHasKeys' => "不包含所有必需的键",
+    'passwordStrength' => "必须是更强的密码（最低强度: %d/10）",
+    'nullable' => "可以为空或必须有效",
 ];

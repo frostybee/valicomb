@@ -1,0 +1,135 @@
+---
+title: Length Rules
+description: Validation rules for string length
+---
+
+Length validation rules check string length. All rules use multibyte-aware character counting (UTF-8 support).
+
+## length
+
+Validates that the field is exactly a given length.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `length` | int | Yes | The exact required length |
+
+### Basic Usage
+
+```php
+$v->rule('length', 'pin_code', 4);
+```
+
+### Multibyte Support
+
+Character counting is multibyte-aware:
+
+```php
+$v = new Validator(['name' => 'café']);
+$v->rule('length', 'name', 4); // true - 4 characters, not 5 bytes
+```
+
+### Error Message
+
+Default: `"{field} must be exactly {0} characters long"`
+
+---
+
+## lengthBetween
+
+Validates that the field length is between a minimum and maximum (inclusive).
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `min` | int | Yes | Minimum length |
+| `max` | int | Yes | Maximum length |
+
+### Basic Usage
+
+```php
+$v->rule('lengthBetween', 'username', 3, 20);
+```
+
+### Error Message
+
+Default: `"{field} must be between {0} and {1} characters long"`
+
+---
+
+## lengthMin
+
+Validates that the field is at least a given length.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `min` | int | Yes | Minimum length |
+
+### Basic Usage
+
+```php
+$v->rule('lengthMin', 'password', 8);
+```
+
+### Error Message
+
+Default: `"{field} must be at least {0} characters long"`
+
+---
+
+## lengthMax
+
+Validates that the field is at most a given length.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `max` | int | Yes | Maximum length |
+
+### Basic Usage
+
+```php
+$v->rule('lengthMax', 'tweet', 280);
+```
+
+### Error Message
+
+Default: `"{field} must be at most {0} characters long"`
+
+---
+
+## Combining Length Rules
+
+You can combine length rules for more complex validation:
+
+```php
+$v = new Validator($_POST);
+
+// Username: 3-20 characters
+$v->rule('lengthBetween', 'username', 3, 20);
+
+// Password: at least 8 characters, at most 128
+$v->rule('lengthMin', 'password', 8);
+$v->rule('lengthMax', 'password', 128);
+
+// Bio: optional, but if provided max 500 characters
+$v->rule('optional', 'bio');
+$v->rule('lengthMax', 'bio', 500);
+```
+
+## Multibyte Character Support
+
+All length rules use `mb_strlen()` when available for accurate Unicode character counting:
+
+```php
+// All of these count as 5 characters:
+$v = new Validator(['text' => 'hello']);  // 5 ASCII chars
+$v = new Validator(['text' => 'héllo']);  // 5 chars (é = 1 char)
+$v = new Validator(['text' => 'こんにちは']); // 5 Japanese chars
+$v->rule('length', 'text', 5); // true for all
+```

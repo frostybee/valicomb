@@ -36,4 +36,6 @@ return [
     'containsUnique' => "deve conter apenas valores únicos",
     'subset' => "contém um item que não está na lista",
     'arrayHasKeys' => "não contém todas as chaves requeridas",
+    'passwordStrength' => "deve ser uma senha mais forte (força mínima: %d/10)",
+    'nullable' => "pode ser nulo ou deve ser válido",
 ];

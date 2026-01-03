@@ -24,6 +24,34 @@ use function trim;
 trait ConditionalValidatorsTrait
 {
     /**
+     * Validate nullable field
+     *
+     * A special validation rule that allows a field to accept null values.
+     * When a field is marked as nullable, null values are accepted and
+     * subsequent validation rules are skipped for that field.
+     *
+     * Unlike 'optional' which skips validation for missing fields (!isset),
+     * 'nullable' specifically allows null values while still requiring the
+     * field to be validated against other rules if non-null.
+     *
+     * Usage pattern:
+     * - Field can be null OR must pass other validation rules
+     * - Useful for database columns that allow NULL
+     * - null passes, valid values pass, invalid values fail
+     *
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate (ignored).
+     * @param array $params Parameters (ignored).
+     *
+     * @return bool Always returns true (actual logic is in validation flow).
+     */
+    protected function validateNullable(string $field, mixed $value, array $params = []): bool
+    {
+        // Always return true - actual logic is in validationMustBeExecuted()
+        return true;
+    }
+
+    /**
      * Validate optional field
      *
      * A special validation rule that always returns true, effectively marking a field as optional.

@@ -1,0 +1,10 @@
+/* Custom styles for Starlight documentation */
+
+/* Code block background colors */
+:root[data-theme='light'] .expressive-code pre {
+  background: #f6f8fa !important;
+}
+
+:root[data-theme='dark'] .expressive-code pre {
+  background: #24292e !important;
+}

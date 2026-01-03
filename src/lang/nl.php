@@ -34,4 +34,6 @@ return [
     "lengthMin" => "moet meer dan %d karakters lang zijn",
     "lengthMax" => "mag niet meer dan %d karakters lang zijn",
     "instanceOf" => "moet een instantie zijn van '%s'",
+    'passwordStrength' => "moet een sterker wachtwoord zijn (minimale sterkte: %d/10)",
+    'nullable' => "mag null zijn of moet geldig zijn",
 ];

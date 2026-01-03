@@ -1,0 +1,230 @@
+---
+title: Numeric Rules
+description: Validation rules for numbers and numeric constraints
+---
+
+Numeric validation rules check numeric values and their constraints. These rules handle both actual numbers and numeric strings from form submissions.
+
+## numeric
+
+Validates that the field is a numeric value (integer, float, or numeric string).
+
+### Basic Usage
+
+```php
+$v->rule('numeric', 'price');
+```
+
+### Valid Values
+
+- Integer: `42`
+- Float: `3.14`
+- Numeric string: `"42"`, `"3.14"`
+- Negative: `-10`, `"-10"`
+- Scientific notation: `1.2e3`
+
+### Error Message
+
+Default: `"{field} must be numeric"`
+
+---
+
+## integer
+
+Validates that the field is an integer number.
+
+### Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `strict` | bool | No | `false` | Strict numeric format (no leading +) |
+
+### Basic Usage
+
+```php
+$v->rule('integer', 'age');
+```
+
+### Strict Mode
+
+In strict mode, integers must be in standard numeric form:
+
+```php
+// Non-strict (default) - accepts "27" and "+27"
+$v->rule('integer', 'age');
+
+// Strict - rejects "+27" (redundant plus sign)
+$v->rule('integer', 'age', true);
+```
+
+```php
+// Strict mode examples
+$v = new Validator(['negative' => '-27', 'positive' => '27']);
+$v->rule('integer', 'negative', true); // true
+$v->rule('integer', 'positive', true); // true
+
+$v = new Validator(['positive' => '+27']);
+$v->rule('integer', 'positive', true); // false - + is redundant
+```
+
+### Error Message
+
+Default: `"{field} must be an integer"`
+
+---
+
+## min
+
+Validates that the field value is at least the specified minimum.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `min` | numeric | Yes | The minimum allowed value |
+
+### Basic Usage
+
+```php
+$v->rule('min', 'age', 18);
+```
+
+### BCMath Precision
+
+When the BCMath extension is available, comparisons use high-precision arithmetic:
+
+```php
+// Precise comparison for financial calculations
+$v->rule('min', 'price', 0.01);
+```
+
+### Error Message
+
+Default: `"{field} must be at least {0}"`
+
+---
+
+## max
+
+Validates that the field value is at most the specified maximum.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `max` | numeric | Yes | The maximum allowed value |
+
+### Basic Usage
+
+```php
+$v->rule('max', 'quantity', 100);
+```
+
+### BCMath Precision
+
+When the BCMath extension is available, comparisons use high-precision arithmetic.
+
+### Error Message
+
+Default: `"{field} must be at most {0}"`
+
+---
+
+## between
+
+Validates that the field value is between a minimum and maximum (inclusive).
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `min` | numeric | Yes | The minimum allowed value |
+| `max` | numeric | Yes | The maximum allowed value |
+
+### Basic Usage
+
+```php
+$v->rule('between', 'rating', 1, 5);
+```
+
+### Notes
+
+- Both min and max are inclusive
+- Value must be numeric
+
+### Error Message
+
+Default: `"{field} must be between {0} and {1}"`
+
+---
+
+## boolean
+
+Validates that the field is a boolean or boolean-like value.
+
+### Basic Usage
+
+```php
+$v->rule('boolean', 'is_active');
+```
+
+### Accepted Values
+
+| True Values | False Values |
+|-------------|--------------|
+| `true` | `false` |
+| `1` | `0` |
+| `'1'` | `'0'` |
+
+### Error Message
+
+Default: `"{field} must be a boolean"`
+
+---
+
+## positive
+
+Validates that the field value is strictly greater than zero.
+
+### Basic Usage
+
+```php
+$v->rule('positive', 'quantity');
+```
+
+### Notes
+
+- Zero is NOT considered positive (use `min` with 0 if you need to include zero)
+- Value must be numeric
+
+### Error Message
+
+Default: `"{field} must be a positive number"`
+
+---
+
+## decimalPlaces
+
+Validates that the field has at most the specified number of decimal places.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `places` | int | Yes | Maximum number of decimal places |
+
+### Basic Usage
+
+```php
+$v->rule('decimalPlaces', 'price', 2);
+```
+
+### Notes
+
+- `19.99` with 2 places: valid
+- `19.999` with 2 places: invalid
+- `19` with 2 places: valid (no decimals is fine)
+
+### Error Message
+
+Default: `"{field} must have at most {0} decimal places"`

@@ -1,0 +1,175 @@
+---
+title: Date Rules
+description: Validation rules for dates and times
+---
+
+Date validation rules check date formats and date comparisons.
+
+## date
+
+Validates that the field is a valid date.
+
+### Basic Usage
+
+```php
+$v->rule('date', 'birthday');
+```
+
+### Accepted Formats
+
+- DateTime objects
+- ISO 8601 format: `2024-01-15`
+- Common formats: `01/15/2024`, `January 15, 2024`
+- Unix timestamps
+- Any format parseable by `strtotime()`
+
+### Error Message
+
+Default: `"{field} is not a valid date"`
+
+---
+
+## dateFormat
+
+Validates that the field matches a specific date format.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `format` | string | Yes | PHP date format string |
+
+### Basic Usage
+
+```php
+$v->rule('dateFormat', 'birthday', 'Y-m-d');
+```
+
+### Common Formats
+
+| Format | Example |
+|--------|---------|
+| `Y-m-d` | 2024-01-15 |
+| `d/m/Y` | 15/01/2024 |
+| `m/d/Y` | 01/15/2024 |
+| `Y-m-d H:i:s` | 2024-01-15 14:30:00 |
+| `d-M-Y` | 15-Jan-2024 |
+
+### Error Message
+
+Default: `"{field} must be a valid date in the format {0}"`
+
+---
+
+## dateBefore
+
+Validates that the field is a date before a specified date.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `date` | string\|DateTime | Yes | The comparison date |
+
+### Basic Usage
+
+```php
+$v->rule('dateBefore', 'start_date', '2024-12-31');
+```
+
+### Using DateTime Objects
+
+```php
+$deadline = new DateTime('2024-12-31');
+$v->rule('dateBefore', 'submission_date', $deadline);
+```
+
+### Error Message
+
+Default: `"{field} must be a date before {0}"`
+
+---
+
+## dateAfter
+
+Validates that the field is a date after a specified date.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `date` | string\|DateTime | Yes | The comparison date |
+
+### Basic Usage
+
+```php
+$v->rule('dateAfter', 'end_date', '2024-01-01');
+```
+
+### Error Message
+
+Default: `"{field} must be a date after {0}"`
+
+---
+
+## past
+
+Validates that the field is a date in the past.
+
+### Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `reference` | string\|DateTime | No | `now` | Reference date to compare against |
+
+### Basic Usage
+
+```php
+// Must be before current date/time
+$v->rule('past', 'birthday');
+```
+
+### With Reference Date
+
+```php
+// Must be before a specific date
+$v->rule('past', 'start_date', '2024-06-01');
+```
+
+### Error Message
+
+Default: `"{field} must be a date in the past"`
+
+---
+
+## future
+
+Validates that the field is a date in the future.
+
+### Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `reference` | string\|DateTime | No | `now` | Reference date to compare against |
+
+### Basic Usage
+
+```php
+// Must be after current date/time
+$v->rule('future', 'appointment_date');
+```
+
+### With Reference Date
+
+```php
+// Must be after a specific date
+$v->rule('future', 'delivery_date', '2024-06-01');
+```
+
+### Security Note
+
+For security, relative date strings like `+1 week` or `tomorrow` are rejected. Only absolute dates are accepted.
+
+### Error Message
+
+Default: `"{field} must be a date in the future"`

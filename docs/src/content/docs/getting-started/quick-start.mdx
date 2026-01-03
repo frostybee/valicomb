@@ -1,0 +1,137 @@
+---
+title: Quick Start
+description: Get started with Valicomb validation in minutes
+---
+
+This guide will get you up and running with Valicomb in just a few minutes.
+
+## Basic Validation
+
+```php
+use Frostybee\Valicomb\Validator;
+
+// Create validator with data
+$v = new Validator(['email' => 'test@example.com', 'age' => '25']);
+
+// Add validation rules
+$v->rule('required', ['email', 'age']);
+$v->rule('email', 'email');
+$v->rule('integer', 'age');
+
+// Run validation
+if ($v->validate()) {
+    echo "Validation passed!";
+} else {
+    print_r($v->errors());
+}
+```
+
+## Three Ways to Define Rules
+
+Valicomb provides three flexible syntaxes for defining validation rules:
+
+### 1. Fluent/Chained Syntax (Most Explicit)
+
+Best for readability and when you need fine-grained control:
+
+```php
+$v = new Validator($_POST);
+$v->rule('required', 'email')
+  ->rule('email', 'email')
+  ->rule('lengthMin', 'email', 5);
+```
+
+### 2. Rule-Based Array Syntax
+
+Best when applying the same rule to many fields:
+
+```php
+$v = new Validator($_POST);
+$v->rules([
+    'required' => ['name', 'email'],
+    'email' => 'email',
+    'lengthBetween' => [
+        ['name', 1, 100],
+        ['bio', 10, 500]
+    ]
+]);
+```
+
+### 3. Field-Based Array Syntax
+
+Best when organizing validation by field:
+
+```php
+$v = new Validator($_POST);
+$v->mapManyFieldsToRules([
+    'name' => ['required', ['lengthMin', 2]],
+    'email' => ['required', 'email', ['lengthMax', 254]]
+]);
+```
+
+## Handling Form Data
+
+Valicomb properly handles form data where all values come as strings:
+
+```php
+// $_POST data - everything is strings
+$_POST = [
+    'age' => '25',      // String, not int
+    'price' => '19.99', // String, not float
+    'active' => '1'     // String, not bool
+];
+
+$v = new Validator($_POST);
+$v->rule('integer', 'age');   // Works with string '25'
+$v->rule('numeric', 'price'); // Works with string '19.99'
+$v->rule('boolean', 'active'); // Works with string '1'
+```
+
+## Custom Error Messages
+
+Override default error messages for specific rules:
+
+```php
+$v = new Validator($_POST);
+$v->rule('required', 'email')->message('We need your email!');
+$v->rule('email', 'email')->message("That doesn't look like a valid email");
+```
+
+## Field Labels
+
+Make error messages more user-friendly with labels:
+
+```php
+$v = new Validator($_POST);
+$v->labels([
+    'email' => 'Email Address',
+    'password' => 'Password'
+]);
+```
+
+## Getting Errors
+
+After validation fails, retrieve errors:
+
+```php
+$v = new Validator($_POST);
+$v->rule('required', 'email');
+$v->rule('integer', 'age');
+
+if (!$v->validate()) {
+    // Get all errors
+    $errors = $v->errors();
+    // ['email' => ['Email is required'], 'age' => ['Age must be an integer']]
+
+    // Get errors for specific field
+    $emailErrors = $v->errors('email');
+    // ['Email is required']
+}
+```
+
+## Next Steps
+
+- [Core Concepts](/getting-started/core-concepts/) - Understand the validation workflow
+- [Validation Rules](/rules/overview/) - Explore all 53 built-in rules
+- [Defining Rules](/guides/defining-rules/) - Learn all rule definition syntaxes
+- [Error Messages](/guides/error-messages/) - Customize error handling

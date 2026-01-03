@@ -478,6 +478,169 @@ trait StringValidatorsTrait
     }
 
     /**
+     * Validate password strength based on configurable criteria
+     *
+     * Validates that a password meets strength requirements using a scoring system (1-10).
+     * The score is calculated based on length and character variety:
+     * - Length 8+ chars: +1, 12+ chars: +1, 16+ chars: +1
+     * - Contains uppercase letter: +1.5
+     * - Contains lowercase letter: +1.5
+     * - Contains number: +2
+     * - Contains symbol: +2
+     * Maximum possible score: 10
+     *
+     * Additionally, specific character types can be required (must be present regardless of score).
+     *
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
+     * @param array $params Configuration options:
+     *                      - int: Simple usage, sets minScore (e.g., 7)
+     *                      - array: Full configuration with keys:
+     *                        - minScore (int): Minimum strength score 1-10 (default: 6)
+     *                        - minLength (int): Minimum password length (default: 8)
+     *                        - requireUppercase (bool): Must contain A-Z (default: false)
+     *                        - requireLowercase (bool): Must contain a-z (default: false)
+     *                        - requireNumber (bool): Must contain 0-9 (default: false)
+     *                        - requireSymbol (bool): Must contain special char (default: false)
+     *
+     * @return bool True if password meets strength requirements, false otherwise.
+     *
+     * @example Basic usage (default minScore of 6):
+     * ```php
+     * $v = new Validator(['password' => 'MyP@ssw0rd']);
+     * $v->rule('passwordStrength', 'password'); // passes
+     * ```
+     * @example Custom minimum strength:
+     * ```php
+     * $v = new Validator(['password' => 'SecureP@ss123']);
+     * $v->rule('passwordStrength', 'password', 8); // requires score >= 8
+     * ```
+     * @example Full configuration:
+     * ```php
+     * $v = new Validator(['password' => 'MySecurePassword123!']);
+     * $v->rule('passwordStrength', 'password', [
+     *     'minScore' => 7,
+     *     'minLength' => 10,
+     *     'requireUppercase' => true,
+     *     'requireNumber' => true,
+     * ]);
+     * ```
+     */
+    protected function validatePasswordStrength(string $field, mixed $value, array $params = []): bool
+    {
+        if (!is_string($value)) {
+            return false;
+        }
+
+        // Parse configuration
+        $config = $this->parsePasswordStrengthConfig($params);
+
+        // Get password length (Unicode-aware if possible)
+        $length = function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
+
+        // Check minimum length requirement
+        if ($length < $config['minLength']) {
+            return false;
+        }
+
+        // Check character type presence
+        $hasUppercase = preg_match('/\p{Lu}/u', $value) === 1;
+        $hasLowercase = preg_match('/\p{Ll}/u', $value) === 1;
+        $hasNumber = preg_match('/\p{N}/u', $value) === 1;
+        $hasSymbol = preg_match('/[^\p{L}\p{N}\s]/u', $value) === 1;
+
+        // Check required character types
+        if ($config['requireUppercase'] && !$hasUppercase) {
+            return false;
+        }
+        if ($config['requireLowercase'] && !$hasLowercase) {
+            return false;
+        }
+        if ($config['requireNumber'] && !$hasNumber) {
+            return false;
+        }
+        if ($config['requireSymbol'] && !$hasSymbol) {
+            return false;
+        }
+
+        // Calculate strength score
+        $score = 0.0;
+
+        // Length scoring
+        if ($length >= 8) {
+            $score += 1.0;
+        }
+        if ($length >= 12) {
+            $score += 1.0;
+        }
+        if ($length >= 16) {
+            $score += 1.0;
+        }
+
+        // Character variety scoring
+        if ($hasUppercase) {
+            $score += 1.5;
+        }
+        if ($hasLowercase) {
+            $score += 1.5;
+        }
+        if ($hasNumber) {
+            $score += 2.0;
+        }
+        if ($hasSymbol) {
+            $score += 2.0;
+        }
+
+        return $score >= $config['minScore'];
+    }
+
+    /**
+     * Parse password strength configuration from parameters
+     *
+     * @param array $params Raw parameters from rule definition.
+     *
+     * @return array{minScore: int, minLength: int, requireUppercase: bool, requireLowercase: bool, requireNumber: bool, requireSymbol: bool}
+     */
+    private function parsePasswordStrengthConfig(array $params): array
+    {
+        $defaults = [
+            'minScore' => 6,
+            'minLength' => 8,
+            'requireUppercase' => false,
+            'requireLowercase' => false,
+            'requireNumber' => false,
+            'requireSymbol' => false,
+        ];
+
+        // No params - use defaults
+        if (empty($params)) {
+            return $defaults;
+        }
+
+        // Simple int param - just minScore
+        if (isset($params[0]) && is_int($params[0])) {
+            $defaults['minScore'] = max(1, min(10, $params[0]));
+            return $defaults;
+        }
+
+        // Array config
+        if (isset($params[0]) && is_array($params[0])) {
+            $config = $params[0];
+        } else {
+            $config = $params;
+        }
+
+        return [
+            'minScore' => isset($config['minScore']) ? max(1, min(10, (int) $config['minScore'])) : $defaults['minScore'],
+            'minLength' => isset($config['minLength']) ? max(1, (int) $config['minLength']) : $defaults['minLength'],
+            'requireUppercase' => (bool) ($config['requireUppercase'] ?? $defaults['requireUppercase']),
+            'requireLowercase' => (bool) ($config['requireLowercase'] ?? $defaults['requireLowercase']),
+            'requireNumber' => (bool) ($config['requireNumber'] ?? $defaults['requireNumber']),
+            'requireSymbol' => (bool) ($config['requireSymbol'] ?? $defaults['requireSymbol']),
+        ];
+    }
+
+    /**
      * Get human-readable PCRE error message
      *
      * Converts PCRE error codes to human-readable error messages using PHP 8.0+ match expression.

@@ -1,0 +1,297 @@
+---
+title: Contributing
+description: Guidelines for contributing to Valicomb
+---
+
+Thank you for your interest in contributing to Valicomb! This guide will help you get started.
+
+## Getting Started
+
+### Prerequisites
+
+- PHP 8.2 or higher
+- Composer
+- Git
+
+### Setup
+
+1. **Fork the repository**
+
+   Click the "Fork" button on GitHub to create your own copy.
+
+2. **Clone your fork**
+
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/valicomb.git
+   cd valicomb
+   ```
+
+3. **Install dependencies**
+
+   ```bash
+   composer install
+   ```
+
+4. **Verify the setup**
+
+   ```bash
+   composer check-all
+   ```
+
+---
+
+## Development Workflow
+
+### Creating a Feature Branch
+
+```bash
+git checkout -b feature/my-new-feature
+```
+
+### Making Changes
+
+1. Write your code
+2. Add tests for new functionality
+3. Run quality checks frequently
+
+### Before Committing
+
+Always run the full quality check:
+
+```bash
+composer check-all
+```
+
+This runs:
+- PHPUnit tests
+- PHPStan analysis (Level 8)
+- Code style check (PSR-12)
+- Rector refactoring check
+
+### Committing
+
+```bash
+git add .
+git commit -m "Add feature: description of your change"
+```
+
+### Pushing
+
+```bash
+git push origin feature/my-new-feature
+```
+
+---
+
+## Code Standards
+
+### PHP Version
+
+- Minimum PHP 8.2
+- Use strict types: `declare(strict_types=1);`
+- Use typed properties and return types
+
+### Code Style
+
+- Follow PSR-12 coding standard
+- Run `composer cs-fix` to auto-fix issues
+- Keep lines under 120 characters
+
+### PHPStan Level 8
+
+All code must pass PHPStan Level 8:
+
+```bash
+composer analyse
+```
+
+---
+
+## Adding New Validation Rules
+
+### 1. Choose the Right Trait
+
+Add your rule to the appropriate trait in `src/Valicomb/Validators/`:
+
+| Trait | Rule Types |
+|-------|-----------|
+| `StringValidatorsTrait` | String patterns, format |
+| `NumericValidatorsTrait` | Numbers, ranges |
+| `DateValidatorsTrait` | Dates, times |
+| `ArrayValidatorsTrait` | Arrays, collections |
+| `NetworkValidatorsTrait` | IPs, emails, URLs |
+| `LengthValidatorsTrait` | String length |
+| `ComparisonValidatorsTrait` | Field comparison |
+| `ConditionalValidatorsTrait` | Conditional rules |
+| `TypeValidatorsTrait` | Type checking |
+
+### 2. Method Naming
+
+Validation methods must be named `validate{RuleName}`:
+
+```php
+protected function validateMyRule(
+    string $field,
+    mixed $value,
+    array $params,
+    array $fields
+): bool {
+    // Return true if valid, false if invalid
+}
+```
+
+### 3. Add Language String
+
+Add the error message to `lang/en.php`:
+
+```php
+'myRule' => '{field} failed the myRule validation',
+```
+
+### 4. Add Tests
+
+Create comprehensive tests in `tests/`:
+
+```php
+public function testMyRuleValid(): void
+{
+    $v = new Validator(['field' => 'valid_value']);
+    $v->rule('myRule', 'field');
+    $this->assertTrue($v->validate());
+}
+
+public function testMyRuleInvalid(): void
+{
+    $v = new Validator(['field' => 'invalid_value']);
+    $v->rule('myRule', 'field');
+    $this->assertFalse($v->validate());
+}
+```
+
+### 5. Document the Rule
+
+Add documentation to the appropriate rules page.
+
+---
+
+## Writing Tests
+
+### Test Structure
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace Valicomb\Tests;
+
+use Frostybee\Valicomb\Validator;
+use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
+{
+    public function testSomething(): void
+    {
+        // Arrange
+        $v = new Validator(['email' => 'test@example.com']);
+
+        // Act
+        $v->rule('email', 'email');
+        $result = $v->validate();
+
+        // Assert
+        $this->assertTrue($result);
+    }
+}
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+composer test
+
+# Run specific test file
+vendor/bin/phpunit tests/Valicomb/MyTest.php
+
+# Run with coverage
+vendor/bin/phpunit --coverage-html coverage/
+```
+
+---
+
+## Pull Request Guidelines
+
+### PR Checklist
+
+- [ ] All tests pass (`composer test`)
+- [ ] PHPStan passes (`composer analyse`)
+- [ ] Code style is correct (`composer cs-check`)
+- [ ] New features have tests
+- [ ] Documentation updated if needed
+- [ ] Commit messages are clear
+
+### PR Description
+
+Include:
+- What changes were made
+- Why the changes were made
+- Any breaking changes
+- Related issues (if any)
+
+### Example PR
+
+```markdown
+## Summary
+
+Added `phone` validation rule with support for 12 countries.
+
+## Changes
+
+- Added `validatePhone()` method to NetworkValidatorsTrait
+- Added phone validation language strings
+- Added comprehensive tests
+
+## Testing
+
+- All existing tests pass
+- Added 15 new tests for phone validation
+
+Closes #123
+```
+
+---
+
+## Reporting Issues
+
+### Bug Reports
+
+Include:
+- PHP version
+- Valicomb version
+- Minimal code to reproduce
+- Expected behavior
+- Actual behavior
+
+### Feature Requests
+
+Include:
+- Use case description
+- Proposed API
+- Examples of usage
+
+---
+
+## Security Issues
+
+**Do NOT create public issues for security vulnerabilities.**
+
+Instead:
+1. Create a private security advisory on GitHub
+2. Or email the maintainer directly
+
+---
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the BSD 3-Clause License.

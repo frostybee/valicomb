@@ -1,0 +1,184 @@
+---
+title: Core Concepts
+description: Understand the fundamental concepts of Valicomb validation
+---
+
+This page explains the core concepts that will help you use Valicomb effectively.
+
+## The Validator Instance
+
+The `Validator` class is the heart of Valicomb. You create an instance with your data and configure rules:
+
+```php
+use Frostybee\Valicomb\Validator;
+
+// Create validator with data array
+$v = new Validator([
+    'email' => 'test@example.com',
+    'age' => 25
+]);
+```
+
+### Constructor Parameters
+
+```php
+new Validator(
+    array $data = [],      // Data to validate
+    array $fields = [],    // Optional field whitelist
+    ?string $lang = null,  // Language code (e.g., 'en', 'fr')
+    ?string $langDir = null // Custom language directory
+);
+```
+
+## Rules and Parameters
+
+Validation rules are added using the `rule()` method:
+
+```php
+// Basic rule (no parameters)
+$v->rule('required', 'email');
+
+// Rule with one parameter
+$v->rule('lengthMin', 'password', 8);
+
+// Rule with multiple parameters
+$v->rule('lengthBetween', 'username', 3, 20);
+
+// Rule applied to multiple fields
+$v->rule('required', ['email', 'name', 'password']);
+```
+
+## Validation Flow
+
+The validation process follows these steps:
+
+1. Create a `Validator` instance with your data
+2. Define validation rules for fields
+3. Call `validate()` to run validation
+4. Check the result (`true` if all rules pass)
+5. Retrieve error messages if validation failed
+
+```php
+$v = new Validator($data);           // Step 1
+$v->rule('required', 'email');       // Step 2
+$v->rule('email', 'email');          // Step 2
+
+if ($v->validate()) {                // Step 3 & 4
+    // Validation passed
+    $validData = $v->data();
+} else {
+    // Validation failed
+    $errors = $v->errors();          // Step 5
+}
+```
+
+## Required vs Optional Fields
+
+By default, empty fields skip validation unless marked as `required`:
+
+```php
+$v = new Validator(['name' => '']);
+
+// This rule won't trigger an error because 'name' is empty
+// and not marked as required
+$v->rule('alpha', 'name');
+
+// Add required to enforce the field must have a value
+$v->rule('required', 'name');
+$v->rule('alpha', 'name');
+```
+
+### The Optional Rule
+
+Use `optional` to validate a field only when it's present:
+
+```php
+$v->rule('optional', 'middle_name');
+$v->rule('alpha', 'middle_name'); // Only validated if present
+```
+
+## Stop on First Failure
+
+By default, all rules are checked. Enable `stopOnFirstFail` for performance:
+
+```php
+$v = new Validator($_POST);
+$v->stopOnFirstFail(true);
+$v->rule('required', ['email', 'password']);
+// Stops as soon as first rule fails
+```
+
+## Error Structure
+
+Errors are returned as an associative array:
+
+```php
+$errors = $v->errors();
+// [
+//     'email' => ['Email is required', 'Email is not valid'],
+//     'age' => ['Age must be an integer']
+// ]
+
+// Get errors for specific field
+$emailErrors = $v->errors('email');
+// ['Email is required', 'Email is not valid']
+```
+
+## Reusing Validators
+
+Create a base validator and reuse it with different data:
+
+```php
+// Define validation rules once
+$baseValidator = new Validator([]);
+$baseValidator->rule('required', 'email')
+              ->rule('email', 'email');
+
+// Validate different datasets
+$v1 = $baseValidator->withData(['email' => 'user1@example.com']);
+$v1->validate();
+
+$v2 = $baseValidator->withData(['email' => 'user2@example.com']);
+$v2->validate();
+```
+
+## Nested Field Validation
+
+Use dot notation to validate nested arrays:
+
+```php
+$data = [
+    'user' => [
+        'email' => 'test@example.com',
+        'profile' => [
+            'age' => 25
+        ]
+    ]
+];
+
+$v = new Validator($data);
+$v->rule('email', 'user.email');
+$v->rule('integer', 'user.profile.age');
+```
+
+## Array Wildcard Validation
+
+Use `*` to validate all items in an array:
+
+```php
+$data = [
+    'users' => [
+        ['email' => 'user1@example.com'],
+        ['email' => 'user2@example.com']
+    ]
+];
+
+$v = new Validator($data);
+$v->rule('email', 'users.*.email'); // Validates all emails
+```
+
+## Next Steps
+
+- [Validation Rules](/rules/overview/) - Explore all 53 built-in rules
+- [Defining Rules](/guides/defining-rules/) - Master rule definition syntaxes
+- [Custom Rules](/guides/custom-rules/) - Create your own validation rules

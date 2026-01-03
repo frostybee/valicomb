@@ -1,0 +1,331 @@
+---
+title: Error Messages
+description: Customize and handle validation error messages in Valicomb
+---
+
+Valicomb provides flexible error message handling with custom messages, field labels, and message placeholders.
+
+## Getting Errors
+
+### Get All Errors
+
+```php
+$v = new Validator($_POST);
+$v->rule('required', 'email');
+$v->rule('integer', 'age');
+
+if (!$v->validate()) {
+    $errors = $v->errors();
+    // [
+    //     'email' => ['Email is required'],
+    //     'age' => ['Age must be an integer']
+    // ]
+}
+```
+
+### Get Errors for Specific Field
+
+```php
+$emailErrors = $v->errors('email');
+// ['Email is required', 'Email is not a valid email address']
+
+// Returns false if no errors for field
+$nameErrors = $v->errors('name'); // false
+```
+
+### Check if Validation Passed
+
+```php
+if ($v->validate()) {
+    // All rules passed
+    $data = $v->data();
+} else {
+    // At least one rule failed
+    $errors = $v->errors();
+}
+```
+
+---
+
+## Custom Error Messages
+
+### Per-Rule Messages
+
+Override the default message for a specific rule:
+
+```php
+$v = new Validator($_POST);
+$v->rule('required', 'email')->message('We need your email!');
+$v->rule('email', 'email')->message("That doesn't look like a valid email");
+```
+
+### Chain Multiple Rules
+
+```php
+$v->rule('required', 'password')
+  ->message('Password cannot be empty')
+  ->rule('lengthMin', 'password', 8)
+  ->message('Password must be at least 8 characters long');
+```
+
+---
+
+## Message Placeholders
+
+Error messages support placeholder substitution:
+
+| Placeholder | Description |
+|-------------|-------------|
+| `{field}` | The field name or custom label |
+| `{value}` | The actual value that failed validation |
+| `%s`, `%d` | sprintf-style placeholders for rule parameters |
+
+### Basic Placeholders
+
+```php
+$v->rule('lengthBetween', 'username', 3, 20)
+  ->message('{field} must be between %d and %d characters');
+// Result: "Username must be between 3 and 20 characters"
+
+$v->rule('min', 'age', 18)
+  ->message('{field} must be at least %s years old');
+// Result: "Age must be at least 18 years old"
+```
+
+### The `{value}` Placeholder
+
+Include the actual failed value in error messages for more helpful feedback:
+
+```php
+$v = new Validator(['email' => 'not-an-email']);
+$v->rule('email', 'email')
+  ->message('{field} "{value}" is not a valid email address');
+$v->validate();
+// Error: 'Email "not-an-email" is not a valid email address'
+```
+
+### Value Formatting
+
+The `{value}` placeholder automatically formats different types:
+
+| Type | Display |
+|------|---------|
+| String | The string value |
+| Integer/Float | The numeric value |
+| `null` | "null" |
+| `true` | "true" |
+| `false` | "false" |
+| Array | JSON representation |
+| DateTime | "Y-m-d H:i:s" format |
+| Object | Class name |
+
+### Examples with Different Types
+
+```php
+// String value
+$v = new Validator(['code' => 'ABC']);
+$v->rule('integer', 'code')->message('{field} "{value}" must be an integer');
+// Error: 'Code "ABC" must be an integer'
+
+// Null value
+$v = new Validator(['field' => null]);
+$v->rule('required', 'field')->message('{field} cannot be {value}');
+// Error: 'Field cannot be null'
+
+// Boolean value
+$v = new Validator(['active' => true]);
+$v->rule('email', 'active')->message('{field} value {value} is invalid');
+// Error: 'Active value true is invalid'
+
+// Numeric value
+$v = new Validator(['age' => 15]);
+$v->rule('min', 'age', 18)->message('{field} "{value}" must be at least %s');
+// Error: 'Age "15" must be at least 18'
+```
+
+### Combining All Placeholders
+
+```php
+$v = new Validator(['score' => 150]);
+$v->rule('max', 'score', 100)
+  ->message('{field} value "{value}" exceeds maximum of %s')
+  ->label('Player Score');
+$v->validate();
+// Error: 'Player Score value "150" exceeds maximum of 100'
+```
+
+### Manual Error with `{value}`
+
+When adding errors programmatically, pass the value as the fourth parameter:
+
+```php
+$v = new Validator(['username' => 'admin']);
+
+// Custom validation
+if ($username === 'admin') {
+    $v->error('username', '{field} "{value}" is reserved', [], 'admin');
+}
+// Error: 'Username "admin" is reserved'
+```
+
+---
+
+## Field Labels
+
+Make error messages more user-friendly with custom field labels.
+
+### Single Label
+
+```php
+$v->rule('required', 'email_address')
+  ->label('Email Address');
+// Error: "Email Address is required" instead of "Email address is required"
+```
+
+### Multiple Labels
+
+```php
+$v->labels([
+    'email' => 'Email Address',
+    'password' => 'Password',
+    'first_name' => 'First Name',
+    'last_name' => 'Last Name'
+]);
+```
+
+### Labels with Rules
+
+```php
+$v = new Validator($_POST);
+$v->labels([
+    'user_email' => 'Email Address',
+    'user_pass' => 'Password'
+]);
+$v->rule('required', ['user_email', 'user_pass']);
+$v->rule('email', 'user_email');
+```
+
+---
+
+## Hiding Field Labels
+
+By default, error messages are prefixed with the field name. You can disable this:
+
+```php
+$v = new Validator(['email' => 'invalid']);
+$v->setPrependLabels(false);
+$v->rule('email', 'email');
+$v->validate();
+// Error: "is not a valid email address" (no "Email" prefix)
+```
+
+### When to Hide Labels
+
+- Building JSON API responses where you already know the field
+- Custom error display where you show field names separately
+- Single-field forms
+
+---
+
+## Manually Adding Errors
+
+Add custom errors programmatically:
+
+```php
+$v = new Validator($_POST);
+
+// Custom validation logic
+if ($someCustomCondition) {
+    $v->error('field_name', 'This field failed custom validation');
+}
+
+// With sprintf placeholders
+$v->error('age', 'Must be between %d and %d', [18, 65]);
+
+// With {value} placeholder (pass value as 4th parameter)
+$v->error('username', '{field} "{value}" is not allowed', [], $username);
+```
+
+---
+
+## Error Display Patterns
+
+### Simple List
+
+```php
+if (!$v->validate()) {
+    echo '<ul class="errors">';
+    foreach ($v->errors() as $field => $messages) {
+        foreach ($messages as $message) {
+            echo "<li>$message</li>";
+        }
+    }
+    echo '</ul>';
+}
+```
+
+### Field-Specific Display
+
+```php
+function displayFieldError($v, $field) {
+    $errors = $v->errors($field);
+    if ($errors) {
+        return '<span class="error">' . $errors[0] . '</span>';
+    }
+    return '';
+}
+
+// In your form
+echo '<input name="email">' . displayFieldError($v, 'email');
+```
+
+### JSON API Response
+
+```php
+if (!$v->validate()) {
+    http_response_code(422);
+    echo json_encode([
+        'success' => false,
+        'errors' => $v->errors()
+    ]);
+    exit;
+}
+```
+
+### First Error Only
+
+```php
+if (!$v->validate()) {
+    $allErrors = $v->errors();
+    $firstField = array_key_first($allErrors);
+    $firstError = $allErrors[$firstField][0];
+    echo $firstError;
+}
+```
+
+---
+
+## Internationalization
+
+Error messages support multiple languages:
+
+```php
+// Set global language
+Validator::lang('es'); // Spanish
+
+// Or per-instance
+$v = new Validator($data, [], 'fr'); // French
+```
+
+See [Internationalization Guide](/guides/i18n/) for more details.
+
+---
+
+## Best Practices
+
+1. **Use Custom Messages**: Default messages are generic; customize for clarity
+2. **Use Field Labels**: Transform `user_email` to "Email Address"
+3. **Be Specific**: "Password must be at least 8 characters" > "Invalid password"
+4. **Be Helpful**: Tell users how to fix the error
+5. **Keep it Concise**: Error messages should be short and scannable
+6. **Consistent Tone**: Use the same voice across all error messages

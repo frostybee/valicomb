@@ -1,0 +1,233 @@
+---
+title: Composer Commands
+description: Quick reference for all Composer commands in Valicomb
+---
+
+Quick reference guide for all available Composer commands in the Valicomb project.
+
+## Command Table
+
+| Command | Description | When to Use |
+|---------|-------------|-------------|
+| **Testing** |
+| `composer test` | Run PHPUnit test suite | Run tests before committing |
+| **Code Quality** |
+| `composer analyse` | Run PHPStan static analysis (Level 8) | Check type safety and find bugs |
+| `composer cs-check` | Check code style (PSR-12 + custom rules) | Verify code formatting (dry-run) |
+| `composer cs-fix` | Fix code style issues automatically | Auto-fix formatting issues |
+| **Refactoring** |
+| `composer refactor` | Apply Rector automated refactorings | Modernize code (review changes!) |
+| `composer refactor-dry` | Preview Rector refactorings (dry-run) | See what Rector would change |
+| **Combined Checks** |
+| `composer check` | Run tests + analyse + cs-check | Quick quality check before commit |
+| `composer check-all` | Run tests + analyse + cs-check + refactor-dry | Complete quality check (recommended) |
+| **Utilities** |
+| `composer dump-autoload` | Rebuild autoloader | After adding new classes |
+| `composer validate` | Validate composer.json syntax | Check composer.json is valid |
+| `composer audit` | Check for security vulnerabilities | Security check for dependencies |
+| `composer update` | Update all dependencies | Keep packages up to date |
+| `composer install` | Install dependencies from lock file | Initial setup or after git pull |
+
+---
+
+## Recommended Workflow
+
+### Before Committing Code
+
+```bash
+# Step 1: Run all quality checks
+composer check-all
+
+# Step 2: If issues found, fix them
+composer cs-fix            # Auto-fix code style issues
+composer refactor          # Apply safe refactorings (review changes first!)
+
+# Step 3: Verify everything passes
+composer check-all
+
+# Step 4: Commit your code
+git add .
+git commit -m "Your commit message"
+git push
+```
+
+### Daily Development
+
+```bash
+# Run tests while developing
+composer test
+
+# Check types and find potential bugs
+composer analyse
+
+# Quick check before break/lunch
+composer check
+
+# Full check before end of day
+composer check-all
+```
+
+### Setting Up New Development Environment
+
+```bash
+# 1. Clone repository
+git clone https://github.com/frostybee/valicomb.git
+cd valicomb
+
+# 2. Install dependencies
+composer install
+
+# 3. Verify everything works
+composer check-all
+
+# 4. Run performance benchmarks
+php benchmarks/ValidationBenchmark.php
+```
+
+---
+
+## Tool Details
+
+### PHPUnit (Testing)
+
+- **Command:** `composer test`
+- **Configuration:** `phpunit.xml`
+- **Location:** `tests/`
+- **Coverage:** Run `vendor/bin/phpunit --coverage-html coverage/`
+
+### PHPStan (Static Analysis)
+
+- **Command:** `composer analyse`
+- **Configuration:** `phpstan.neon`
+- **Level:** 8 (Maximum strictness)
+- **Checks:** Type safety, uninitialized properties, always-true conditions
+
+### PHP CS Fixer (Code Style)
+
+- **Command:** `composer cs-check` (check) or `composer cs-fix` (fix)
+- **Configuration:** `.php-cs-fixer.dist.php`
+- **Standard:** PSR-12 + custom rules
+- **Features:** Parallel processing enabled
+
+### Rector (Automated Refactoring)
+
+- **Command:** `composer refactor-dry` (preview) or `composer refactor` (apply)
+- **Configuration:** `rector.php`
+- **Features:** PHP 8.2+ modernization, dead code removal, type declarations
+
+---
+
+## Performance Benchmarking
+
+```bash
+# Run performance benchmarks
+php benchmarks/ValidationBenchmark.php
+
+# Expected output:
+# Valicomb Performance Benchmark
+# ================================
+#
+# Simple Validation:
+#   Total: 0.5000s
+#   Per iteration: 0.0500ms
+#   Throughput: 20000.00 validations/sec
+```
+
+---
+
+## Troubleshooting
+
+### Command Not Found
+
+```bash
+# If composer commands don't work, try:
+php composer.phar <command>
+
+# Or update composer:
+composer self-update
+```
+
+### Out of Memory
+
+```bash
+# Increase PHP memory limit:
+php -d memory_limit=512M vendor/bin/phpunit
+php -d memory_limit=512M vendor/bin/phpstan analyse
+```
+
+### Slow Performance
+
+```bash
+# PHP CS Fixer uses parallel processing (already enabled)
+# For faster checks, run individually:
+composer test           # Only tests
+composer analyse        # Only static analysis
+composer cs-check       # Only code style
+```
+
+---
+
+## Additional Commands
+
+### Composer Utilities
+
+```bash
+# Show installed packages
+composer show
+
+# Show outdated packages
+composer outdated
+
+# Check for security vulnerabilities
+composer audit
+
+# Clear composer cache
+composer clear-cache
+
+# Diagnose issues
+composer diagnose
+
+# Show autoload optimization
+composer dump-autoload --optimize
+```
+
+### Development Helpers
+
+```bash
+# Run specific test file
+vendor/bin/phpunit tests/Valicomb/SomeTest.php
+
+# Run tests with colors
+vendor/bin/phpunit --colors=always
+
+# Generate code coverage report
+vendor/bin/phpunit --coverage-html coverage/
+# Then open: coverage/index.html
+```
+
+---
+
+## Pro Tips
+
+1. **Always run `composer check-all` before committing** - Catches issues early
+2. **Review Rector changes** before applying (`refactor-dry` first)
+3. **Use `cs-fix` to save time** - Auto-fixes most style issues
+4. **Run benchmarks after optimizations** - Verify performance improvements
+5. **Keep dependencies updated** - Run `composer update` weekly
+6. **Check security regularly** - Run `composer audit` frequently
+
+---
+
+## CI/CD Integration
+
+These commands are automatically run in the CI pipeline:
+
+```yaml
+# .github/workflows/ci.yml
+- composer test
+- composer analyse
+- composer cs-check
+- composer refactor-dry
+```
+
+All must pass for the build to succeed!

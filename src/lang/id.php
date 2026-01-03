@@ -33,4 +33,6 @@ return [
     'creditCard' => "nomor kartu kredit harus valid",
     "lengthMin" => "minimal berisi %d karakter",
     "lengthMax" => "maksimal berisi %d karakter",
+    'passwordStrength' => "harus menjadi kata sandi yang lebih kuat (kekuatan minimum: %d/10)",
+    'nullable' => "bisa null atau harus valid",
 ];

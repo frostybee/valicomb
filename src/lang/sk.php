@@ -34,4 +34,6 @@ return [
     "lengthMin" => "musí byť aspoň %d znakov dlhý",
     "lengthMax" => "musí byť najviac %d znakov dlhý",
     "instanceOf" => "musí byť inštanciou '%s'",
+    'passwordStrength' => "musí byť silnejšie heslo (minimálna sila: %d/10)",
+    'nullable' => "môže byť null alebo musí byť platný",
 ];

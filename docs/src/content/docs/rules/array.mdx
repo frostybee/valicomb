@@ -1,0 +1,203 @@
+---
+title: Array Rules
+description: Validation rules for arrays and collections
+---
+
+Array validation rules check array structure and content.
+
+## array
+
+Validates that the field is an array.
+
+### Basic Usage
+
+```php
+$v->rule('array', 'tags');
+```
+
+### Error Message
+
+Default: `"{field} must be an array"`
+
+---
+
+## in
+
+Validates that the field value exists in a given list of allowed values.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `values` | array | Yes | Array of allowed values |
+
+### Basic Usage
+
+```php
+$v->rule('in', 'status', ['pending', 'approved', 'rejected']);
+```
+
+### Notes
+
+- Comparison is done with `in_array()` (non-strict by default)
+
+### Error Message
+
+Default: `"{field} must be one of the allowed values"`
+
+---
+
+## notIn
+
+Validates that the field value does NOT exist in a given list of disallowed values.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `values` | array | Yes | Array of disallowed values |
+
+### Basic Usage
+
+```php
+$v->rule('notIn', 'username', ['admin', 'root', 'system']);
+```
+
+### Error Message
+
+Default: `"{field} must not be one of the disallowed values"`
+
+---
+
+## listContains
+
+Validates that an array field contains a specific value.
+
+### Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `value` | mixed | Yes | - | The value to search for |
+| `strict` | bool | No | `false` | Use strict type comparison |
+
+### Basic Usage
+
+```php
+$v->rule('listContains', 'tags', 'php');
+```
+
+### Strict Mode
+
+```php
+// Non-strict (default)
+$v = new Validator(['ids' => [1, 2, 3]]);
+$v->rule('listContains', 'ids', '1'); // true (string '1' matches int 1)
+
+// Strict
+$v->rule('listContains', 'ids', '1', true); // false (string !== int)
+```
+
+### Associative Arrays
+
+For associative arrays, `listContains` checks keys, not values:
+
+```php
+$v = new Validator(['data' => ['name' => 'John', 'email' => 'john@example.com']]);
+$v->rule('listContains', 'data', 'name');  // true (checks keys)
+$v->rule('listContains', 'data', 'John');  // false (doesn't check values)
+```
+
+### Error Message
+
+Default: `"{field} must contain {0}"`
+
+---
+
+## subset
+
+Validates that all values in the field exist in an allowed set.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `values` | array | Yes | Array of allowed values |
+
+### Basic Usage
+
+```php
+$v->rule('subset', 'selected_colors', ['red', 'green', 'blue', 'yellow']);
+```
+
+### Failing Example
+
+```php
+$v = new Validator(['colors' => ['purple', 'blue']]);
+$v->rules([
+    'subset' => [
+        ['colors', ['orange', 'green', 'blue', 'red']]
+    ]
+]);
+$v->validate(); // false - 'purple' is not in allowed list
+```
+
+### Error Message
+
+Default: `"{field} must be a subset of the allowed values"`
+
+---
+
+## containsUnique
+
+Validates that an array contains only unique values (no duplicates).
+
+### Basic Usage
+
+```php
+$v->rule('containsUnique', 'tags');
+```
+
+### Failing Example
+
+```php
+// Invalid - duplicate values
+$v = new Validator(['colors' => ['purple', 'purple']]);
+$v->rules([
+    'containsUnique' => [
+        ['colors']
+    ]
+]);
+$v->validate(); // false
+```
+
+### Error Message
+
+Default: `"{field} must contain unique values"`
+
+---
+
+## arrayHasKeys
+
+Validates that an array contains all specified keys.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `keys` | array | Yes | Array of required keys |
+
+### Basic Usage
+
+```php
+$v->rule('arrayHasKeys', 'address', ['street', 'city', 'zip']);
+```
+
+### Notes
+
+- Returns false if field is not an array
+- Returns false if no keys are specified
+- Only checks for key existence, not value validity
+
+### Error Message
+
+Default: `"{field} must contain all required keys"`

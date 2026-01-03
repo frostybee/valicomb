@@ -334,6 +334,23 @@ class Validator
     }
 
     /**
+     * Get array of error messages (alias for errors()).
+     *
+     * Provides a PSR-style getter alternative to errors(). Both methods
+     * are functionally identical.
+     *
+     * @param string|null $field Optional field name to get errors for a specific field.
+     *
+     * @return array|false Array of error messages, or false if field not found/no errors.
+     *
+     * @see errors()
+     */
+    public function getErrors(?string $field = null): array|false
+    {
+        return $this->errorManager->getErrors($field);
+    }
+
+    /**
      * Add an error to error messages array.
      *
      * Manually adds an error message for a specific field. This is useful for adding
@@ -343,9 +360,13 @@ class Validator
      * values from the $params array. DateTime objects, arrays, and other objects
      * are automatically converted to appropriate string representations.
      *
+     * The message can also contain {value} placeholder which will be replaced with
+     * the formatted value that failed validation.
+     *
      * @param string $field The field name to add the error to.
-     * @param string $message The error message (supports sprintf placeholders).
+     * @param string $message The error message (supports sprintf placeholders and {value}).
      * @param array $params Optional parameters for sprintf placeholder replacement.
+     * @param mixed $value Optional value that failed validation (for {value} placeholder).
      *
      * @example Adding a custom error:
      * ```php
@@ -359,10 +380,15 @@ class Validator
      * $v->error('age', 'Must be between %d and %d', [18, 65]);
      * // Results in: "Must be between 18 and 65"
      * ```
+     * @example With {value} placeholder:
+     * ```php
+     * $v->error('email', '{field} "{value}" is not valid', [], 'invalid-email');
+     * // Results in: "Email "invalid-email" is not valid"
+     * ```
      */
-    public function error(string $field, string $message, array $params = []): void
+    public function error(string $field, string $message, array $params = [], mixed $value = null): void
     {
-        $this->errorManager->addError($field, $message, $params);
+        $this->errorManager->addError($field, $message, $params, $value);
     }
 
     /**
@@ -971,6 +997,15 @@ class Validator
             return true;
         }
 
+        // Skip validation if field is nullable and value is null
+        // (but still run the nullable and required rules themselves)
+        if (!in_array($validation['rule'], ['nullable', 'required', 'accepted'], true)
+            && $this->hasRule('nullable', $field)
+            && is_null($values)
+        ) {
+            return false;
+        }
+
         // Do not execute if the field is optional and not set
         if ($this->hasRule('optional', $field) && !isset($values)) {
             return false;
@@ -1055,12 +1090,17 @@ class Validator
                 }
 
                 $result = true;
+                $failedValue = null;
                 foreach ($values as $value) {
-                    $result = $result && call_user_func($callback, $field, $value, $v['params'], $this->fields);
+                    $valid = call_user_func($callback, $field, $value, $v['params'], $this->fields);
+                    if (!$valid && $failedValue === null) {
+                        $failedValue = $value;
+                    }
+                    $result = $result && $valid;
                 }
 
                 if (!$result) {
-                    $this->error($field, $v['message'], $v['params']);
+                    $this->error($field, $v['message'], $v['params'], $failedValue);
                     if ($this->stopOnFirstFail) {
                         $setToBreak = true;
                         break;

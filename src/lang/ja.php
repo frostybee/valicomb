@@ -41,4 +41,6 @@ return [
     'requiredWithout' => "を入力してください",
     'subset' => "には選択できない値が含まれています",
     'arrayHasKeys' => "の必要な項目が選択されていません",
+    'passwordStrength' => "はより強力なパスワードが必要です（最低強度: %d/10）",
+    'nullable' => "はnullまたは有効な値である必要があります",
 ];

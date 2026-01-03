@@ -1,0 +1,217 @@
+---
+title: Custom Rules
+description: Create your own validation rules in Valicomb
+---
+
+Valicomb makes it easy to add custom validation rules - either as one-time closures or as reusable global rules.
+
+## Closure-Based Rules
+
+Add a validation rule inline using a closure:
+
+```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator(['username' => 'admin']);
+
+$v->rule(function($field, $value, $params, $fields) {
+    return $value !== 'admin';
+}, 'username')->message('Username cannot be "admin"');
+```
+
+### Callback Signature
+
+```php
+function(string $field, mixed $value, array $params, array $fields): bool
+```
+
+| Parameter | Description |
+|-----------|-------------|
+| `$field` | The field name being validated |
+| `$value` | The current value of the field |
+| `$params` | Additional parameters passed to the rule |
+| `$fields` | All field data (for cross-field validation) |
+| **Return** | `true` if valid, `false` if invalid |
+
+### Example with Parameters
+
+```php
+$v->rule(function($field, $value, $params, $fields) {
+    $min = $params[0] ?? 0;
+    $max = $params[1] ?? 100;
+    return $value >= $min && $value <= $max;
+}, 'score', 0, 100)->message('Score must be between {0} and {1}');
+```
+
+### Cross-Field Validation
+
+Use `$fields` to access other field values:
+
+```php
+$v->rule(function($field, $value, $params, $fields) {
+    // Password cannot be the same as username
+    return $value !== ($fields['username'] ?? null);
+}, 'password')->message('Password cannot be the same as username');
+```
+
+---
+
+## Global Custom Rules
+
+Register a rule that can be used across all Validator instances:
+
+```php
+use Frostybee\Valicomb\Validator;
+
+// Register globally
+Validator::addRule('strongPassword', function($field, $value, $params) {
+    return preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/', $value);
+}, 'Password must be at least 8 characters with uppercase, lowercase, and number');
+```
+
+### Using the Global Rule
+
+```php
+$v = new Validator($_POST);
+$v->rule('strongPassword', 'password');
+```
+
+### Global Rule with Parameters
+
+```php
+// Register rule that accepts parameters
+Validator::addRule('between', function($field, $value, $params) {
+    $min = $params[0];
+    $max = $params[1];
+    return $value >= $min && $value <= $max;
+}, '{field} must be between {0} and {1}');
+
+// Use with parameters
+$v->rule('between', 'age', 18, 65);
+```
+
+---
+
+## Instance-Specific Rules
+
+Register a rule only for a specific Validator instance:
+
+```php
+$v = new Validator($data);
+
+$v->addInstanceRule('customCheck', function($field, $value) {
+    return $value === 'expected';
+}, 'Value must be "expected"');
+
+$v->rule('customCheck', 'field_name');
+// This rule is only available to this $v instance
+```
+
+### When to Use Instance Rules
+
+- Validation logic specific to one form
+- Rules that depend on instance state
+- Temporary or context-specific validation
+
+---
+
+## Error Message Placeholders
+
+Custom error messages support placeholders:
+
+| Placeholder | Description |
+|-------------|-------------|
+| `{field}` | The field name or label |
+| `{0}` | First parameter |
+| `{1}` | Second parameter |
+| `{2}` | Third parameter (and so on) |
+
+### Example
+
+```php
+Validator::addRule('divisibleBy', function($field, $value, $params) {
+    return $value % $params[0] === 0;
+}, '{field} must be divisible by {0}');
+
+$v->rule('divisibleBy', 'quantity', 5);
+// Error: "Quantity must be divisible by 5"
+```
+
+---
+
+## Real-World Examples
+
+### Username Validation
+
+```php
+Validator::addRule('validUsername', function($field, $value, $params) {
+    // 3-20 chars, alphanumeric and underscores only, must start with letter
+    return preg_match('/^[a-zA-Z][a-zA-Z0-9_]{2,19}$/', $value);
+}, '{field} must be 3-20 characters, start with a letter, and contain only letters, numbers, and underscores');
+```
+
+### No Profanity
+
+```php
+Validator::addRule('noProfanity', function($field, $value, $params) {
+    $badWords = ['badword1', 'badword2']; // Your list
+    $valueLower = strtolower($value);
+    foreach ($badWords as $word) {
+        if (str_contains($valueLower, $word)) {
+            return false;
+        }
+    }
+    return true;
+}, '{field} contains inappropriate language');
+```
+
+### Unique in Database
+
+```php
+Validator::addRule('uniqueEmail', function($field, $value, $params, $fields) {
+    // Example with PDO (inject your database connection)
+    global $pdo;
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM users WHERE email = ?');
+    $stmt->execute([$value]);
+    return $stmt->fetchColumn() === 0;
+}, 'This email address is already registered');
+```
+
+### Matching Confirmation Field
+
+```php
+Validator::addRule('confirmed', function($field, $value, $params, $fields) {
+    $confirmField = $field . '_confirmation';
+    return isset($fields[$confirmField]) && $value === $fields[$confirmField];
+}, '{field} confirmation does not match');
+```
+
+### Complex Password Rules
+
+```php
+Validator::addRule('securePassword', function($field, $value, $params) {
+    $minLength = $params[0] ?? 8;
+
+    if (strlen($value) < $minLength) return false;
+    if (!preg_match('/[a-z]/', $value)) return false;  // lowercase
+    if (!preg_match('/[A-Z]/', $value)) return false;  // uppercase
+    if (!preg_match('/[0-9]/', $value)) return false;  // digit
+    if (!preg_match('/[^a-zA-Z0-9]/', $value)) return false; // special char
+
+    return true;
+}, '{field} must be at least {0} characters with uppercase, lowercase, number, and special character');
+
+// Usage
+$v->rule('securePassword', 'password', 12);
+```
+
+---
+
+## Best Practices
+
+1. **Return Boolean**: Always return `true` or `false`
+2. **Keep Rules Pure**: Avoid side effects in validation callbacks
+3. **Use Descriptive Names**: `validUsername` is better than `checkUser`
+4. **Provide Good Messages**: Include clear, actionable error messages
+5. **Handle Edge Cases**: Consider empty values, null, etc.
+6. **Prefer Global Rules**: For reusable validation logic

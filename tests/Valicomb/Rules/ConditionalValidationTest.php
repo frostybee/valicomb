@@ -548,4 +548,183 @@ class ConditionalValidationTest extends BaseTestCase
         $v2->rule('requiredWithout', 'target', ['field1', 'field2'], true); // true = all empty
         $this->assertTrue($v2->validate(), 'Should pass when not all fields empty');
     }
+
+    // Nullable Tests
+
+    /**
+     * Test that nullable allows null values
+     */
+    public function testNullableAllowsNull(): void
+    {
+        $v = new Validator(['field' => null]);
+        $v->rule('nullable', 'field')->rule('integer', 'field');
+        $this->assertTrue($v->validate());
+    }
+
+    /**
+     * Test that nullable validates non-null values against subsequent rules
+     */
+    public function testNullableValidatesNonNullValues(): void
+    {
+        $v = new Validator(['field' => 'not-an-integer']);
+        $v->rule('nullable', 'field')->rule('integer', 'field');
+        $this->assertFalse($v->validate());
+    }
+
+    /**
+     * Test that nullable with valid non-null value passes
+     */
+    public function testNullableWithValidValue(): void
+    {
+        $v = new Validator(['field' => 42]);
+        $v->rule('nullable', 'field')->rule('integer', 'field');
+        $this->assertTrue($v->validate());
+    }
+
+    /**
+     * Test that nullable with required means null is rejected
+     * (required takes precedence - field must exist AND not be null/empty)
+     */
+    public function testNullableWithRequiredRejectsNull(): void
+    {
+        $v = new Validator(['field' => null]);
+        $v->rule('required', 'field')->rule('nullable', 'field')->rule('integer', 'field');
+        // Required rejects null
+        $this->assertFalse($v->validate());
+    }
+
+    /**
+     * Test that nullable field passes when field is missing entirely
+     */
+    public function testNullableFieldMissing(): void
+    {
+        $v = new Validator([]);
+        $v->rule('nullable', 'field')->rule('integer', 'field');
+        $this->assertTrue($v->validate());
+    }
+
+    /**
+     * Test nullable with multiple subsequent rules
+     */
+    public function testNullableWithMultipleRules(): void
+    {
+        $v = new Validator(['age' => null]);
+        $v->rule('nullable', 'age')
+          ->rule('integer', 'age')
+          ->rule('min', 'age', 0);
+        $this->assertTrue($v->validate());
+    }
+
+    /**
+     * Test nullable with nested field using dot notation
+     */
+    public function testNullableNestedField(): void
+    {
+        $v = new Validator(['user' => ['parent_id' => null]]);
+        $v->rule('nullable', 'user.parent_id')->rule('integer', 'user.parent_id');
+        $this->assertTrue($v->validate());
+    }
+
+    /**
+     * Test nullable with nested field and valid non-null value
+     */
+    public function testNullableNestedFieldWithValidValue(): void
+    {
+        $v = new Validator(['user' => ['parent_id' => 123]]);
+        $v->rule('nullable', 'user.parent_id')->rule('integer', 'user.parent_id');
+        $this->assertTrue($v->validate());
+    }
+
+    /**
+     * Test nullable with nested field and invalid non-null value
+     */
+    public function testNullableNestedFieldWithInvalidValue(): void
+    {
+        $v = new Validator(['user' => ['parent_id' => 'not-an-integer']]);
+        $v->rule('nullable', 'user.parent_id')->rule('integer', 'user.parent_id');
+        $this->assertFalse($v->validate());
+    }
+
+    /**
+     * Test nullable with rules() method syntax
+     */
+    public function testNullableWithRulesSyntax(): void
+    {
+        $v = new Validator(['field' => null]);
+        $v->rules([
+            'nullable' => [
+                ['field'],
+            ],
+            'integer' => [
+                ['field'],
+            ],
+        ]);
+        $this->assertTrue($v->validate());
+    }
+
+    /**
+     * Test nullable with valid value using rules() method syntax
+     */
+    public function testNullableWithRulesSyntaxValidValue(): void
+    {
+        $v = new Validator(['field' => 42]);
+        $v->rules([
+            'nullable' => [
+                ['field'],
+            ],
+            'integer' => [
+                ['field'],
+            ],
+        ]);
+        $this->assertTrue($v->validate());
+    }
+
+    /**
+     * Test nullable with email validation
+     */
+    public function testNullableEmail(): void
+    {
+        // Null should pass
+        $v1 = new Validator(['email' => null]);
+        $v1->rule('nullable', 'email')->rule('email', 'email');
+        $this->assertTrue($v1->validate());
+
+        // Valid email should pass
+        $v2 = new Validator(['email' => 'test@example.com']);
+        $v2->rule('nullable', 'email')->rule('email', 'email');
+        $this->assertTrue($v2->validate());
+
+        // Invalid email should fail
+        $v3 = new Validator(['email' => 'invalid-email']);
+        $v3->rule('nullable', 'email')->rule('email', 'email');
+        $this->assertFalse($v3->validate());
+    }
+
+    /**
+     * Test nullable combined with optional
+     * When both are set, missing field and null both pass
+     */
+    public function testNullableWithOptional(): void
+    {
+        // Missing field should pass (optional behavior)
+        $v1 = new Validator([]);
+        $v1->rule('optional', 'field')
+           ->rule('nullable', 'field')
+           ->rule('integer', 'field');
+        $this->assertTrue($v1->validate());
+
+        // Null should pass (nullable behavior)
+        $v2 = new Validator(['field' => null]);
+        $v2->rule('optional', 'field')
+           ->rule('nullable', 'field')
+           ->rule('integer', 'field');
+        $this->assertTrue($v2->validate());
+
+        // Valid value should pass
+        $v3 = new Validator(['field' => 42]);
+        $v3->rule('optional', 'field')
+           ->rule('nullable', 'field')
+           ->rule('integer', 'field');
+        $this->assertTrue($v3->validate());
+    }
 }

@@ -1,0 +1,215 @@
+---
+title: Rules Overview
+description: Complete reference of all 55 validation rules in Valicomb
+---
+
+Valicomb includes 55 built-in validation rules organized into 9 categories. This page provides a quick reference to all available rules.
+
+## Quick Reference
+
+| Category | Rules |
+|----------|-------|
+| [String](/rules/string/) | `alpha`, `alphaNum`, `ascii`, `slug`, `contains`, `regex`, `startsWith`, `endsWith`, `uuid`, `passwordStrength` |
+| [Numeric](/rules/numeric/) | `numeric`, `integer`, `min`, `max`, `between`, `boolean`, `positive`, `decimalPlaces` |
+| [Network](/rules/network/) | `ip`, `ipv4`, `ipv6`, `email`, `emailDNS`, `url`, `urlActive`, `phone` |
+| [Array](/rules/array/) | `array`, `in`, `notIn`, `listContains`, `subset`, `containsUnique`, `arrayHasKeys` |
+| [Date](/rules/date/) | `date`, `dateFormat`, `dateBefore`, `dateAfter`, `past`, `future` |
+| [Length](/rules/length/) | `length`, `lengthBetween`, `lengthMin`, `lengthMax` |
+| [Comparison](/rules/comparison/) | `required`, `equals`, `different`, `accepted` |
+| [Conditional](/rules/conditional/) | `nullable`, `optional`, `requiredWith`, `requiredWithout` |
+| [Type](/rules/type/) | `instanceOf`, `creditCard` |
+
+## Rules by Category
+
+### String Rules
+
+Rules for validating string content and patterns.
+
+| Rule | Description |
+|------|-------------|
+| `alpha` | Alphabetic characters only (Unicode-aware) |
+| `alphaNum` | Alphanumeric characters only (Unicode-aware) |
+| `ascii` | ASCII characters only (0x00-0x7F) |
+| `slug` | URL slug format (a-z, 0-9, -, _) |
+| `contains` | String contains substring |
+| `regex` | Matches custom regex pattern |
+| `startsWith` | String starts with prefix(es) |
+| `endsWith` | String ends with suffix(es) |
+| `uuid` | Valid UUID format (v1-v5) |
+| `passwordStrength` | Password strength validation (1-10 score) |
+
+### Numeric Rules
+
+Rules for validating numbers and numeric constraints.
+
+| Rule | Description |
+|------|-------------|
+| `numeric` | Any numeric value (int, float, numeric string) |
+| `integer` | Integer value with optional strict mode |
+| `min` | Value is at least minimum |
+| `max` | Value is at most maximum |
+| `between` | Value within range [min, max] |
+| `boolean` | Boolean-like values (true, false, 1, 0, '1', '0') |
+| `positive` | Value is greater than zero |
+| `decimalPlaces` | Maximum decimal places |
+
+### Network Rules
+
+Rules for validating network addresses and protocols.
+
+| Rule | Description |
+|------|-------------|
+| `ip` | Valid IP address (v4 or v6) |
+| `ipv4` | Valid IPv4 address only |
+| `ipv6` | Valid IPv6 address only |
+| `email` | Valid email address (RFC 5321) |
+| `emailDNS` | Valid email with MX DNS verification |
+| `url` | Valid URL syntax |
+| `urlActive` | Valid URL with DNS verification |
+| `phone` | Valid phone number (12 countries supported) |
+
+### Array Rules
+
+Rules for validating arrays and collections.
+
+| Rule | Description |
+|------|-------------|
+| `array` | Value is an array |
+| `in` | Value exists in allowed list |
+| `notIn` | Value NOT in disallowed list |
+| `listContains` | Array contains specific value |
+| `subset` | All elements exist in allowed list |
+| `containsUnique` | Array has only unique values |
+| `arrayHasKeys` | Array contains required keys |
+
+### Date Rules
+
+Rules for validating dates and times.
+
+| Rule | Description |
+|------|-------------|
+| `date` | Valid date (DateTime or parseable string) |
+| `dateFormat` | Matches specific date format |
+| `dateBefore` | Date is before comparison date |
+| `dateAfter` | Date is after comparison date |
+| `past` | Date is in the past |
+| `future` | Date is in the future |
+
+### Length Rules
+
+Rules for validating string length.
+
+| Rule | Description |
+|------|-------------|
+| `length` | Exact string length |
+| `lengthBetween` | Length within [min, max] |
+| `lengthMin` | Minimum string length |
+| `lengthMax` | Maximum string length |
+
+### Comparison Rules
+
+Rules for comparing field values.
+
+| Rule | Description |
+|------|-------------|
+| `required` | Field must not be empty/null |
+| `equals` | Field matches another field's value |
+| `different` | Field differs from another field |
+| `accepted` | Value is accepted (yes, on, 1, true) |
+
+### Conditional Rules
+
+Rules for conditional validation.
+
+| Rule | Description |
+|------|-------------|
+| `nullable` | Field can be null; null values skip other rules |
+| `optional` | Field validated only if present |
+| `requiredWith` | Required if other fields are present |
+| `requiredWithout` | Required if other fields are absent |
+
+### Type Rules
+
+Rules for type checking and special formats.
+
+| Rule | Description |
+|------|-------------|
+| `instanceOf` | Value is instance of specified class |
+| `creditCard` | Valid credit card (Luhn algorithm) |
+
+## Syntax Options
+
+Valicomb offers two syntax styles for defining validation rules. Both are equivalent — choose whichever fits your coding style.
+
+### Fluent Syntax
+
+Chain individual `rule()` calls for each validation rule:
+
+```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($data);
+
+// Basic rule
+$v->rule('required', 'email');
+$v->rule('email', 'email');
+
+// Rule with parameter
+$v->rule('lengthMin', 'password', 8);
+
+// Rule with multiple parameters
+$v->rule('between', 'age', 18, 65);
+
+// Apply same rule to multiple fields
+$v->rule('required', ['email', 'name', 'password']);
+
+$v->validate();
+```
+
+### Array Syntax
+
+Define all rules at once using the `rules()` method:
+
+```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($data);
+
+$v->rules([
+    'required' => [
+        ['email'],
+        ['password'],
+        ['name']
+    ],
+    'email' => [
+        ['email']
+    ],
+    'lengthMin' => [
+        ['password', 8]
+    ],
+    'between' => [
+        ['age', 18, 65]
+    ]
+]);
+
+$v->validate();
+```
+
+### Syntax Comparison
+
+| Fluent | Array |
+|--------|-------|
+| `$v->rule('email', 'field')` | `'email' => [['field']]` |
+| `$v->rule('lengthMin', 'field', 8)` | `'lengthMin' => [['field', 8]]` |
+| `$v->rule('between', 'field', 1, 10)` | `'between' => [['field', 1, 10]]` |
+
+The array syntax groups rules by type, with each field-parameter combination as a nested array.
+
+## Next Steps
+
+Click on any category above to see detailed documentation for each rule, including:
+- Parameters and their types
+- Usage examples
+- Common use cases
+- Edge cases and behavior notes
+- Default error messages

@@ -1,0 +1,49 @@
+---
+title: Installation
+description: Install Valicomb PHP validation library via Composer
+---
+
+## Requirements
+
+Before installing Valicomb, ensure your environment meets these requirements:
+
+- PHP 8.2 or higher
+- `ext-mbstring` extension (for multibyte string support)
+
+### Optional Extensions
+
+- `ext-bcmath` is recommended for high-precision numeric comparisons with `min`/`max` validators
+
+## Install via Composer
+
+Install Valicomb using Composer:
+
+```bash
+composer require frostybee/valicomb
+```
+
+## Verify Installation
+
+After installation, you can verify it works by creating a simple validation:
+
+```php
+<?php
+
+require_once 'vendor/autoload.php';
+
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator(['email' => 'test@example.com']);
+$v->rule('email', 'email');
+
+if ($v->validate()) {
+    echo "Valicomb is working correctly!";
+}
+```
+
+## Next Steps
+
+Now that Valicomb is installed, continue to:
+
+- [Quick Start](/getting-started/quick-start/) - Learn basic validation patterns
+- [Core Concepts](/getting-started/core-concepts/) - Understand the validation workflow

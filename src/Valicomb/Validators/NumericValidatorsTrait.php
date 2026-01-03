@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Frostybee\Valicomb\Validators;
 
+use function abs;
 use function bccomp;
 use function count;
 use function explode;
@@ -14,7 +15,6 @@ use function filter_var;
 use function function_exists;
 use function in_array;
 use function is_array;
-use function is_float;
 use function is_int;
 use function is_numeric;
 use function is_string;
@@ -61,7 +61,7 @@ trait NumericValidatorsTrait
             $floatVal = (float) $value;
 
             // Determine if we need decimal places
-            if ($floatVal == (int) $floatVal && abs($floatVal) < PHP_INT_MAX) {
+            if ($floatVal === (float) (int) $floatVal && abs($floatVal) < PHP_INT_MAX) {
                 // It's effectively an integer
                 return number_format($floatVal, 0, '.', '');
             }
