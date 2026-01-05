@@ -23,7 +23,9 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm i
-      - run: pnpm build:docs
+        working-directory: docs
+      - run: pnpm build
+        working-directory: docs
       - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:
           path: docs/dist/
