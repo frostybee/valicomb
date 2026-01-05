@@ -9,74 +9,60 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ---
 
-## [Unreleased]
+## [1.1.0] - 2026-01-04
 
 ### Added
 
 - Documentation website using Astro Starlight
-- Comprehensive API reference documentation
+- **Strict mode** for stricter validation behavior
+- **Inline custom messages** support for per-rule error messages
+- New validation rules:
+  - `urlStrict` for URL validation with required scheme
+  - `uuid` with support for versions 1-5
+  - `startsWith` and `endsWith` for string prefix/suffix validation
+  - `decimalPlaces` for controlling decimal precision
+  - `positive` for strictly positive numbers
+  - `past` and `future` for date validation
+  - `phone` with support for 12 countries
+  - `requiredWith` / `requiredWithout` for conditional validation
+  - `IPv4` / `IPv6` / `ASCII` for network and character validation
+  - `arrayHasKeys` for required array keys
+- Case-insensitive option for string matching rules
+
+### Fixed
+
+- Resolved multiple issues from the original Valitron library (see [Valitron Issues Fixed](/valicomb/development/valitron-fixes/) for details)
 
 ---
 
-## Recent Updates
+## [1.0.1] - 2025-11-16
 
-### Enhanced Validation Rules
+Complete rewrite of the Valitron validation library for modern PHP.
 
-#### Numeric Validation
+### Added
 
-- The `numeric` rule now properly handles scientific notation (e.g., `1.2e3`)
-- New `decimalPlaces` rule for controlling decimal precision
-- New `positive` rule for strictly positive numbers
+#### Core Features
 
-#### String Validation
-
-- New `uuid` rule with support for versions 1-5
-- New `startsWith` and `endsWith` rules for string prefix and suffix validation
-- Added case-insensitive option to string matching rules
-
-#### Date Validation
-
-- New `past` and `future` rules for validating dates in the past or future
-- Can specify a reference date for comparison
-
-#### Phone Validation
-
-- New `phone` rule with support for 12 countries
-- Validates against country-specific phone number patterns
-
----
-
-## Version History
-
-### Modernization from Valitron
-
-Valicomb is a modernized fork of [vlucas/valitron](https://github.com/vlucas/valitron) with significant improvements:
-
-#### PHP 8.2+ Requirements
-
-- Strict types throughout
-- Typed properties and return types
-- Modern PHP syntax
-
-#### Security Improvements
-
-- ReDoS protection in regex validation
-- Type juggling prevention with strict comparisons
-- Path traversal protection in language loading
-- Email validation security hardening
-
-#### Code Quality
-
+- PHP 8.2+ with strict types throughout
+- Zero dependencies (only `ext-mbstring` required)
+- Automatic ReDoS pattern detection
+- RFC 5321 email validation with length limits
 - PHPStan Level 8 compliance
 - PSR-12 code style
-- Over 430 tests
-- Comprehensive docblocks
+- 430+ tests
+- 33 language translations
 
 #### Architecture
 
 - Extracted core classes (ErrorManager, LanguageManager, RuleRegistry)
 - Organized validation rules into trait files
 - Clean separation of concerns
+
+### Changed
+
+- `numeric` rule now properly handles scientific notation (e.g., `1.2e3`)
+- Strict equality comparisons (no type juggling)
+- Path traversal protection in language loading
 
 ---
 
