@@ -1,6 +1,7 @@
 ---
 import Landing from '../layouts/Landing.astro';
 import { Code } from 'astro:components';
+import { Icon } from '@astrojs/starlight/components';
 
 const codeExample = `use Frostybee\\Valicomb\\Validator;
 
@@ -68,12 +69,11 @@ if ($v->validate()) {
         <div class="hero-actions">
           <a href="/valicomb/getting-started/installation/" class="btn btn-primary">
             Get Started
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            <Icon name="rocket" size="1.25rem" />
           </a>
           <a href="https://github.com/frostybee/valicomb" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">
-            View on GitHub
+            Star on GitHub
+            <Icon name="star" size="1.25rem" />
           </a>
         </div>
       </div>

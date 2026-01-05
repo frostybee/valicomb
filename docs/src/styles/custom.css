@@ -2,7 +2,9 @@
 
 /* Monospace font for code blocks */
 :root {
+  --sl-font: 'Inter', system-ui, sans-serif;
   --sl-font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  --sl-content-width: 50rem;
 }
 
 /* Disable ligatures in code blocks */
