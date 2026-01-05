@@ -3,358 +3,149 @@ title: String Rules
 description: Validation rules for string content and patterns
 ---
 
-String validation rules check the content and format of string values. All rules in this category support Unicode characters where applicable.
+String validation rules check the content and format of string values. All rules are Unicode-aware.
 
-## alpha
+## Rules Reference
 
-Validates that the field contains only alphabetic characters (Unicode-aware).
+| Rule | Parameters | Example | Error Message |
+|------|------------|---------|---------------|
+| `alpha` | — | `$v->rule('alpha', 'field')` | `{field} must contain only letters` |
+| `alphaNum` | — | `$v->rule('alphaNum', 'field')` | `{field} must contain only letters and numbers` |
+| `ascii` | — | `$v->rule('ascii', 'field')` | `{field} must contain only ASCII characters` |
+| `slug` | — | `$v->rule('slug', 'field')` | `{field} must contain only letters, numbers, dashes and underscores` |
+| `contains` | `substring`, `strict?` | `$v->rule('contains', 'field', 'text')` | `{field} must contain {0}` |
+| `regex` | `pattern` | `$v->rule('regex', 'field', '/pattern/')` | `{field} is not valid` |
+| `startsWith` | `prefix`, `caseSensitive?` | `$v->rule('startsWith', 'field', 'pre')` | `{field} must start with {0}` |
+| `endsWith` | `suffix`, `caseSensitive?` | `$v->rule('endsWith', 'field', 'suf')` | `{field} must end with {0}` |
+| `uuid` | `version?` | `$v->rule('uuid', 'field')` | `{field} must be a valid UUID` |
+| `passwordStrength` | `minScore` or `config[]` | `$v->rule('passwordStrength', 'field', 6)` | `{field} must be a stronger password` |
 
-### Basic Usage
+> **Note:** Parameters marked with `?` are optional.
 
-```php
-$v->rule('alpha', 'name');
-```
+## Notes
 
-### Notes
+**Unicode support:** `alpha`, `alphaNum` accept Unicode letters. `slug` only allows a-z, 0-9, -, _.
 
-- Unicode letters are accepted (e.g., `café`, `naïve`)
-- Empty strings are not validated unless `required` is also applied
-- Spaces are NOT allowed
+**Case sensitivity:** `contains`, `startsWith`, `endsWith` are case-insensitive by default. Pass `true` as last param for strict matching.
 
-### Error Message
+**Multiple values:** `startsWith`, `endsWith` accept arrays: `['http://', 'https://']`.
 
-Default: `"{field} must contain only letters"`
+**Regex security:** Includes ReDoS protection - dangerous patterns throw `RuntimeException`.
 
----
+**UUID versions:** 1 (time), 2 (DCE), 3 (MD5), 4 (random), 5 (SHA-1). Pass version as 2nd param or omit for any.
 
-## alphaNum
+## Parameter Details
 
-Validates that the field contains only alphanumeric characters (Unicode-aware).
+### passwordStrength
 
-### Basic Usage
+Accepts integer (minimum score 1-10) or configuration array:
 
-```php
-$v->rule('alphaNum', 'username');
-```
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `minScore` | int | 6 | Minimum strength score (1-10) |
+| `minLength` | int | 8 | Minimum password length |
+| `requireUppercase` | bool | false | Must contain A-Z |
+| `requireLowercase` | bool | false | Must contain a-z |
+| `requireNumber` | bool | false | Must contain 0-9 |
+| `requireSymbol` | bool | false | Must contain special char |
 
-### Notes
-
-- Unicode letters and numbers are accepted
-- Spaces and special characters are NOT allowed
-
-### Error Message
-
-Default: `"{field} must contain only letters and numbers"`
-
----
-
-## ascii
-
-Validates that the field contains only ASCII characters (bytes 0x00-0x7F).
-
-### Basic Usage
+**Scoring:** +1 per length tier (8+, 12+, 16+), +1.5 upper, +1.5 lower, +2 number, +2 symbol. Max 10.
 
 ```php
-$v->rule('ascii', 'code');
-```
-
-### Notes
-
-- Allows all ASCII characters including punctuation and symbols
-- Rejects any character outside the 0x00-0x7F range
-
-### Error Message
-
-Default: `"{field} must contain only ASCII characters"`
-
----
-
-## slug
-
-Validates that the field is a valid URL slug (a-z, 0-9, -, _).
-
-### Basic Usage
-
-```php
-$v->rule('slug', 'url_slug');
-```
-
-### Notes
-
-- Only lowercase letters (a-z), numbers (0-9), hyphens (-), and underscores (_)
-- Uppercase letters are NOT allowed
-
-### Error Message
-
-Default: `"{field} must contain only letters, numbers, dashes and underscores"`
-
----
-
-## contains
-
-Validates that the field contains a specific substring.
-
-### Parameters
-
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `substring` | string | Yes | - | The substring to search for |
-| `strict` | bool | No | `false` | Case-sensitive matching |
-
-### Basic Usage
-
-```php
-$v->rule('contains', 'bio', 'developer');
-```
-
-### Case-Sensitive Matching
-
-```php
-// Case-insensitive (default)
-$v->rule('contains', 'bio', 'PHP'); // Matches "php", "PHP", "Php"
-
-// Case-sensitive
-$v->rule('contains', 'bio', 'PHP', true); // Only matches "PHP"
-```
-
-### Notes
-
-- Empty substring always returns false
-- Both value and substring must be strings
-
-### Error Message
-
-Default: `"{field} must contain {0}"`
-
----
-
-## regex
-
-Validates that the field matches a custom regular expression pattern.
-
-### Parameters
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `pattern` | string | Yes | The regex pattern (including delimiters) |
-
-### Basic Usage
-
-```php
-$v->rule('regex', 'product_code', '/^[A-Z]{2}-\d{4}$/');
-```
-
-### Security: ReDoS Protection
-
-Valicomb includes automatic protection against ReDoS (Regular Expression Denial of Service) attacks:
-
-```php
-// This will throw RuntimeException on dangerous patterns
-$v->rule('regex', 'field', '/^(a+)+$/'); // Vulnerable pattern - blocked!
-```
-
-### Error Message
-
-Default: `"{field} is not valid"`
-
----
-
-## startsWith
-
-Validates that the field starts with one or more specified prefixes.
-
-### Parameters
-
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `prefix` | string\|array | Yes | - | Prefix or array of prefixes |
-| `caseSensitive` | bool | No | `true` | Case-sensitive matching |
-
-### Basic Usage
-
-```php
-// Single prefix
-$v->rule('startsWith', 'url', 'https://');
-
-// Multiple prefixes (any one must match)
-$v->rule('startsWith', 'url', ['http://', 'https://']);
-```
-
-### Case-Insensitive Matching
-
-```php
-$v->rule('startsWith', 'greeting', 'hello', false); // Matches "Hello", "HELLO"
-```
-
-### Error Message
-
-Default: `"{field} must start with {0}"`
-
----
-
-## endsWith
-
-Validates that the field ends with one or more specified suffixes.
-
-### Parameters
-
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `suffix` | string\|array | Yes | - | Suffix or array of suffixes |
-| `caseSensitive` | bool | No | `true` | Case-sensitive matching |
-
-### Basic Usage
-
-```php
-// Single suffix
-$v->rule('endsWith', 'email', '@company.com');
-
-// Multiple suffixes (any one must match)
-$v->rule('endsWith', 'file', ['.jpg', '.png', '.gif']);
-```
-
-### Case-Insensitive Matching
-
-```php
-$v->rule('endsWith', 'file', '.PDF', false); // Matches ".pdf", ".PDF"
-```
-
-### Error Message
-
-Default: `"{field} must end with {0}"`
-
----
-
-## uuid
-
-Validates that the field is a valid UUID (Universally Unique Identifier).
-
-### Parameters
-
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `version` | int\|null | No | `null` | Specific UUID version (1-5) or null for any |
-
-### Basic Usage
-
-```php
-// Any valid UUID (v1-v5)
-$v->rule('uuid', 'id');
-
-// Specific version
-$v->rule('uuid', 'id', 4); // Only UUID v4
-```
-
-### Supported Versions
-
-| Version | Description |
-|---------|-------------|
-| 1 | Time-based UUID |
-| 2 | DCE Security UUID |
-| 3 | Name-based (MD5) UUID |
-| 4 | Random UUID |
-| 5 | Name-based (SHA-1) UUID |
-
-### Notes
-
-- Case-insensitive matching
-- Requires the standard 8-4-4-4-12 format
-
-### Error Message
-
-Default: `"{field} must be a valid UUID"`
-
----
-
-## passwordStrength
-
-Validates password strength using a configurable scoring system (1-10 scale) and optional character type requirements.
-
-### Parameters
-
-The rule accepts either a simple integer (minimum score) or an array of configuration options:
-
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `minScore` | int | No | `6` | Minimum strength score (1-10) |
-| `minLength` | int | No | `8` | Minimum password length |
-| `requireUppercase` | bool | No | `false` | Must contain uppercase letter (A-Z) |
-| `requireLowercase` | bool | No | `false` | Must contain lowercase letter (a-z) |
-| `requireNumber` | bool | No | `false` | Must contain digit (0-9) |
-| `requireSymbol` | bool | No | `false` | Must contain special character |
-
-### Scoring System
-
-The password strength score (maximum 10) is calculated as follows:
-
-| Criterion | Points |
-|-----------|--------|
-| Length 8+ characters | +1 |
-| Length 12+ characters | +1 |
-| Length 16+ characters | +1 |
-| Contains uppercase letter | +1.5 |
-| Contains lowercase letter | +1.5 |
-| Contains number | +2 |
-| Contains symbol | +2 |
-| **Maximum Score** | **10** |
-
-### Basic Usage
-
-```php
-// Default: requires score >= 6
-$v->rule('passwordStrength', 'password');
-
-// Custom minimum score
+// Simple
 $v->rule('passwordStrength', 'password', 8);
-```
 
-### Advanced Configuration
-
-```php
-// Full configuration with specific requirements
+// Full config
 $v->rule('passwordStrength', 'password', [
     'minScore' => 7,
-    'minLength' => 10,
     'requireUppercase' => true,
-    'requireLowercase' => true,
-    'requireNumber' => true,
-    'requireSymbol' => false,
+    'requireNumber' => true
 ]);
 ```
 
-### Alternative Syntax
+---
+
+## Complete Examples
+
+Valicomb supports two syntax styles: **rule-based** (map rules to fields) and **field-based** (map fields to rules).
+
+### Rule-Based Array Syntax
+
+```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($data);
+
+$v->rules([
+    'alpha' => [
+        ['first_name'],
+        ['last_name']
+    ],
+    'alphaNum' => [
+        ['username']
+    ],
+    'ascii' => [
+        ['product_code']
+    ],
+    'slug' => [
+        ['url_slug']
+    ],
+    'contains' => [
+        ['bio', 'developer']
+    ],
+    'regex' => [
+        ['sku', '/^[A-Z]{2}-\\d{4}$/']
+    ],
+    'startsWith' => [
+        ['website', 'https://']
+    ],
+    'endsWith' => [
+        ['work_email', '@company.com']
+    ],
+    'uuid' => [
+        ['user_id']
+    ],
+    'passwordStrength' => [
+        ['password', 6]
+    ]
+]);
+
+$v->validate();
+```
+
+#### Password Strength with Full Configuration
 
 ```php
 $v->rules([
     'passwordStrength' => [
-        ['password', 7],
-    ],
-]);
-
-// With array config
-$v->rules([
-    'passwordStrength' => [
-        ['password', ['minScore' => 8, 'requireSymbol' => true]],
-    ],
+        ['password', [
+            'minScore' => 7,
+            'minLength' => 10,
+            'requireUppercase' => true,
+            'requireLowercase' => true,
+            'requireNumber' => true,
+            'requireSymbol' => true
+        ]]
+    ]
 ]);
 ```
 
-### Example Passwords
+### Field-Based Mapping
 
-| Password | Score | Default (6) | Notes |
-|----------|-------|-------------|-------|
-| `password` | 2.5 | Fail | Only lowercase |
-| `Password1` | 6 | Pass | Upper + lower + number |
-| `MyP@ss123` | 8 | Pass | All character types |
-| `VeryLongP@ssword123!` | 10 | Pass | Maximum score |
+```php
+use Frostybee\Valicomb\Validator;
 
-### Notes
+$v = new Validator($data);
 
-- Unicode-aware: supports international characters (e.g., `Pässwörd`, Arabic numerals)
-- Empty strings pass unless `required` is also applied
-- The `require*` options enforce specific character types regardless of score
-- Score is clamped between 1-10 (values outside this range are adjusted)
+$v->mapManyFieldsToRules([
+    'username' => ['required', 'alphaNum', ['lengthBetween', 3, 20]],
+    'first_name' => ['required', 'alpha'],
+    'last_name' => ['required', 'alpha'],
+    'bio' => ['optional', ['contains', 'developer']],
+    'password' => ['required', ['passwordStrength', 7]],
+    'website' => ['optional', ['startsWith', 'https://']],
+    'work_email' => ['required', 'email', ['endsWith', '@company.com']]
+]);
 
-### Error Message
-
-Default: `"{field} must be a stronger password (minimum strength: {0}/10)"`
+$v->validate();
+```

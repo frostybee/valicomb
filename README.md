@@ -3,7 +3,7 @@
 [![PHP Version](https://img.shields.io/badge/php-%3E%3D8.2-blue.svg)](https://php.net/)
 [![License](https://img.shields.io/badge/license-BSD--3--Clause-green.svg)](LICENSE)
 
-**Valicomb** is a simple, minimal, and elegant PHP validation library with **zero dependencies**. Completely rewritten for PHP 8.2+ with security-first design, strict type safety, and modern PHP features.
+**Valicomb** is a simple, minimal PHP validation library with **zero dependencies**. Completely rewritten for PHP 8.2+ with security-first design, strict type safety, and modern PHP features.
 
 > **Note:** This is a modernized and actively maintained fork of [vlucas/valitron](https://github.com/vlucas/valitron)
 
@@ -15,7 +15,7 @@
 * **No external dependencies**, other than the standard `ext-mbstring` extension.
 * **Clean and straightforward API** that's easy to read and chain together.
 * **Built-in i18n support**, offering 22 languages out of the box.
-* **43 ready-to-use validation rules** covering the most common validation needs.
+* **54 ready-to-use validation rules** covering the most common validation needs.
 * **Easy to extend**, so you can add your own custom validation rules when needed.
 * **Clean, modern codebase**, fully passing PHPStan Level 8 checks.
 
@@ -65,6 +65,10 @@ if ($v->validate()) {
  * `emailDNS` - Valid email address with active DNS record
  * `contains` - Field is a string and contains the given string
  * `regex` - Field matches given regex pattern
+ * `startsWith` - Field starts with the given string
+ * `endsWith` - Field ends with the given string
+ * `uuid` - Field is a valid UUID (supports versions 1-5)
+ * `passwordStrength` - Field meets password strength requirements
 
 ### Numeric Validators
 
@@ -73,6 +77,8 @@ if ($v->validate()) {
  * `min` - Minimum value
  * `max` - Maximum value
  * `between` - Value must be between min and max
+ * `positive` - Must be a positive number (greater than zero)
+ * `decimalPlaces` - Must have specified number of decimal places
 
 ### Length Validators
 
@@ -81,10 +87,12 @@ if ($v->validate()) {
  * `lengthMin` - String must be greater than given length
  * `lengthMax` - String must be less than given length
 
-### URL Validators
+### URL/Network Validators
 
  * `url` - Valid URL
  * `urlActive` - Valid URL with active DNS record
+ * `urlStrict` - Valid URL with strict validation
+ * `phone` - Valid phone number format
 
 ### Array Validators
 
@@ -102,6 +110,8 @@ if ($v->validate()) {
  * `dateFormat` - Field is a valid date in the given format
  * `dateBefore` - Field is a valid date and is before the given date
  * `dateAfter` - Field is a valid date and is after the given date
+ * `past` - Field is a valid date in the past
+ * `future` - Field is a valid date in the future
 
 ### Comparison Validators
 
@@ -120,6 +130,7 @@ if ($v->validate()) {
 ### Conditional Validators
 
  * `optional` - Value does not need to be included in data array. If it is however, it must pass validation.
+ * `nullable` - Field can be null; if null, other validation rules are skipped
  * `accepted` - Checkbox or Radio must be accepted (yes, on, 1, true)
  * `requiredWith` - Field is required if any other fields are present
  * `requiredWithout` - Field is required if any other fields are NOT present

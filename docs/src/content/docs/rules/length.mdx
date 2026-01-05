@@ -5,131 +5,77 @@ description: Validation rules for string length
 
 Length validation rules check string length. All rules use multibyte-aware character counting (UTF-8 support).
 
-## length
+## Rules Reference
 
-Validates that the field is exactly a given length.
+| Rule | Parameters | Example | Error Message |
+|------|------------|---------|---------------|
+| `length` | `length` | `$v->rule('length', 'field', 4)` | `{field} must be exactly {0} characters long` |
+| `lengthBetween` | `min`, `max` | `$v->rule('lengthBetween', 'field', 3, 20)` | `{field} must be between {0} and {1} characters long` |
+| `lengthMin` | `min` | `$v->rule('lengthMin', 'field', 8)` | `{field} must be at least {0} characters long` |
+| `lengthMax` | `max` | `$v->rule('lengthMax', 'field', 255)` | `{field} must be at most {0} characters long` |
 
-### Parameters
+## Notes
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `length` | int | Yes | The exact required length |
-
-### Basic Usage
-
-```php
-$v->rule('length', 'pin_code', 4);
-```
-
-### Multibyte Support
-
-Character counting is multibyte-aware:
+All length rules use `mb_strlen()` for accurate Unicode character counting:
 
 ```php
-$v = new Validator(['name' => 'café']);
-$v->rule('length', 'name', 4); // true - 4 characters, not 5 bytes
+// All count as 5 characters:
+'hello'     // 5 ASCII chars
+'héllo'     // 5 chars (é = 1 char)
+'こんにちは'  // 5 Japanese chars
 ```
-
-### Error Message
-
-Default: `"{field} must be exactly {0} characters long"`
 
 ---
 
-## lengthBetween
+## Complete Examples
 
-Validates that the field length is between a minimum and maximum (inclusive).
+Valicomb supports two syntax styles: **rule-based** (map rules to fields) and **field-based** (map fields to rules).
 
-### Parameters
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `min` | int | Yes | Minimum length |
-| `max` | int | Yes | Maximum length |
-
-### Basic Usage
+### Rule-Based Array Syntax
 
 ```php
-$v->rule('lengthBetween', 'username', 3, 20);
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($data);
+
+$v->rules([
+    'length' => [
+        ['pin_code', 4],
+        ['country_code', 2]
+    ],
+    'lengthBetween' => [
+        ['username', 3, 20],
+        ['display_name', 2, 50]
+    ],
+    'lengthMin' => [
+        ['password', 8],
+        ['description', 10]
+    ],
+    'lengthMax' => [
+        ['username', 30],
+        ['bio', 500],
+        ['tweet', 280]
+    ]
+]);
+
+$v->validate();
 ```
 
-### Error Message
-
-Default: `"{field} must be between {0} and {1} characters long"`
-
----
-
-## lengthMin
-
-Validates that the field is at least a given length.
-
-### Parameters
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `min` | int | Yes | Minimum length |
-
-### Basic Usage
+### Field-Based Mapping
 
 ```php
-$v->rule('lengthMin', 'password', 8);
-```
+use Frostybee\Valicomb\Validator;
 
-### Error Message
+$v = new Validator($data);
 
-Default: `"{field} must be at least {0} characters long"`
+$v->mapManyFieldsToRules([
+    'username' => ['required', ['lengthBetween', 3, 20]],
+    'password' => ['required', ['lengthMin', 8], ['lengthMax', 128]],
+    'pin_code' => ['required', ['length', 4]],
+    'bio' => ['optional', ['lengthMax', 500]],
+    'title' => ['required', ['lengthBetween', 5, 100]],
+    'country_code' => ['required', ['length', 2]]
+]);
 
----
-
-## lengthMax
-
-Validates that the field is at most a given length.
-
-### Parameters
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `max` | int | Yes | Maximum length |
-
-### Basic Usage
-
-```php
-$v->rule('lengthMax', 'tweet', 280);
-```
-
-### Error Message
-
-Default: `"{field} must be at most {0} characters long"`
-
----
-
-## Combining Length Rules
-
-You can combine length rules for more complex validation:
-
-```php
-$v = new Validator($_POST);
-
-// Username: 3-20 characters
-$v->rule('lengthBetween', 'username', 3, 20);
-
-// Password: at least 8 characters, at most 128
-$v->rule('lengthMin', 'password', 8);
-$v->rule('lengthMax', 'password', 128);
-
-// Bio: optional, but if provided max 500 characters
-$v->rule('optional', 'bio');
-$v->rule('lengthMax', 'bio', 500);
-```
-
-## Multibyte Character Support
-
-All length rules use `mb_strlen()` when available for accurate Unicode character counting:
-
-```php
-// All of these count as 5 characters:
-$v = new Validator(['text' => 'hello']);  // 5 ASCII chars
-$v = new Validator(['text' => 'héllo']);  // 5 chars (é = 1 char)
-$v = new Validator(['text' => 'こんにちは']); // 5 Japanese chars
-$v->rule('length', 'text', 5); // true for all
+$v->validate();
 ```

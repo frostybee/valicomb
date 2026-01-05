@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Frostybee\Valicomb\Validators;
 
+use function count;
 use function explode;
 use function in_array;
 
 use InvalidArgumentException;
 
+use function is_array;
 use function is_null;
 use function is_string;
 use function trim;
@@ -33,6 +35,7 @@ trait ComparisonValidatorsTrait
      * - null
      * - An empty string
      * - A string containing only whitespace
+     * - An empty array
      *
      * Optional first parameter can enable strict key existence check (field must exist in data).
      *
@@ -48,7 +51,9 @@ trait ComparisonValidatorsTrait
             $find = $this->fieldAccessor->getPart($this->fields, explode('.', $field), true);
             return $find[1];
         }
-        return !is_null($value) && !(is_string($value) && trim($value) === '');
+        return !is_null($value)
+            && !(is_string($value) && trim($value) === '')
+            && !(is_array($value) && count($value) === 0);
     }
 
     /**

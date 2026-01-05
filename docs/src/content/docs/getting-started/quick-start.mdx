@@ -7,6 +7,8 @@ This guide will get you up and running with Valicomb in just a few minutes.
 
 ## Basic Validation
 
+The core workflow is simple: create a Validator with your data, add rules for each field, and call `validate()`. If validation fails, you can retrieve the error messages.
+
 ```php
 use Frostybee\Valicomb\Validator;
 
@@ -26,50 +28,13 @@ if ($v->validate()) {
 }
 ```
 
-## Three Ways to Define Rules
-
-Valicomb provides three flexible syntaxes for defining validation rules:
-
-### 1. Fluent/Chained Syntax (Most Explicit)
-
-Best for readability and when you need fine-grained control:
-
-```php
-$v = new Validator($_POST);
-$v->rule('required', 'email')
-  ->rule('email', 'email')
-  ->rule('lengthMin', 'email', 5);
-```
-
-### 2. Rule-Based Array Syntax
-
-Best when applying the same rule to many fields:
-
-```php
-$v = new Validator($_POST);
-$v->rules([
-    'required' => ['name', 'email'],
-    'email' => 'email',
-    'lengthBetween' => [
-        ['name', 1, 100],
-        ['bio', 10, 500]
-    ]
-]);
-```
-
-### 3. Field-Based Array Syntax
-
-Best when organizing validation by field:
-
-```php
-$v = new Validator($_POST);
-$v->mapManyFieldsToRules([
-    'name' => ['required', ['lengthMin', 2]],
-    'email' => ['required', 'email', ['lengthMax', 254]]
-]);
-```
+:::tip[Learn More About Rule Syntaxes]
+Valicomb provides three flexible syntaxes for defining rules: fluent, rule-based array, and field-based array. See [Defining Rules](/valicomb/getting-started/defining-rules/) for detailed examples of each approach.
+:::
 
 ## Handling Form Data
+
+HTML forms submit all values as strings, even numbers and booleans. Valicomb's type validation rules (like `integer`, `numeric`, and `boolean`) are designed to work with string representations, so you can validate `$_POST` data directly without manual type casting.
 
 Valicomb properly handles form data where all values come as strings:
 
@@ -89,6 +54,8 @@ $v->rule('boolean', 'active'); // Works with string '1'
 
 ## Custom Error Messages
 
+Each validation rule has a default error message, but you can replace it with your own using the `message()` method. This lets you tailor messages to your application's tone or provide more specific guidance.
+
 Override default error messages for specific rules:
 
 ```php
@@ -98,6 +65,8 @@ $v->rule('email', 'email')->message("That doesn't look like a valid email");
 ```
 
 ## Field Labels
+
+By default, error messages use the field name (like "email" or "first_name"). Labels let you define human-readable names that appear in error messages instead, making them clearer for your users.
 
 Make error messages more user-friendly with labels:
 
@@ -110,6 +79,8 @@ $v->labels([
 ```
 
 ## Getting Errors
+
+When `validate()` returns `false`, you can retrieve error messages using the `errors()` method. Call it without arguments to get all errors grouped by field, or pass a field name to get errors for just that field.
 
 After validation fails, retrieve errors:
 
@@ -131,7 +102,9 @@ if (!$v->validate()) {
 
 ## Next Steps
 
-- [Core Concepts](/getting-started/core-concepts/) - Understand the validation workflow
-- [Validation Rules](/rules/overview/) - Explore all 53 built-in rules
-- [Defining Rules](/guides/defining-rules/) - Learn all rule definition syntaxes
-- [Error Messages](/guides/error-messages/) - Customize error handling
+Now that you know the basics, explore these guides to learn more about Valicomb's features.
+
+- [Core Concepts](/valicomb/getting-started/core-concepts/) - Understand the validation workflow
+- [Defining Rules](/valicomb/getting-started/defining-rules/) - Master all three rule syntaxes
+- [Validation Rules](/valicomb/rules/overview/) - Explore all 53 built-in rules
+- [Error Messages](/valicomb/guides/error-messages/) - Customize error handling

@@ -7,7 +7,7 @@ This page explains the core concepts that will help you use Valicomb effectively
 
 ## The Validator Instance
 
-The `Validator` class is the heart of Valicomb. You create an instance with your data and configure rules:
+The `Validator` class is your main entry point. Create an instance with your data, then configure rules:
 
 ```php
 use Frostybee\Valicomb\Validator;
@@ -142,43 +142,8 @@ $v2 = $baseValidator->withData(['email' => 'user2@example.com']);
 $v2->validate();
 ```
 
-## Nested Field Validation
-
-Use dot notation to validate nested arrays:
-
-```php
-$data = [
-    'user' => [
-        'email' => 'test@example.com',
-        'profile' => [
-            'age' => 25
-        ]
-    ]
-];
-
-$v = new Validator($data);
-$v->rule('email', 'user.email');
-$v->rule('integer', 'user.profile.age');
-```
-
-## Array Wildcard Validation
-
-Use `*` to validate all items in an array:
-
-```php
-$data = [
-    'users' => [
-        ['email' => 'user1@example.com'],
-        ['email' => 'user2@example.com']
-    ]
-];
-
-$v = new Validator($data);
-$v->rule('email', 'users.*.email'); // Validates all emails
-```
-
 ## Next Steps
 
-- [Validation Rules](/rules/overview/) - Explore all 53 built-in rules
-- [Defining Rules](/guides/defining-rules/) - Master rule definition syntaxes
-- [Custom Rules](/guides/custom-rules/) - Create your own validation rules
+- [Defining Rules](/valicomb/getting-started/defining-rules/) - Master the three rule syntaxes
+- [Validation Rules](/valicomb/rules/overview/) - Explore all 53 built-in rules
+- [Custom Rules](/valicomb/guides/custom-rules/) - Create your own validation rules

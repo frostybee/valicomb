@@ -9,6 +9,7 @@ use Frostybee\Valicomb\Validator;
 use function in_array;
 use function is_numeric;
 use function preg_match;
+use function strlen;
 use function strrchr;
 use function strtolower;
 use function substr;
@@ -133,5 +134,169 @@ class ValidateAddInstanceRuleTest extends BaseTestCase
         });
         $uniqueName = $v->getUniqueRuleName("username");
         $this->assertMatchesRegularExpression("/^username_rule_\\d{1,5}\$/", $uniqueName);
+    }
+
+    // ===========================================
+    // Custom Messages from Custom Rules (#379)
+    // ===========================================
+
+    /**
+     * Test custom rule returning array with custom message
+     */
+    public function testCustomRuleReturnsArrayWithMessage(): void
+    {
+        $v = new Validator(['password' => 'weak']);
+        $v->addInstanceRule('strongPassword', function ($field, $value): array {
+            if (strlen($value) < 8) {
+                return [false, 'Password must be at least 8 characters'];
+            }
+            if (!preg_match('/[A-Z]/', $value)) {
+                return [false, 'Password must contain an uppercase letter'];
+            }
+            if (!preg_match('/[0-9]/', $value)) {
+                return [false, 'Password must contain a number'];
+            }
+            return [true];
+        });
+        $v->rule('strongPassword', 'password');
+
+        $this->assertFalse($v->validate());
+        $errors = $v->errors('password');
+        $this->assertSame('Password must be at least 8 characters', $errors[0]);
+    }
+
+    /**
+     * Test custom rule returns different messages based on failure reason
+     */
+    public function testCustomRuleReturnsDifferentMessagesPerCondition(): void
+    {
+        $v = new Validator(['password' => 'longpasswordwithoutnumbers']);
+        $v->addInstanceRule('strongPassword', function ($field, $value): array {
+            if (strlen($value) < 8) {
+                return [false, 'Password must be at least 8 characters'];
+            }
+            if (!preg_match('/[A-Z]/', $value)) {
+                return [false, 'Password must contain an uppercase letter'];
+            }
+            if (!preg_match('/[0-9]/', $value)) {
+                return [false, 'Password must contain a number'];
+            }
+            return [true];
+        });
+        $v->rule('strongPassword', 'password');
+
+        $this->assertFalse($v->validate());
+        $errors = $v->errors('password');
+        $this->assertSame('Password must contain an uppercase letter', $errors[0]);
+    }
+
+    /**
+     * Test custom rule returning array with true passes validation
+     */
+    public function testCustomRuleReturnsArrayTruePasses(): void
+    {
+        $v = new Validator(['password' => 'StrongPass123']);
+        $v->addInstanceRule('strongPassword', function ($field, $value): array {
+            if (strlen($value) < 8) {
+                return [false, 'Password must be at least 8 characters'];
+            }
+            return [true];
+        });
+        $v->rule('strongPassword', 'password');
+
+        $this->assertTrue($v->validate());
+    }
+
+    /**
+     * Test custom rule returning boolean still works (backward compatibility)
+     */
+    public function testCustomRuleReturnsBoolBackwardCompatible(): void
+    {
+        $v = new Validator(['value' => 'test']);
+        $v->addInstanceRule('alwaysFail', function ($field, $value): bool {
+            return false;
+        }, 'Default error message');
+        $v->rule('alwaysFail', 'value');
+
+        $this->assertFalse($v->validate());
+        $errors = $v->errors('value');
+        $this->assertSame('Value Default error message', $errors[0]);
+    }
+
+    /**
+     * Test custom rule returning array without message uses default
+     */
+    public function testCustomRuleReturnsArrayWithoutMessageUsesDefault(): void
+    {
+        $v = new Validator(['value' => 'test']);
+        $v->addInstanceRule('checkValue', function ($field, $value): array {
+            return [false]; // No message provided
+        }, 'Default message for this rule');
+        $v->rule('checkValue', 'value');
+
+        $this->assertFalse($v->validate());
+        $errors = $v->errors('value');
+        $this->assertSame('Value Default message for this rule', $errors[0]);
+    }
+
+    /**
+     * Test inline callable rule with array return
+     */
+    public function testInlineCallableWithArrayReturn(): void
+    {
+        $v = new Validator(['age' => 15]);
+        $v->rule(function ($field, $value): array {
+            if (!is_numeric($value)) {
+                return [false, 'Age must be a number'];
+            }
+            if ($value < 18) {
+                return [false, 'You must be 18 or older'];
+            }
+            return [true];
+        }, 'age');
+
+        $this->assertFalse($v->validate());
+        $errors = $v->errors('age');
+        $this->assertSame('You must be 18 or older', $errors[0]);
+    }
+
+    /**
+     * Test global rule with array return
+     */
+    public function testGlobalRuleWithArrayReturn(): void
+    {
+        Validator::addRule('customValidation', function ($field, $value): array {
+            if ($value === 'forbidden') {
+                return [false, 'This value is forbidden'];
+            }
+            return [true];
+        });
+
+        $v = new Validator(['input' => 'forbidden']);
+        $v->rule('customValidation', 'input');
+
+        $this->assertFalse($v->validate());
+        $errors = $v->errors('input');
+        $this->assertSame('This value is forbidden', $errors[0]);
+    }
+
+    /**
+     * Test custom message with {value} placeholder
+     */
+    public function testCustomMessageWithValuePlaceholder(): void
+    {
+        $v = new Validator(['code' => 'INVALID']);
+        $v->addInstanceRule('validCode', function ($field, $value): array {
+            $validCodes = ['ABC123', 'XYZ789'];
+            if (!in_array($value, $validCodes, true)) {
+                return [false, '{field} "{value}" is not a valid code'];
+            }
+            return [true];
+        });
+        $v->rule('validCode', 'code');
+
+        $this->assertFalse($v->validate());
+        $errors = $v->errors('code');
+        $this->assertSame('Code "INVALID" is not a valid code', $errors[0]);
     }
 }

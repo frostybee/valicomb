@@ -1,23 +1,23 @@
 ---
 title: Rules Overview
-description: Complete reference of all 55 validation rules in Valicomb
+description: Complete reference of all 54 validation rules in Valicomb
 ---
 
-Valicomb includes 55 built-in validation rules organized into 9 categories. This page provides a quick reference to all available rules.
+Valicomb includes 54 built-in validation rules organized into 9 categories. This page provides a quick reference to all available rules.
 
 ## Quick Reference
 
 | Category | Rules |
 |----------|-------|
-| [String](/rules/string/) | `alpha`, `alphaNum`, `ascii`, `slug`, `contains`, `regex`, `startsWith`, `endsWith`, `uuid`, `passwordStrength` |
-| [Numeric](/rules/numeric/) | `numeric`, `integer`, `min`, `max`, `between`, `boolean`, `positive`, `decimalPlaces` |
-| [Network](/rules/network/) | `ip`, `ipv4`, `ipv6`, `email`, `emailDNS`, `url`, `urlActive`, `phone` |
-| [Array](/rules/array/) | `array`, `in`, `notIn`, `listContains`, `subset`, `containsUnique`, `arrayHasKeys` |
-| [Date](/rules/date/) | `date`, `dateFormat`, `dateBefore`, `dateAfter`, `past`, `future` |
-| [Length](/rules/length/) | `length`, `lengthBetween`, `lengthMin`, `lengthMax` |
-| [Comparison](/rules/comparison/) | `required`, `equals`, `different`, `accepted` |
-| [Conditional](/rules/conditional/) | `nullable`, `optional`, `requiredWith`, `requiredWithout` |
-| [Type](/rules/type/) | `instanceOf`, `creditCard` |
+| [String](/valicomb/rules/string/) | `alpha`, `alphaNum`, `ascii`, `slug`, `contains`, `regex`, `startsWith`, `endsWith`, `uuid`, `passwordStrength` |
+| [Numeric](/valicomb/rules/numeric/) | `numeric`, `integer`, `min`, `max`, `between`, `boolean`, `positive`, `decimalPlaces` |
+| [Network](/valicomb/rules/network/) | `ip`, `ipv4`, `ipv6`, `email`, `emailDNS`, `url`, `urlActive`, `urlStrict`, `phone` |
+| [Array](/valicomb/rules/array/) | `array`, `in`, `notIn`, `listContains`, `subset`, `containsUnique`, `arrayHasKeys` |
+| [Date](/valicomb/rules/date/) | `date`, `dateFormat`, `dateBefore`, `dateAfter`, `past`, `future` |
+| [Length](/valicomb/rules/length/) | `length`, `lengthBetween`, `lengthMin`, `lengthMax` |
+| [Comparison](/valicomb/rules/comparison/) | `required`, `equals`, `different`, `accepted` |
+| [Conditional](/valicomb/rules/conditional/) | `nullable`, `optional`, `requiredWith`, `requiredWithout` |
+| [Type](/valicomb/rules/type/) | `instanceOf`, `creditCard` |
 
 ## Rules by Category
 
@@ -66,6 +66,7 @@ Rules for validating network addresses and protocols.
 | `emailDNS` | Valid email with MX DNS verification |
 | `url` | Valid URL syntax |
 | `urlActive` | Valid URL with DNS verification |
+| `urlStrict` | Valid URL with strict validation |
 | `phone` | Valid phone number (12 countries supported) |
 
 ### Array Rules
@@ -139,71 +140,7 @@ Rules for type checking and special formats.
 
 ## Syntax Options
 
-Valicomb offers two syntax styles for defining validation rules. Both are equivalent — choose whichever fits your coding style.
-
-### Fluent Syntax
-
-Chain individual `rule()` calls for each validation rule:
-
-```php
-use Frostybee\Valicomb\Validator;
-
-$v = new Validator($data);
-
-// Basic rule
-$v->rule('required', 'email');
-$v->rule('email', 'email');
-
-// Rule with parameter
-$v->rule('lengthMin', 'password', 8);
-
-// Rule with multiple parameters
-$v->rule('between', 'age', 18, 65);
-
-// Apply same rule to multiple fields
-$v->rule('required', ['email', 'name', 'password']);
-
-$v->validate();
-```
-
-### Array Syntax
-
-Define all rules at once using the `rules()` method:
-
-```php
-use Frostybee\Valicomb\Validator;
-
-$v = new Validator($data);
-
-$v->rules([
-    'required' => [
-        ['email'],
-        ['password'],
-        ['name']
-    ],
-    'email' => [
-        ['email']
-    ],
-    'lengthMin' => [
-        ['password', 8]
-    ],
-    'between' => [
-        ['age', 18, 65]
-    ]
-]);
-
-$v->validate();
-```
-
-### Syntax Comparison
-
-| Fluent | Array |
-|--------|-------|
-| `$v->rule('email', 'field')` | `'email' => [['field']]` |
-| `$v->rule('lengthMin', 'field', 8)` | `'lengthMin' => [['field', 8]]` |
-| `$v->rule('between', 'field', 1, 10)` | `'between' => [['field', 1, 10]]` |
-
-The array syntax groups rules by type, with each field-parameter combination as a nested array.
+See [Defining Rules](/valicomb/getting-started/defining-rules/) for the three ways to define validation rules.
 
 ## Next Steps
 

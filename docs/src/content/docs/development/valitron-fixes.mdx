@@ -1,0 +1,223 @@
+---
+title: Valitron Issues Fixed
+description: Known issues from vlucas/valitron that have been resolved in Valicomb
+---
+
+import { Aside, Badge, Card, CardGrid } from '@astrojs/starlight/components';
+
+Valicomb is a modernized fork of [vlucas/valitron](https://github.com/vlucas/valitron). This page documents known issues from the original library that have been fixed in Valicomb.
+
+<Aside type="tip">
+  If you're migrating from Valitron, these fixes are applied automatically. No code changes needed beyond updating the namespace.
+</Aside>
+
+---
+
+## Critical Fixes
+
+These issues caused incorrect validation results or PHP errors in the original library.
+
+### Empty Strings Pass Integer Validation
+
+<Badge text="Fixed" variant="success" /> [Valitron #368](https://github.com/vlucas/valitron/issues/368)
+
+**Problem:** Empty strings incorrectly passed the `integer` validation rule.
+
+```php
+// In Valitron - BUG: This passes validation
+$v = new Validator(['num' => '']);
+$v->rule('integer', 'num');
+$v->validate(); // true (incorrect!)
+```
+
+**Fix:** Valicomb uses `filter_var()` with `FILTER_VALIDATE_INT` which correctly rejects empty strings.
+
+```php
+// In Valicomb - This correctly fails
+$v = new Validator(['num' => '']);
+$v->rule('integer', 'num');
+$v->validate(); // false (correct!)
+```
+
+---
+
+### Empty Strings Pass Length Validation
+
+<Badge text="Fixed" variant="success" /> [Valitron #356](https://github.com/vlucas/valitron/issues/356)
+
+**Problem:** Empty strings incorrectly passed `lengthMin` and `lengthBetween` validation rules.
+
+```php
+// In Valitron - BUG: This passes validation
+$v = new Validator(['text' => '']);
+$v->rule('lengthMin', 'text', 1);
+$v->validate(); // true (incorrect!)
+```
+
+**Fix:** Valicomb correctly calculates string length and compares against the minimum.
+
+```php
+// In Valicomb - This correctly fails
+$v = new Validator(['text' => '']);
+$v->rule('lengthMin', 'text', 1);
+$v->validate(); // false (correct!)
+```
+
+---
+
+### Empty Arrays Pass Required Validation
+
+<Badge text="Fixed" variant="success" /> [Valitron #260](https://github.com/vlucas/valitron/issues/260)
+
+**Problem:** Empty arrays incorrectly passed the `required` validation rule.
+
+```php
+// In Valitron - BUG: This passes validation
+$v = new Validator(['items' => []]);
+$v->rule('required', 'items');
+$v->validate(); // true (incorrect!)
+```
+
+**Fix:** Valicomb now treats empty arrays as empty values that fail `required` validation.
+
+```php
+// In Valicomb - This correctly fails
+$v = new Validator(['items' => []]);
+$v->rule('required', 'items');
+$v->validate(); // false (correct!)
+
+// Non-empty arrays still pass
+$v = new Validator(['items' => ['apple', 'banana']]);
+$v->rule('required', 'items');
+$v->validate(); // true (correct!)
+```
+
+---
+
+### PHP 8.1+ strtotime() Deprecation Warnings
+
+<Badge text="Fixed" variant="success" /> [Valitron #381](https://github.com/vlucas/valitron/issues/381) [#370](https://github.com/vlucas/valitron/issues/370) [#357](https://github.com/vlucas/valitron/issues/357)
+
+**Problem:** PHP 8.1+ throws deprecation warnings when `null` is passed to `strtotime()`.
+
+```php
+// In Valitron - PHP 8.1+ deprecation warning
+Deprecated: strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated
+```
+
+**Fix:** Valicomb validates input types before calling `strtotime()` and uses explicit string casts.
+
+```php
+// In Valicomb - No deprecation warnings
+// All strtotime() calls are protected with type checks
+if (!is_string($value)) {
+    return false;
+}
+// Or use explicit casting
+$timestamp = strtotime((string)$value);
+```
+
+---
+
+### Array Validation on Non-Arrays Causes Warnings
+
+<Badge text="Fixed" variant="success" /> [Valitron #182](https://github.com/vlucas/valitron/issues/182)
+
+**Problem:** Using array validation rules on non-array values caused PHP warnings.
+
+```php
+// In Valitron - BUG: PHP Warning
+$v = new Validator(['field' => 'not an array']);
+$v->rule('array', 'field');
+$v->validate(); // Warning: Invalid argument supplied for foreach()
+```
+
+**Fix:** Valicomb checks input types before performing array operations.
+
+```php
+// In Valicomb - Clean failure, no warnings
+$v = new Validator(['field' => 'not an array']);
+$v->rule('array', 'field');
+$v->validate(); // false (no warnings!)
+```
+
+---
+
+## Validation Logic Improvements
+
+### Min Validation with Zero Values
+
+<Badge text="Fixed" variant="success" /> [Valitron #70](https://github.com/vlucas/valitron/issues/70)
+
+**Problem:** The value `0` was sometimes incorrectly handled in min/max validation due to PHP's type juggling.
+
+**Fix:** Valicomb uses `is_numeric()` checks and high-precision `bccomp()` for numeric comparisons.
+
+---
+
+### URL Validation with Non-String Input
+
+<Badge text="Fixed" variant="success" /> [Valitron #273](https://github.com/vlucas/valitron/issues/273)
+
+**Problem:** URL validation threw errors when the input was an object instead of a string.
+
+**Fix:** Valicomb validates input types before processing, returning `false` for non-string values.
+
+---
+
+## Feature Additions
+
+These features were requested in Valitron issues and have been implemented in Valicomb.
+
+<CardGrid>
+  <Card title="requiredWith / requiredWithout" icon="approve-check">
+    Conditional validation based on other fields ([#267](https://github.com/vlucas/valitron/issues/267))
+  </Card>
+  <Card title="IPv4 / IPv6 / ASCII" icon="approve-check">
+    Network and character validation rules ([#261](https://github.com/vlucas/valitron/issues/261))
+  </Card>
+  <Card title="startsWith / endsWith" icon="approve-check">
+    String prefix and suffix validation ([#170](https://github.com/vlucas/valitron/issues/170))
+  </Card>
+  <Card title="arrayHasKeys" icon="approve-check">
+    Validate required array keys ([#280](https://github.com/vlucas/valitron/issues/280))
+  </Card>
+</CardGrid>
+
+---
+
+## Translation Fixes
+
+Valicomb includes updated and corrected translations for all 33 supported languages, addressing issues reported in:
+
+- [#372](https://github.com/vlucas/valitron/issues/372) - Russian translation corrections
+- [#367](https://github.com/vlucas/valitron/issues/367) - Spanish array validator message
+- [#353](https://github.com/vlucas/valitron/issues/353) - Spanish length rule clarification
+- And many more language improvements
+
+---
+
+## Summary
+
+| Issue | Description | Status |
+|-------|-------------|--------|
+| #368 | Empty strings pass integer validation | Fixed |
+| #356 | Empty strings pass length validation | Fixed |
+| #260 | Empty arrays pass required validation | Fixed |
+| #381, #370, #357 | PHP 8.1+ strtotime deprecation | Fixed |
+| #182 | Array validation causes PHP warnings | Fixed |
+| #273 | URL validation with objects | Fixed |
+| #70 | Min validation with zero | Fixed |
+| #267 | requiredWith/requiredWithout rules | Added |
+| #261 | IPv4/IPv6/ASCII rules | Added |
+| #170 | startsWith/endsWith rules | Added |
+| #280 | arrayHasKeys rule | Added |
+
+---
+
+## Reporting New Issues
+
+Found a bug or have a feature request?
+
+- [GitHub Issues](https://github.com/frostybee/valicomb/issues)
+- For security issues, please use GitHub's private security advisory feature

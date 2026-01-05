@@ -21,6 +21,7 @@ return [
     'email' => "is not a valid email address",
     'url' => "is not a valid URL",
     'urlActive' => "must be an active domain",
+    'urlStrict' => "is not a valid public URL",
     'alpha' => "must contain only letters a-z",
     'alphaNum' => "must contain only letters a-z and/or numbers 0-9",
     'slug' => "must contain only letters a-z, numbers 0-9, dashes and underscores",
@@ -51,4 +52,5 @@ return [
     'phone' => "must be a valid phone number",
     'passwordStrength' => "must be a stronger password (minimum strength: %d/10)",
     'nullable' => "can be null or must be valid",
+    'extraField' => "is not an allowed field",
 ];

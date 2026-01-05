@@ -5,167 +5,104 @@ description: Validation rules for type checking and special formats
 
 Type validation rules check object types and special formats like credit cards.
 
-## instanceOf
+## Rules Reference
 
-Validates that the field is an instance of a specified class.
+| Rule | Parameters | Example | Error Message |
+|------|------------|---------|---------------|
+| `instanceOf` | `class` | `$v->rule('instanceOf', 'field', DateTime::class)` | `{field} must be an instance of {0}` |
+| `creditCard` | `type?`, `allowedTypes?` | `$v->rule('creditCard', 'field')` | `{field} must be a valid credit card number` |
 
-### Parameters
+> **Note:** Parameters marked with `?` are optional.
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `class` | string\|object | Yes | Class name or object instance |
+## Parameter Details
 
-### Basic Usage
+### instanceOf
+
+The `class` parameter accepts a class name string or an object instance. Inheritance is respected:
 
 ```php
-$v->rule('instanceOf', 'date', DateTime::class);
+$v->rule('instanceOf', 'obj', BaseClass::class); // ChildClass passes
 ```
 
-### Using Object Instance
+### creditCard
 
-You can also compare against an existing object:
+Validates using the Luhn algorithm. Spaces and dashes are stripped automatically.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `type` | `string\|array\|null` | Card type(s) to validate: `visa`, `mastercard`, `amex`, `dinersclub`, `discover` |
+| `allowedTypes` | `array\|null` | Restrict accepted types when type comes from client |
+
+**Supported card types:**
+
+| Slug | Card Type | Prefix Pattern |
+|------|-----------|----------------|
+| `visa` | Visa | 4xxx |
+| `mastercard` | Mastercard | 51-55, 2221-2720 |
+| `amex` | American Express | 34, 37 |
+| `dinersclub` | Diners Club | 300-305, 36, 38 |
+| `discover` | Discover | 6011, 644-649, 65 |
+
+**Examples:**
 
 ```php
-$v = new Validator(['date' => new DateTime()]);
-$existingDateObject = new DateTime();
+// Any valid card
+$v->rule('creditCard', 'card_number');
+
+// Specific type
+$v->rule('creditCard', 'card_number', 'visa');
+
+// Multiple types
+$v->rule('creditCard', 'card_number', ['visa', 'mastercard']);
+
+// Client-provided type with restrictions
+$v->rule('creditCard', 'card_number', $clientType, ['visa', 'mastercard']);
+```
+
+---
+
+## Complete Examples
+
+Valicomb supports two syntax styles: **rule-based** (map rules to fields) and **field-based** (map fields to rules).
+
+### Rule-Based Array Syntax
+
+```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($data);
+
 $v->rules([
     'instanceOf' => [
-        ['date', $existingDateObject]
+        ['created_at', \DateTime::class],
+        ['updated_at', \DateTime::class],
+        ['user', User::class],
+        ['logger', \Psr\Log\LoggerInterface::class]
+    ],
+    'creditCard' => [
+        ['card_number'],
+        ['backup_card', ['visa', 'mastercard']]
     ]
 ]);
+
 $v->validate();
 ```
 
-### Inheritance Support
-
-The rule respects class inheritance:
+### Field-Based Mapping
 
 ```php
-class BaseClass {}
-class ChildClass extends BaseClass {}
+use Frostybee\Valicomb\Validator;
 
-$v = new Validator(['obj' => new ChildClass()]);
-$v->rule('instanceOf', 'obj', BaseClass::class); // true
-```
+$v = new Validator($data);
 
-### Error Message
-
-Default: `"{field} must be an instance of {0}"`
-
----
-
-## creditCard
-
-Validates that the field is a valid credit card number using the Luhn algorithm.
-
-### Parameters
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `type` | string\|array\|null | No | Card type(s) to validate |
-| `allowedTypes` | array\|null | No | Restrict accepted types |
-
-### Basic Usage
-
-```php
-// Accept any valid card
-$v->rule('creditCard', 'card_number');
-```
-
-### Specific Card Type
-
-```php
-// Only accept Visa
-$v->rule('creditCard', 'card_number', 'visa');
-```
-
-### Multiple Card Types
-
-```php
-// Accept Visa or Mastercard
-$v->rule('creditCard', 'card_number', ['visa', 'mastercard']);
-```
-
-### Client-Provided Type with Restrictions
-
-When card type comes from the client, restrict allowed types:
-
-```php
-$cardType = 'amex';
-$v->rule('creditCard', 'card_number', $cardType, ['visa', 'mastercard']);
-$v->validate(); // false - amex not in allowed list
-```
-
-### Supported Card Types
-
-| Slug | Card Type |
-|------|-----------|
-| `visa` | Visa |
-| `mastercard` | Mastercard |
-| `amex` | American Express |
-| `dinersclub` | Diners Club |
-| `discover` | Discover |
-
-### How It Works
-
-1. **Format Validation**: Checks card number format
-2. **Luhn Algorithm**: Validates checksum digit
-3. **Type Detection**: Matches card prefix patterns
-
-### Card Prefixes
-
-| Type | Prefix Pattern |
-|------|---------------|
-| Visa | 4xxx |
-| Mastercard | 51-55, 2221-2720 |
-| American Express | 34, 37 |
-| Discover | 6011, 644-649, 65 |
-| Diners Club | 300-305, 36, 38 |
-
-### Notes
-
-- Spaces and dashes are stripped before validation
-- Only numeric characters are considered
-- Invalid lengths fail validation
-
-### Error Message
-
-Default: `"{field} must be a valid credit card number"`
-
----
-
-## Combining Type Rules
-
-### Payment Form Example
-
-```php
-$v = new Validator($_POST);
-
-// Required credit card
-$v->rule('required', 'card_number');
-$v->rule('creditCard', 'card_number', ['visa', 'mastercard', 'amex']);
-
-// Expiration date
-$v->rule('required', 'expiry_date');
-$v->rule('dateFormat', 'expiry_date', 'm/y');
-$v->rule('future', 'expiry_date');
-
-// CVV
-$v->rule('required', 'cvv');
-$v->rule('integer', 'cvv');
-$v->rule('lengthBetween', 'cvv', 3, 4);
-```
-
-### Object Validation Example
-
-```php
-$v = new Validator([
-    'user' => $userObject,
-    'config' => $configObject,
-    'logger' => $loggerObject
+$v->mapManyFieldsToRules([
+    'card_number' => ['required', 'creditCard'],
+    'visa_card' => ['optional', ['creditCard', 'visa']],
+    'payment_card' => ['required', ['creditCard', ['visa', 'mastercard', 'amex']]],
+    'created_at' => ['required', ['instanceOf', \DateTime::class]],
+    'user' => ['required', ['instanceOf', User::class]],
+    'config' => ['optional', ['instanceOf', ConfigInterface::class]]
 ]);
 
-$v->rule('instanceOf', 'user', User::class);
-$v->rule('instanceOf', 'config', ConfigInterface::class);
-$v->rule('instanceOf', 'logger', LoggerInterface::class);
+$v->validate();
 ```

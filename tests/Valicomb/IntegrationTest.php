@@ -141,6 +141,34 @@ class IntegrationTest extends BaseTestCase
     }
 
     /**
+     * Test rules method with custom messages
+     */
+    public function testBulkRulesMethodWithCustomMessages(): void
+    {
+        $v = new Validator([
+            'email' => '',
+            'password' => 'short',
+        ]);
+
+        $v->rules([
+            'required' => [
+                ['email', 'message' => 'Email is required'],
+            ],
+            'lengthMin' => [
+                ['password', 8, 'message' => 'Password must be at least 8 characters'],
+            ],
+        ]);
+
+        $this->assertFalse($v->validate());
+
+        $errors = $v->errors();
+        $this->assertArrayHasKey('email', $errors);
+        $this->assertArrayHasKey('password', $errors);
+        $this->assertSame('Email is required', $errors['email'][0]);
+        $this->assertSame('Password must be at least 8 characters', $errors['password'][0]);
+    }
+
+    /**
      * Test withData method for validator reuse
      */
     public function testWithData(): void

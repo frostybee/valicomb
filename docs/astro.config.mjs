@@ -2,16 +2,38 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
+
 // https://astro.build/config
 export default defineConfig({
+    site: 'https://frostybee.github.io',
+    base: '/valicomb',
 	integrations: [
 		starlight({
 			title: 'Valicomb',
-			expressiveCode: {
-				themes: ['github-dark', 'github-light'],
-			},
 			customCss: ['./src/styles/custom.css'],
 			head: [
+				{
+					tag: 'link',
+					attrs: {
+						rel: 'preconnect',
+						href: 'https://fonts.googleapis.com',
+					},
+				},
+				{
+					tag: 'link',
+					attrs: {
+						rel: 'preconnect',
+						href: 'https://fonts.gstatic.com',
+						crossorigin: true,
+					},
+				},
+				{
+					tag: 'link',
+					attrs: {
+						rel: 'stylesheet',
+						href: 'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap',
+					},
+				},
 				{
 					tag: 'script',
 					content: `
@@ -35,10 +57,10 @@ export default defineConfig({
 				{
 					label: 'Getting Started',
 					items: [
-						{ label: 'Introduction', slug: 'getting-started/introduction' },
 						{ label: 'Installation', slug: 'getting-started/installation' },
-                        { label: 'Core Concepts', slug: 'getting-started/core-concepts' },
 						{ label: 'Quick Start', slug: 'getting-started/quick-start' },
+						{ label: 'Core Concepts', slug: 'getting-started/core-concepts' },
+						{ label: 'Defining Rules', slug: 'getting-started/defining-rules' },
 					],
 				},
 				{
@@ -59,7 +81,6 @@ export default defineConfig({
 				{
 					label: 'Guides',
 					items: [
-						{ label: 'Defining Rules', slug: 'guides/defining-rules' },
 						{ label: 'Custom Rules', slug: 'guides/custom-rules' },
 						{ label: 'Error Messages', slug: 'guides/error-messages' },
 						{ label: 'Internationalization', slug: 'guides/i18n' },
@@ -68,20 +89,12 @@ export default defineConfig({
 					],
 				},
 				{
-					label: 'API Reference',
-					items: [
-						{ label: 'Validator Class', slug: 'api/validator' },
-						{ label: 'Rule Registry', slug: 'api/rule-registry' },
-						{ label: 'Error Manager', slug: 'api/error-manager' },
-						{ label: 'Language Manager', slug: 'api/language-manager' },
-					],
-				},
-				{
 					label: 'Development',
 					items: [
 						{ label: 'Composer Commands', slug: 'development/commands' },
 						{ label: 'Contributing', slug: 'development/contributing' },
 						{ label: 'Changelog', slug: 'development/changelog' },
+						{ label: 'Valitron Issues Fixed', slug: 'development/valitron-fixes' },
 					],
 				},
 			],

@@ -3,118 +3,50 @@ title: Contributing
 description: Guidelines for contributing to Valicomb
 ---
 
-Thank you for your interest in contributing to Valicomb! This guide will help you get started.
+Thank you for your interest in contributing to Valicomb!
 
-## Getting Started
-
-### Prerequisites
-
-- PHP 8.2 or higher
-- Composer
-- Git
-
-### Setup
-
-1. **Fork the repository**
-
-   Click the "Fork" button on GitHub to create your own copy.
-
-2. **Clone your fork**
-
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/valicomb.git
-   cd valicomb
-   ```
-
-3. **Install dependencies**
-
-   ```bash
-   composer install
-   ```
-
-4. **Verify the setup**
-
-   ```bash
-   composer check-all
-   ```
-
----
-
-## Development Workflow
-
-### Creating a Feature Branch
+## Setup
 
 ```bash
-git checkout -b feature/my-new-feature
-```
+# Clone your fork
+git clone https://github.com/YOUR_USERNAME/valicomb.git
+cd valicomb
 
-### Making Changes
+# Install dependencies
+composer install
 
-1. Write your code
-2. Add tests for new functionality
-3. Run quality checks frequently
-
-### Before Committing
-
-Always run the full quality check:
-
-```bash
+# Verify setup
 composer check-all
 ```
 
-This runs:
-- PHPUnit tests
-- PHPStan analysis (Level 8)
-- Code style check (PSR-12)
-- Rector refactoring check
-
-### Committing
-
-```bash
-git add .
-git commit -m "Add feature: description of your change"
-```
-
-### Pushing
-
-```bash
-git push origin feature/my-new-feature
-```
+**Requirements:** PHP 8.2+, Composer, Git
 
 ---
 
 ## Code Standards
 
-### PHP Version
+- **PHP 8.2+** with `declare(strict_types=1);`
+- **PSR-12** coding standard (run `composer cs-fix` to auto-fix)
+- **PHPStan Level 8** - all code must pass static analysis
 
-- Minimum PHP 8.2
-- Use strict types: `declare(strict_types=1);`
-- Use typed properties and return types
-
-### Code Style
-
-- Follow PSR-12 coding standard
-- Run `composer cs-fix` to auto-fix issues
-- Keep lines under 120 characters
-
-### PHPStan Level 8
-
-All code must pass PHPStan Level 8:
+Before submitting a PR, always run:
 
 ```bash
-composer analyse
+composer check-all
 ```
+
+This runs tests, PHPStan, and code style checks.
 
 ---
 
-## Adding New Validation Rules
+## Adding Validation Rules
 
-### 1. Choose the Right Trait
+### 1. Add the Method
 
-Add your rule to the appropriate trait in `src/Valicomb/Validators/`:
+Add to the appropriate trait in `src/Valicomb/Validators/`:
 
 | Trait | Rule Types |
-|-------|-----------|
+|-------|------------|
 | `StringValidatorsTrait` | String patterns, format |
 | `NumericValidatorsTrait` | Numbers, ranges |
 | `DateValidatorsTrait` | Dates, times |
@@ -124,10 +56,6 @@ Add your rule to the appropriate trait in `src/Valicomb/Validators/`:
 | `ComparisonValidatorsTrait` | Field comparison |
 | `ConditionalValidatorsTrait` | Conditional rules |
 | `TypeValidatorsTrait` | Type checking |
-
-### 2. Method Naming
-
-Validation methods must be named `validate{RuleName}`:
 
 ```php
 protected function validateMyRule(
@@ -140,17 +68,17 @@ protected function validateMyRule(
 }
 ```
 
-### 3. Add Language String
+### 2. Add Language String
 
-Add the error message to `lang/en.php`:
+Add the error message to `src/lang/en.php`:
 
 ```php
 'myRule' => '{field} failed the myRule validation',
 ```
 
-### 4. Add Tests
+### 3. Add Tests
 
-Create comprehensive tests in `tests/`:
+Create tests in `tests/Valicomb/Rules/`:
 
 ```php
 public function testMyRuleValid(): void
@@ -168,117 +96,9 @@ public function testMyRuleInvalid(): void
 }
 ```
 
-### 5. Document the Rule
+### 4. Document
 
-Add documentation to the appropriate rules page.
-
----
-
-## Writing Tests
-
-### Test Structure
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace Valicomb\Tests;
-
-use Frostybee\Valicomb\Validator;
-use PHPUnit\Framework\TestCase;
-
-class MyTest extends TestCase
-{
-    public function testSomething(): void
-    {
-        // Arrange
-        $v = new Validator(['email' => 'test@example.com']);
-
-        // Act
-        $v->rule('email', 'email');
-        $result = $v->validate();
-
-        // Assert
-        $this->assertTrue($result);
-    }
-}
-```
-
-### Running Tests
-
-```bash
-# Run all tests
-composer test
-
-# Run specific test file
-vendor/bin/phpunit tests/Valicomb/MyTest.php
-
-# Run with coverage
-vendor/bin/phpunit --coverage-html coverage/
-```
-
----
-
-## Pull Request Guidelines
-
-### PR Checklist
-
-- [ ] All tests pass (`composer test`)
-- [ ] PHPStan passes (`composer analyse`)
-- [ ] Code style is correct (`composer cs-check`)
-- [ ] New features have tests
-- [ ] Documentation updated if needed
-- [ ] Commit messages are clear
-
-### PR Description
-
-Include:
-- What changes were made
-- Why the changes were made
-- Any breaking changes
-- Related issues (if any)
-
-### Example PR
-
-```markdown
-## Summary
-
-Added `phone` validation rule with support for 12 countries.
-
-## Changes
-
-- Added `validatePhone()` method to NetworkValidatorsTrait
-- Added phone validation language strings
-- Added comprehensive tests
-
-## Testing
-
-- All existing tests pass
-- Added 15 new tests for phone validation
-
-Closes #123
-```
-
----
-
-## Reporting Issues
-
-### Bug Reports
-
-Include:
-- PHP version
-- Valicomb version
-- Minimal code to reproduce
-- Expected behavior
-- Actual behavior
-
-### Feature Requests
-
-Include:
-- Use case description
-- Proposed API
-- Examples of usage
+Add documentation to the appropriate rules page in `docs/`.
 
 ---
 
@@ -286,9 +106,7 @@ Include:
 
 **Do NOT create public issues for security vulnerabilities.**
 
-Instead:
-1. Create a private security advisory on GitHub
-2. Or email the maintainer directly
+Create a private security advisory on GitHub or email the maintainer directly.
 
 ---
 

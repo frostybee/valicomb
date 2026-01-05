@@ -5,167 +5,93 @@ description: Validation rules for comparing field values
 
 Comparison validation rules check field presence and compare values between fields.
 
-## required
+## Rules Reference
 
-Validates that the field is present and not empty.
+| Rule | Parameters | Example | Error Message |
+|------|------------|---------|---------------|
+| `required` | `allowEmpty?` | `$v->rule('required', 'field')` | `{field} is required` |
+| `equals` | `otherField` | `$v->rule('equals', 'field', 'other')` | `{field} must match {0}` |
+| `different` | `otherField` | `$v->rule('different', 'field', 'other')` | `{field} must be different from {0}` |
+| `accepted` | — | `$v->rule('accepted', 'field')` | `{field} must be accepted` |
 
-### Parameters
+> **Note:** Parameters marked with `?` are optional.
 
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `allowEmpty` | bool | No | `false` | Allow empty value if key exists |
+## Parameter Details
 
-### Basic Usage
+### required
+
+Empty values: `null`, empty string `''`, or not set in data array.
 
 ```php
-$v->rule('required', 'email');
-```
-
-### Apply to Multiple Fields
-
-```php
+// Apply to multiple fields
 $v->rule('required', ['email', 'name', 'password']);
+
+// Allow empty if key exists
+$v->rule('required', 'field', true);
 ```
 
-### Allow Empty Values
+### equals / different
 
-With the `allowEmpty` flag, the rule only checks if the key exists:
+Uses strict comparison (`===`) to prevent type juggling attacks. Supports dot notation for nested fields.
+
+### accepted
+
+Valid acceptance values: `'yes'`, `'on'`, `1`, `'1'`, `true`
+
+---
+
+## Complete Examples
+
+Valicomb supports two syntax styles: **rule-based** (map rules to fields) and **field-based** (map fields to rules).
+
+### Rule-Based Array Syntax
 
 ```php
-$v = new Validator(['required_but_null' => null]);
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($data);
+
 $v->rules([
     'required' => [
-        ['required_but_null', true] // Passes because key exists
+        ['username'],
+        ['email'],
+        ['password'],
+        ['password_confirmation']
+    ],
+    'equals' => [
+        ['password_confirmation', 'password'],
+        ['email_confirmation', 'email']
+    ],
+    'different' => [
+        ['new_password', 'current_password'],
+        ['new_email', 'current_email']
+    ],
+    'accepted' => [
+        ['terms_of_service'],
+        ['privacy_policy']
     ]
 ]);
+
 $v->validate();
 ```
 
-### What Counts as Empty
-
-- `null`
-- Empty string `''`
-- Not set in data array
-
-### Error Message
-
-Default: `"{field} is required"`
-
----
-
-## equals
-
-Validates that the field matches another field's value (strict comparison).
-
-### Parameters
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `field` | string | Yes | The other field to compare against |
-
-### Basic Usage
+### Field-Based Mapping
 
 ```php
-$v->rule('equals', 'password', 'confirmPassword');
-```
+use Frostybee\Valicomb\Validator;
 
-### Security: Strict Comparison
+$v = new Validator($data);
 
-Uses strict comparison (`===`) to prevent type juggling attacks:
-
-```php
-$v = new Validator([
-    'field1' => '0e123456',
-    'field2' => '0e789012'
+$v->mapManyFieldsToRules([
+    'username' => ['required', ['lengthBetween', 3, 20]],
+    'email' => ['required', 'email'],
+    'email_confirmation' => ['required', ['equals', 'email']],
+    'password' => ['required', ['lengthMin', 8]],
+    'password_confirmation' => ['required', ['equals', 'password']],
+    'new_password' => ['required', ['different', 'current_password']],
+    'terms_of_service' => ['accepted'],
+    'newsletter' => ['optional', 'accepted']
 ]);
-$v->rule('equals', 'field1', 'field2'); // false (strict comparison)
-```
 
-### Error Message
-
-Default: `"{field} must match {0}"`
-
----
-
-## different
-
-Validates that the field is different from another field's value.
-
-### Parameters
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `field` | string | Yes | The other field to compare against |
-
-### Basic Usage
-
-```php
-$v->rule('different', 'new_password', 'old_password');
-```
-
-### Nested Field Support
-
-Use dot notation for nested fields:
-
-```php
-$v->rule('different', 'user.newEmail', 'user.oldEmail');
-```
-
-### Error Message
-
-Default: `"{field} must be different from {0}"`
-
----
-
-## accepted
-
-Validates that the field is "accepted" (checkbox/agreement validation).
-
-### Basic Usage
-
-```php
-$v->rule('accepted', 'terms_of_service');
-```
-
-### Accepted Values
-
-| Value | Accepted |
-|-------|----------|
-| `'yes'` | Yes |
-| `'on'` | Yes |
-| `1` | Yes |
-| `'1'` | Yes |
-| `true` | Yes |
-| `'no'` | No |
-| `'off'` | No |
-| `0` | No |
-| `'0'` | No |
-| `false` | No |
-
-### Error Message
-
-Default: `"{field} must be accepted"`
-
----
-
-## Combining Comparison Rules
-
-Common patterns for form validation:
-
-```php
-$v = new Validator($_POST);
-
-// Password confirmation
-$v->rule('required', ['password', 'password_confirmation']);
-$v->rule('equals', 'password', 'password_confirmation');
-
-// Email confirmation
-$v->rule('required', ['email', 'email_confirmation']);
-$v->rule('equals', 'email', 'email_confirmation');
-
-// New password different from old
-$v->rule('different', 'new_password', 'current_password');
-
-// Terms acceptance
-$v->rule('accepted', 'terms');
+$v->validate();
 ```

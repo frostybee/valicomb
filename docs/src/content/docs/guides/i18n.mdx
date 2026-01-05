@@ -161,30 +161,7 @@ $v = new Validator($data, [], $lang);
 
 ## Message Placeholders
 
-All languages support the same placeholders:
-
-| Placeholder | Description |
-|-------------|-------------|
-| `{field}` | Field name or label |
-| `{0}` | First parameter |
-| `{1}` | Second parameter |
-| `{2}` | Third parameter |
-
-Example in different languages:
-
-```php
-// English
-'between' => '{field} must be between {0} and {1}'
-// "Age must be between 18 and 65"
-
-// Spanish
-'between' => '{field} debe estar entre {0} y {1}'
-// "Edad debe estar entre 18 y 65"
-
-// French
-'between' => '{field} doit être compris entre {0} et {1}'
-// "Âge doit être compris entre 18 et 65"
-```
+All languages support the same placeholders (`{field}`, `{0}`, `{1}`, etc.). These work consistently across all translations. For complete placeholder documentation, see [Error Messages - Message Placeholders](/valicomb/guides/error-messages/#message-placeholders).
 
 ---
 

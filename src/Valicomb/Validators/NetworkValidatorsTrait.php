@@ -392,6 +392,93 @@ trait NetworkValidatorsTrait
     }
 
     /**
+     * Validate that a field is a valid URL with stricter checks
+     *
+     * Performs enhanced URL validation beyond PHP's FILTER_VALIDATE_URL to catch
+     * common URL typos and edge cases that pass basic validation but are likely errors.
+     *
+     * This validation includes all checks from validateUrl() plus:
+     * - Domain must contain at least one dot (rejects "http://localhost")
+     * - Detects common typos like "ww." instead of "www."
+     * - Rejects empty subdomain parts (e.g., "http://..example.com")
+     * - Validates reasonable domain label lengths (max 63 chars per label)
+     * - Rejects numeric-only TLDs (e.g., ".123")
+     *
+     * Use cases:
+     * - Public-facing URLs that should be accessible globally
+     * - User-submitted URLs where typos are common
+     * - Applications requiring well-formed, internet-accessible URLs
+     *
+     * For less strict validation (RFC compliance only), use validateUrl().
+     * For DNS verification (ensure domain resolves), use validateUrlActive().
+     *
+     * Examples:
+     * - "https://www.example.com" → true
+     * - "https://example.com" → true
+     * - "https://ww.example.com" → false (common typo)
+     * - "http://localhost" → false (no dot in domain)
+     * - "https://..example.com" → false (empty subdomain)
+     *
+     * @param string $field The field name being validated.
+     * @param mixed $value The value to validate.
+     *
+     * @return bool True if URL passes strict validation, false otherwise.
+     */
+    protected function validateUrlStrict(string $field, mixed $value): bool
+    {
+        // First perform basic URL validation
+        if (!$this->validateUrl($field, $value)) {
+            return false;
+        }
+
+        if (!is_string($value)) {
+            return false;
+        }
+
+        // Extract hostname
+        $host = parse_url($value, PHP_URL_HOST);
+        if ($host === null || $host === false || $host === '') {
+            return false;
+        }
+
+        // Domain must contain at least one dot (reject "localhost" style)
+        if (!str_contains($host, '.')) {
+            return false;
+        }
+
+        // Check for common typos: "ww." instead of "www."
+        // Also catch "wwww.", "www1.", and similar
+        $hostLower = strtolower($host);
+        if (preg_match('/^ww[w\d]*\./', $hostLower) && !str_starts_with($hostLower, 'www.')) {
+            return false;
+        }
+
+        // Split into domain labels
+        $labels = explode('.', $host);
+
+        // Reject empty labels (e.g., "..example.com" or "example..com")
+        foreach ($labels as $label) {
+            if ($label === '') {
+                return false;
+            }
+
+            // Each label should be 1-63 characters (DNS standard)
+            if (strlen($label) > 63) {
+                return false;
+            }
+        }
+
+        // TLD (last label) should not be purely numeric
+        // Note: $labels is guaranteed non-empty since we verified a dot exists
+        $tld = $labels[count($labels) - 1];
+        if (preg_match('/^\d+$/', $tld)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Validate that a field is a valid phone number
      *
      * Validates phone numbers in various international formats. Supports:

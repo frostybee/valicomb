@@ -11,27 +11,33 @@ Regular Expression Denial of Service (ReDoS) attacks exploit inefficient regex p
 
 ### Automatic Protection
 
-The `regex` rule includes automatic protection against dangerous patterns:
+The `regex` rule includes automatic protection by setting strict execution limits:
 
 ```php
 use Frostybee\Valicomb\Validator;
 
 $v = new Validator(['field' => 'aaaaaaaaaaaa!']);
 
-// This throws RuntimeException - dangerous pattern detected
+// This throws RuntimeException when backtrack limit is exhausted
 $v->rule('regex', 'field', '/^(a+)+$/');
+$v->validate(); // RuntimeException: Regex execution failed: Backtrack limit exhausted
 ```
+
+The protection works by:
+1. Setting `pcre.backtrack_limit` and `pcre.recursion_limit` to 1000 during execution
+2. Throwing a `RuntimeException` if limits are exceeded
+3. Restoring original INI settings after execution
 
 ### Safe Pattern Guidelines
 
-✅ **Good patterns:**
+**Good patterns:**
 ```php
 $v->rule('regex', 'field', '/^[a-zA-Z0-9]+$/');    // Simple character class
 $v->rule('regex', 'field', '/^\d{3}-\d{4}$/');     // Fixed quantifiers
 $v->rule('regex', 'field', '/^[A-Z]{2}\d{6}$/');   // Bounded patterns
 ```
 
-❌ **Dangerous patterns to avoid:**
+**Dangerous patterns to avoid:**
 ```php
 // Nested quantifiers
 '/^(a+)+$/'
@@ -114,21 +120,28 @@ Dangerous protocols like `javascript:` and `data:` are not allowed.
 
 ## Path Traversal Protection
 
-Language file loading validates against directory traversal attacks:
+Language file loading validates against directory traversal attacks using multiple layers of protection:
 
 ```php
-// This throws InvalidArgumentException - path traversal blocked
+// Path components are stripped, then validated against whitelist
 new Validator([], [], '../../etc/passwd');
+// Throws: InvalidArgumentException: Invalid language 'passwd'. Allowed: ar, cs, da, ...
 
-// This throws InvalidArgumentException - invalid language code
 new Validator([], [], '../../../evil');
+// Throws: InvalidArgumentException: Invalid language 'evil'. Allowed: ar, cs, da, ...
 ```
 
-### Language Code Validation
+### How It Works
 
-Only alphanumeric language codes with optional hyphens are accepted:
-- ✅ `en`, `en-US`, `zh-Hans`
-- ❌ `../etc`, `../../`, `.`
+1. `basename()` strips directory traversal attempts (`../../etc/passwd` → `passwd`)
+2. Result is validated against a strict whitelist of allowed language codes
+3. `realpath()` normalizes the language directory path
+
+### Allowed Language Codes
+
+Only whitelisted language codes are accepted:
+- Allowed: `ar`, `cs`, `da`, `de`, `en`, `es`, `fa`, `fi`, `fr`, `hu`, `id`, `it`, `ja`, `nl`, `no`, `pl`, `pt`, `ru`, `sv`, `tr`, `uk`, `zh`
+- Rejected: Any other value, including path traversal attempts
 
 ---
 
@@ -233,8 +246,8 @@ $v->rule('lengthMin', 'password', 8);
 
 ```php
 // Specific is better than generic
-$v->rule('email', 'email');        // ✅ Validates email format
-$v->rule('lengthMax', 'email', 5); // ❌ Just checks length
+$v->rule('email', 'email');        // Good - validates email format
+$v->rule('lengthMax', 'email', 5); // Bad - just checks length
 ```
 
 ### 3. Validate Before Use

@@ -58,13 +58,35 @@ class ConditionalValidationTest extends BaseTestCase
 
     public function testRequiredEdgeCases(): void
     {
+        // Zero, '0', and false should pass required validation
         $v = new Validator([
             'zero' => 0,
             'zero_txt' => '0',
             'false' => false,
+        ]);
+        $v->rule('required', ['zero', 'zero_txt', 'false']);
+
+        $this->assertTrue($v->validate());
+    }
+
+    public function testRequiredFailsOnEmptyArray(): void
+    {
+        // Empty arrays should fail required validation (Valitron issue #260)
+        $v = new Validator([
             'empty_array' => [],
         ]);
-        $v->rule('required', ['zero', 'zero_txt', 'false', 'empty_array']);
+        $v->rule('required', 'empty_array');
+
+        $this->assertFalse($v->validate());
+    }
+
+    public function testRequiredPassesOnNonEmptyArray(): void
+    {
+        // Non-empty arrays should pass required validation
+        $v = new Validator([
+            'filled_array' => ['item1', 'item2'],
+        ]);
+        $v->rule('required', 'filled_array');
 
         $this->assertTrue($v->validate());
     }

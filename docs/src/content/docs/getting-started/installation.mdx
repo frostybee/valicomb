@@ -1,20 +1,20 @@
 ---
 title: Installation
-description: Install Valicomb PHP validation library via Composer
+description: Install and set up Valicomb, a simple and modern PHP validation library
 ---
+
+**Valicomb** is a simple, minimal PHP validation library with **zero dependencies**. Completely rewritten for PHP 8.2+ with security-first design, strict type safety, and modern PHP features.
+
+:::note
+This is a modernized and actively maintained fork of [vlucas/valitron](https://github.com/vlucas/valitron)
+:::
 
 ## Requirements
 
-Before installing Valicomb, ensure your environment meets these requirements:
-
 - PHP 8.2 or higher
-- `ext-mbstring` extension (for multibyte string support)
+- `ext-mbstring` extension
 
-### Optional Extensions
-
-- `ext-bcmath` is recommended for high-precision numeric comparisons with `min`/`max` validators
-
-## Install via Composer
+## Installation
 
 Install Valicomb using Composer:
 
@@ -22,28 +22,43 @@ Install Valicomb using Composer:
 composer require frostybee/valicomb
 ```
 
-## Verify Installation
+## Optional Extensions
 
-After installation, you can verify it works by creating a simple validation:
+- For high-precision numeric comparisons, consider installing the [BCMath](http://us3.php.net/manual/en/book.bc.php) extension. If you are comparing floating-point numbers with `min`/`max` validators, BCMath provides greater accuracy and reliability. Valicomb will automatically use it if available.
+
+## Features
+
+- **Modern PHP 8.2+ support** with strict types turned on, so everything is fully typed and predictable.
+- **Security-first approach** that helps guard against things like ReDoS, type juggling issues, path traversal, and similar problems.
+- **Thoroughly tested**, with over 430 tests making sure things behave the way they should.
+- **No external dependencies**, other than the standard `ext-mbstring` extension.
+- **Clean and straightforward API** that's easy to read and chain together.
+- **Built-in i18n support**, offering 22 languages out of the box.
+- **53 ready-to-use validation rules** covering the most common validation needs.
+- **Easy to extend**, so you can add your own custom validation rules when needed.
+- **Clean, modern codebase**, fully passing PHPStan Level 8 checks.
+
+
+## Quick Example
 
 ```php
-<?php
-
-require_once 'vendor/autoload.php';
-
 use Frostybee\Valicomb\Validator;
 
-$v = new Validator(['email' => 'test@example.com']);
+$v = new Validator(['email' => 'test@example.com', 'age' => '25']);
+$v->rule('required', ['email', 'age']);
 $v->rule('email', 'email');
+$v->rule('integer', 'age');
 
 if ($v->validate()) {
-    echo "Valicomb is working correctly!";
+    echo "Validation passed!";
+} else {
+    print_r($v->errors());
 }
 ```
 
-## Next Steps
+## What's Next?
 
-Now that Valicomb is installed, continue to:
-
-- [Quick Start](/getting-started/quick-start/) - Learn basic validation patterns
-- [Core Concepts](/getting-started/core-concepts/) - Understand the validation workflow
+- [Quick Start](/valicomb/getting-started/quick-start/) - Learn the basics
+- [Core Concepts](/valicomb/getting-started/core-concepts/) - Understand how validation works
+- [Defining Rules](/valicomb/getting-started/defining-rules/) - Master the three rule syntaxes
+- [Validation Rules](/valicomb/rules/overview/) - Explore all 53 built-in rules

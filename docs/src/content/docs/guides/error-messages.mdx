@@ -7,6 +7,8 @@ Valicomb provides flexible error message handling with custom messages, field la
 
 ## Getting Errors
 
+After validation runs, you'll need to retrieve any errors that occurred. Valicomb provides several methods to access errors, whether you want all of them at once, errors for a specific field, or just need to check if validation passed.
+
 ### Get All Errors
 
 ```php
@@ -49,6 +51,8 @@ if ($v->validate()) {
 
 ## Custom Error Messages
 
+Default error messages work for most cases, but sometimes you need messages that match your application's tone or provide more specific guidance. You can override any rule's default message with your own.
+
 ### Per-Rule Messages
 
 Override the default message for a specific rule:
@@ -71,6 +75,8 @@ $v->rule('required', 'password')
 ---
 
 ## Message Placeholders
+
+Placeholders let you create dynamic error messages that include the field name, the invalid value, and rule parameters. This makes error messages more informative without hardcoding values.
 
 Error messages support placeholder substitution:
 
@@ -172,6 +178,8 @@ if ($username === 'admin') {
 
 ## Field Labels
 
+Field names in your code often use snake_case or technical names that don't look great in user-facing error messages. Labels let you define human-readable names that appear in error messages instead.
+
 Make error messages more user-friendly with custom field labels.
 
 ### Single Label
@@ -209,6 +217,8 @@ $v->rule('email', 'user_email');
 
 ## Hiding Field Labels
 
+In some contexts (like API responses or single-field forms) you may not want field names prepended to error messages. You can disable this behavior globally for a validator instance.
+
 By default, error messages are prefixed with the field name. You can disable this:
 
 ```php
@@ -228,6 +238,8 @@ $v->validate();
 ---
 
 ## Manually Adding Errors
+
+Sometimes you need to add errors based on custom logic that isn't covered by built-in rules—like checking against a database or validating business rules. You can add errors programmatically and they'll be included with the other validation errors.
 
 Add custom errors programmatically:
 
@@ -249,6 +261,8 @@ $v->error('username', '{field} "{value}" is not allowed', [], $username);
 ---
 
 ## Error Display Patterns
+
+How you display errors depends on your application's UI. Here are common patterns for rendering validation errors in different contexts.
 
 ### Simple List
 
@@ -307,6 +321,8 @@ if (!$v->validate()) {
 
 ## Internationalization
 
+Valicomb includes translations for 33 languages out of the box. You can set the language globally or per-instance to display error messages in your users' preferred language.
+
 Error messages support multiple languages:
 
 ```php
@@ -317,15 +333,5 @@ Validator::lang('es'); // Spanish
 $v = new Validator($data, [], 'fr'); // French
 ```
 
-See [Internationalization Guide](/guides/i18n/) for more details.
+See [Internationalization Guide](/valicomb/guides/i18n/) for more details.
 
----
-
-## Best Practices
-
-1. **Use Custom Messages**: Default messages are generic; customize for clarity
-2. **Use Field Labels**: Transform `user_email` to "Email Address"
-3. **Be Specific**: "Password must be at least 8 characters" > "Invalid password"
-4. **Be Helpful**: Tell users how to fix the error
-5. **Keep it Concise**: Error messages should be short and scannable
-6. **Consistent Tone**: Use the same voice across all error messages

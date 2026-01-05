@@ -5,221 +5,109 @@ description: Validation rules for network addresses and protocols
 
 Network validation rules check IP addresses, email addresses, URLs, and phone numbers.
 
-## ip
+## Rules Reference
 
-Validates that the field is a valid IP address (IPv4 or IPv6).
+| Rule | Parameters | Example | Error Message |
+|------|------------|---------|---------------|
+| `ip` | — | `$v->rule('ip', 'field')` | `{field} must be a valid IP address` |
+| `ipv4` | — | `$v->rule('ipv4', 'field')` | `{field} must be a valid IPv4 address` |
+| `ipv6` | — | `$v->rule('ipv6', 'field')` | `{field} must be a valid IPv6 address` |
+| `email` | — | `$v->rule('email', 'field')` | `{field} is not a valid email address` |
+| `emailDNS` | — | `$v->rule('emailDNS', 'field')` | `{field} must be a valid email address with an active DNS record` |
+| `url` | — | `$v->rule('url', 'field')` | `{field} is not a valid URL` |
+| `urlActive` | — | `$v->rule('urlActive', 'field')` | `{field} must be an active URL` |
+| `urlStrict` | — | `$v->rule('urlStrict', 'field')` | `{field} is not a valid public URL` |
+| `phone` | `country?` | `$v->rule('phone', 'field', 'US')` | `{field} is not a valid phone number` |
 
-### Basic Usage
+> **Note:** Parameters marked with `?` are optional.
 
-```php
-$v->rule('ip', 'client_ip');
-```
+## Notes
 
-### Error Message
+**Email security:** RFC 5321 compliant, max length validation, XSS/injection prevention.
 
-Default: `"{field} must be a valid IP address"`
+**URL protocols:** `http://`, `https://`, `ftp://` only.
 
----
+**urlStrict extras:** Requires dot in domain, catches typos (`ww.` vs `www.`), rejects numeric TLDs.
 
-## ipv4
+**DNS lookups:** `emailDNS` and `urlActive` add latency - use basic rules for high-traffic forms.
 
-Validates that the field is a valid IPv4 address.
+## Parameter Details
 
-### Basic Usage
+### phone
 
-```php
-$v->rule('ipv4', 'server_ip');
-```
+Without country: validates 7-15 digits. With country: country-specific format.
 
-### Valid Examples
+**Supported countries:** `US`, `CA`, `UK`/`GB`, `AU`, `IN`, `DE`, `FR`, `IT`, `ES`, `BR`, `MX`
 
-- `127.0.0.1`
-- `192.168.1.1`
-- `10.0.0.1`
-
-### Error Message
-
-Default: `"{field} must be a valid IPv4 address"`
-
----
-
-## ipv6
-
-Validates that the field is a valid IPv6 address.
-
-### Basic Usage
-
-```php
-$v->rule('ipv6', 'server_ip');
-```
-
-### Valid Examples
-
-- `::1`
-- `0:0:0:0:0:0:0:1`
-- `2001:0db8:85a3:0000:0000:8a2e:0370:7334`
-
-### Error Message
-
-Default: `"{field} must be a valid IPv6 address"`
+**Accepted formats:** `+1-555-123-4567`, `5551234567`, `(555) 123-4567`
 
 ---
 
-## email
+## Complete Examples
 
-Validates that the field is a valid email address.
+Valicomb supports two syntax styles: **rule-based** (map rules to fields) and **field-based** (map fields to rules).
 
-### Basic Usage
-
-```php
-$v->rule('email', 'user_email');
-```
-
-### Security Features
-
-Email validation includes comprehensive security:
-
-- RFC 5321 compliance
-- Maximum length validation (254 total, 64 local, 255 domain)
-- Dangerous character rejection
-- XSS/injection prevention
-
-### Error Message
-
-Default: `"{field} is not a valid email address"`
-
----
-
-## emailDNS
-
-Validates that the field is a valid email address with an active DNS record.
-
-### Basic Usage
+### Rule-Based Array Syntax
 
 ```php
-$v->rule('emailDNS', 'user_email');
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($data);
+
+$v->rules([
+    'ip' => [
+        ['client_ip'],
+        ['proxy_ip']
+    ],
+    'ipv4' => [
+        ['server_ip']
+    ],
+    'ipv6' => [
+        ['ipv6_address']
+    ],
+    'email' => [
+        ['user_email'],
+        ['billing_email']
+    ],
+    'emailDNS' => [
+        ['primary_email']
+    ],
+    'url' => [
+        ['website'],
+        ['blog_url']
+    ],
+    'urlActive' => [
+        ['callback_url']
+    ],
+    'urlStrict' => [
+        ['public_website']
+    ],
+    'phone' => [
+        ['mobile_phone'],
+        ['office_phone', 'US']
+    ]
+]);
+
+$v->validate();
 ```
 
-### How It Works
-
-1. First validates basic email format
-2. Then checks for MX DNS record on the domain
-3. Fails if no DNS record exists
-
-:::caution
-DNS lookups add latency. Use `email` for high-traffic forms where DNS validation isn't critical.
-:::
-
-### Error Message
-
-Default: `"{field} must be a valid email address with an active DNS record"`
-
----
-
-## url
-
-Validates that the field is a valid URL.
-
-### Basic Usage
+### Field-Based Mapping
 
 ```php
-$v->rule('url', 'website');
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($data);
+
+$v->mapManyFieldsToRules([
+    'email' => ['required', 'email'],
+    'backup_email' => ['optional', 'emailDNS'],
+    'website' => ['optional', 'urlStrict'],
+    'api_callback' => ['required', 'urlActive'],
+    'phone' => ['required', ['phone', 'US']],
+    'fax' => ['optional', 'phone'],
+    'server_ip' => ['required', 'ipv4'],
+    'client_ip' => ['optional', 'ip']
+]);
+
+$v->validate();
 ```
-
-### Allowed Protocols
-
-By default, only these protocols are allowed:
-- `http://`
-- `https://`
-- `ftp://`
-
-### Security Features
-
-URL validation uses proper prefix checking to prevent bypass attacks:
-
-```php
-// FAIL - http:// not at start
-$v = new Validator(['url' => 'evil.com?redirect=http://trusted.com']);
-$v->rule('url', 'url'); // Returns false
-
-// PASS - proper URL
-$v = new Validator(['url' => 'https://trusted.com']);
-$v->rule('url', 'url'); // Returns true
-```
-
-### Error Message
-
-Default: `"{field} is not a valid URL"`
-
----
-
-## urlActive
-
-Validates that the field is a valid URL with an active DNS record.
-
-### Basic Usage
-
-```php
-$v->rule('urlActive', 'website');
-```
-
-### How It Works
-
-1. First validates URL format
-2. Then checks for A, AAAA, or CNAME DNS records
-
-:::caution
-DNS lookups add latency. Use `url` for simple format validation.
-:::
-
-### Error Message
-
-Default: `"{field} must be an active URL"`
-
----
-
-## phone
-
-Validates that the field is a valid phone number.
-
-### Parameters
-
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `country` | string\|null | No | `null` | Country code for validation |
-
-### Basic Usage
-
-```php
-// General validation (7-15 digits)
-$v->rule('phone', 'phone');
-
-// Country-specific validation
-$v->rule('phone', 'phone', 'US');
-```
-
-### Supported Countries
-
-| Code | Country |
-|------|---------|
-| `US` | United States |
-| `CA` | Canada |
-| `UK`/`GB` | United Kingdom |
-| `AU` | Australia |
-| `IN` | India |
-| `DE` | Germany |
-| `FR` | France |
-| `IT` | Italy |
-| `ES` | Spain |
-| `BR` | Brazil |
-| `MX` | Mexico |
-
-### Notes
-
-- Accepts various formats: `+1-555-123-4567`, `5551234567`, `(555) 123-4567`
-- Strips non-digit characters for validation
-- Without country code: validates 7-15 digit length
-
-### Error Message
-
-Default: `"{field} is not a valid phone number"`

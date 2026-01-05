@@ -7,6 +7,10 @@ Valicomb makes it easy to add custom validation rules - either as one-time closu
 
 ## Closure-Based Rules
 
+Closure-based rules are perfect for one-off validations that are specific to a single form or use case. They're defined inline and don't need to be registered globally.
+
+### Basic Usage
+
 Add a validation rule inline using a closure:
 
 ```php
@@ -40,7 +44,7 @@ $v->rule(function($field, $value, $params, $fields) {
     $min = $params[0] ?? 0;
     $max = $params[1] ?? 100;
     return $value >= $min && $value <= $max;
-}, 'score', 0, 100)->message('Score must be between {0} and {1}');
+}, 'score', 0, 100)->message('Score must be between %d and %d');
 ```
 
 ### Cross-Field Validation
@@ -57,6 +61,10 @@ $v->rule(function($field, $value, $params, $fields) {
 ---
 
 ## Global Custom Rules
+
+When you have validation logic that you'll reuse across multiple forms or throughout your application, register it as a global rule. Global rules are available to all Validator instances and help keep your code DRY.
+
+### Registering a Global Rule
 
 Register a rule that can be used across all Validator instances:
 
@@ -84,7 +92,7 @@ Validator::addRule('between', function($field, $value, $params) {
     $min = $params[0];
     $max = $params[1];
     return $value >= $min && $value <= $max;
-}, '{field} must be between {0} and {1}');
+}, '{field} must be between %d and %d');
 
 // Use with parameters
 $v->rule('between', 'age', 18, 65);
@@ -93,6 +101,10 @@ $v->rule('between', 'age', 18, 65);
 ---
 
 ## Instance-Specific Rules
+
+Instance rules sit between closures and global rules. They're reusable within a single Validator instance but don't pollute the global namespace. This is useful when validation logic depends on runtime context or when you want to avoid global state.
+
+### Registering an Instance Rule
 
 Register a rule only for a specific Validator instance:
 
@@ -117,21 +129,14 @@ $v->rule('customCheck', 'field_name');
 
 ## Error Message Placeholders
 
-Custom error messages support placeholders:
+Error messages in custom rules can include dynamic placeholders that get replaced with actual values at runtime. This makes your error messages more informative and user-friendly.
 
-| Placeholder | Description |
-|-------------|-------------|
-| `{field}` | The field name or label |
-| `{0}` | First parameter |
-| `{1}` | Second parameter |
-| `{2}` | Third parameter (and so on) |
-
-### Example
+Custom rule error messages support placeholders like `{field}`, `{value}`, `%s`, and `%d`. For complete documentation, see [Error Messages - Message Placeholders](/valicomb/guides/error-messages/#message-placeholders).
 
 ```php
 Validator::addRule('divisibleBy', function($field, $value, $params) {
     return $value % $params[0] === 0;
-}, '{field} must be divisible by {0}');
+}, '{field} must be divisible by %d');
 
 $v->rule('divisibleBy', 'quantity', 5);
 // Error: "Quantity must be divisible by 5"
@@ -140,6 +145,8 @@ $v->rule('divisibleBy', 'quantity', 5);
 ---
 
 ## Real-World Examples
+
+These examples demonstrate common validation patterns you might encounter in production applications. Each example shows how to encapsulate complex business rules into reusable validators.
 
 ### Username Validation
 
@@ -199,7 +206,7 @@ Validator::addRule('securePassword', function($field, $value, $params) {
     if (!preg_match('/[^a-zA-Z0-9]/', $value)) return false; // special char
 
     return true;
-}, '{field} must be at least {0} characters with uppercase, lowercase, number, and special character');
+}, '{field} must be at least %d characters with uppercase, lowercase, number, and special character');
 
 // Usage
 $v->rule('securePassword', 'password', 12);
@@ -207,11 +214,85 @@ $v->rule('securePassword', 'password', 12);
 
 ---
 
-## Best Practices
+## Dynamic Error Messages
 
-1. **Return Boolean**: Always return `true` or `false`
-2. **Keep Rules Pure**: Avoid side effects in validation callbacks
-3. **Use Descriptive Names**: `validUsername` is better than `checkUser`
-4. **Provide Good Messages**: Include clear, actionable error messages
-5. **Handle Edge Cases**: Consider empty values, null, etc.
-6. **Prefer Global Rules**: For reusable validation logic
+Sometimes a single error message isn't enough. When a validation rule can fail for multiple reasons, you'll want to tell users exactly what went wrong. Dynamic error messages let your custom rules return context-specific feedback based on why the validation failed.
+
+Instead of returning just a boolean, return an array with the result and a custom message:
+
+### Return Format
+
+```php
+// Simple boolean (traditional)
+return true;  // passed
+return false; // failed (uses default message)
+
+// Array with custom message (new)
+return [true];                    // passed
+return [false, 'Custom message']; // failed with custom message
+```
+
+### Example: Password Strength
+
+```php
+$v->addInstanceRule('strongPassword', function($field, $value, $params) {
+    if (strlen($value) < 8) {
+        return [false, 'Password must be at least 8 characters'];
+    }
+    if (!preg_match('/[A-Z]/', $value)) {
+        return [false, 'Password must contain an uppercase letter'];
+    }
+    if (!preg_match('/[0-9]/', $value)) {
+        return [false, 'Password must contain a number'];
+    }
+    return [true];
+});
+
+$v->rule('strongPassword', 'password');
+```
+
+Each failure reason produces a specific, helpful error message.
+
+### Example: Coupon Validation
+
+```php
+Validator::addRule('validCoupon', function($field, $value, $params) {
+    $coupons = [
+        'SAVE10' => ['active' => true, 'min_order' => 50],
+        'EXPIRED' => ['active' => false],
+    ];
+
+    if (!isset($coupons[$value])) {
+        return [false, '{field} "{value}" is not a valid coupon code'];
+    }
+
+    $coupon = $coupons[$value];
+
+    if (!$coupon['active']) {
+        return [false, '{field} "{value}" has expired'];
+    }
+
+    return [true];
+});
+```
+
+### Using Placeholders
+
+Dynamic messages support all standard placeholders:
+
+```php
+$v->addInstanceRule('inStock', function($field, $value, $params) {
+    $stock = getStockLevel($value); // hypothetical function
+
+    if ($stock === 0) {
+        return [false, '{field} "{value}" is out of stock'];
+    }
+
+    return [true];
+});
+```
+
+:::note
+If the array return doesn't include a message (`[false]`), the default message registered with the rule is used.
+:::
+

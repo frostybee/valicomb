@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Frostybee\Valicomb;
 
+use function array_diff;
 use function array_filter;
 use function array_flip;
 use function array_intersect_key;
 use function array_keys;
 use function array_shift;
 use function array_unshift;
+use function array_values;
 use function call_user_func;
 use function count;
 
@@ -30,6 +32,7 @@ use InvalidArgumentException;
 
 use function is_array;
 use function is_callable;
+use function is_null;
 use function is_string;
 use function method_exists;
 use function preg_match;
@@ -138,6 +141,11 @@ class Validator
      * Whether to stop validation on first failure.
      */
     protected bool $stopOnFirstFail = false;
+
+    /**
+     * Whether to enable strict mode (fail if extra fields are present).
+     */
+    protected bool $strictMode = false;
 
     /**
      * Setup validation.
@@ -559,6 +567,118 @@ class Validator
     }
 
     /**
+     * Enable strict mode to fail validation if extra/unexpected fields are present.
+     *
+     * When strict mode is enabled, the validate() method will add an error for
+     * each field in the input data that does not have any validation rules defined.
+     * This is useful for security-conscious applications that want to ensure no
+     * unexpected data is passed through.
+     *
+     * @param bool $enable True to enable strict mode (default), false to disable.
+     *
+     * @return self Returns $this for method chaining.
+     *
+     * @example Enabling strict mode:
+     * ```php
+     * $data = ['name' => 'John', 'email' => 'john@example.com', 'hack' => 'malicious'];
+     * $v = new Validator($data);
+     * $v->rule('required', ['name', 'email']);
+     * $v->strict();
+     *
+     * if (!$v->validate()) {
+     *     // Will fail because 'hack' is an unexpected field
+     *     $extraFields = $v->getExtraFields(); // ['hack']
+     * }
+     * ```
+     */
+    public function strict(bool $enable = true): self
+    {
+        $this->strictMode = $enable;
+
+        return $this;
+    }
+
+    /**
+     * Get all field names that have validation rules defined.
+     *
+     * Returns a unique list of all field names for which at least one
+     * validation rule has been registered.
+     *
+     * @return array List of field names with rules defined.
+     *
+     * @example Get defined fields:
+     * ```php
+     * $v = new Validator($data);
+     * $v->rule('required', ['email', 'name']);
+     * $v->rule('email', 'email');
+     *
+     * $v->getDefinedFields(); // Returns ['email', 'name']
+     * ```
+     */
+    public function getDefinedFields(): array
+    {
+        $definedFields = [];
+        foreach ($this->validations as $validation) {
+            foreach ($validation['fields'] as $field) {
+                // Handle dot notation - only use the root field name
+                $rootField = explode('.', (string) $field)[0];
+                $definedFields[$rootField] = true;
+            }
+        }
+
+        return array_keys($definedFields);
+    }
+
+    /**
+     * Check if there are any extra/unexpected fields in the input data.
+     *
+     * An "extra" field is one that exists in the input data but has no
+     * validation rules defined for it.
+     *
+     * @return bool True if extra fields exist, false otherwise.
+     *
+     * @example Checking for extra fields:
+     * ```php
+     * $data = ['name' => 'John', 'age' => 25, 'hack' => 'value'];
+     * $v = new Validator($data);
+     * $v->rule('required', 'name');
+     * $v->rule('integer', 'age');
+     *
+     * $v->hasExtraFields(); // Returns true (because of 'hack')
+     * ```
+     */
+    public function hasExtraFields(): bool
+    {
+        return $this->getExtraFields() !== [];
+    }
+
+    /**
+     * Get all extra/unexpected field names in the input data.
+     *
+     * Returns a list of field names that exist in the input data but
+     * have no validation rules defined for them.
+     *
+     * @return array List of extra field names.
+     *
+     * @example Get extra field names:
+     * ```php
+     * $data = ['name' => 'John', 'email' => 'john@example.com', 'foo' => 'bar', 'baz' => 123];
+     * $v = new Validator($data);
+     * $v->rule('required', 'name');
+     * $v->rule('email', 'email');
+     *
+     * $v->getExtraFields(); // Returns ['foo', 'baz']
+     * ```
+     */
+    public function getExtraFields(): array
+    {
+        $definedFields = $this->getDefinedFields();
+        $inputFields = array_keys($this->fields);
+
+        return array_values(array_diff($inputFields, $definedFields));
+    }
+
+    /**
      * Returns all rule callbacks, the static and instance ones
      *
      * Merges instance-specific rules with global rules, with instance rules taking precedence.
@@ -815,6 +935,18 @@ class Validator
      *     'lengthMin' => [['password', 8]]
      * ]);
      * ```
+     * @example With custom messages:
+     * ```php
+     * $v->rules([
+     *     'required' => [
+     *         ['email', 'message' => 'Email is required'],
+     *         ['password', 'message' => 'Password is required']
+     *     ],
+     *     'email' => [
+     *         ['email', 'message' => 'Please enter a valid email address']
+     *     ]
+     * ]);
+     * ```
      */
     public function rules(array $rules): void
     {
@@ -824,8 +956,17 @@ class Validator
                     if (!is_array($innerParams)) {
                         $innerParams = [$innerParams];
                     }
+
+                    // Extract custom message if provided
+                    $message = $innerParams['message'] ?? null;
+                    unset($innerParams['message']);
+
                     array_unshift($innerParams, $ruleType);
-                    $this->rule(...$innerParams);
+                    $added = $this->rule(...$innerParams);
+
+                    if ($message !== null) {
+                        $added->message($message);
+                    }
                 }
             } else {
                 $this->rule($ruleType, $params);
@@ -1091,8 +1232,20 @@ class Validator
 
                 $result = true;
                 $failedValue = null;
+                $customMessage = null;
                 foreach ($values as $value) {
-                    $valid = call_user_func($callback, $field, $value, $v['params'], $this->fields);
+                    $callbackResult = call_user_func($callback, $field, $value, $v['params'], $this->fields);
+
+                    // Support custom rules returning [bool, ?string] for dynamic messages
+                    if (is_array($callbackResult)) {
+                        $valid = (bool) ($callbackResult[0] ?? false);
+                        if (!$valid && $customMessage === null && isset($callbackResult[1]) && is_string($callbackResult[1])) {
+                            $customMessage = $callbackResult[1];
+                        }
+                    } else {
+                        $valid = (bool) $callbackResult;
+                    }
+
                     if (!$valid && $failedValue === null) {
                         $failedValue = $value;
                     }
@@ -1100,7 +1253,8 @@ class Validator
                 }
 
                 if (!$result) {
-                    $this->error($field, $v['message'], $v['params'], $failedValue);
+                    $message = $customMessage ?? $v['message'];
+                    $this->error($field, $message, $v['params'], $failedValue);
                     if ($this->stopOnFirstFail) {
                         $setToBreak = true;
                         break;
@@ -1110,6 +1264,17 @@ class Validator
 
             if ($setToBreak) {
                 break;
+            }
+        }
+
+        // In strict mode, add errors for any extra/unexpected fields
+        if ($this->strictMode && !$setToBreak) {
+            $extraFields = $this->getExtraFields();
+            foreach ($extraFields as $extraField) {
+                $this->error($extraField, '{field} is not an allowed field');
+                if ($this->stopOnFirstFail) {
+                    break;
+                }
             }
         }
 

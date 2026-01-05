@@ -5,47 +5,24 @@ description: Validation rules for dates and times
 
 Date validation rules check date formats and date comparisons.
 
-## date
+## Rules Reference
 
-Validates that the field is a valid date.
+| Rule | Parameters | Example | Error Message |
+|------|------------|---------|---------------|
+| `date` | — | `$v->rule('date', 'field')` | `{field} is not a valid date` |
+| `dateFormat` | `format` | `$v->rule('dateFormat', 'field', 'Y-m-d')` | `{field} must be a valid date in the format {0}` |
+| `dateBefore` | `date` | `$v->rule('dateBefore', 'field', '2024-12-31')` | `{field} must be a date before {0}` |
+| `dateAfter` | `date` | `$v->rule('dateAfter', 'field', '2024-01-01')` | `{field} must be a date after {0}` |
+| `past` | `reference?` | `$v->rule('past', 'field')` | `{field} must be a date in the past` |
+| `future` | `reference?` | `$v->rule('future', 'field')` | `{field} must be a date in the future` |
 
-### Basic Usage
+> **Note:** Parameters marked with `?` are optional.
 
-```php
-$v->rule('date', 'birthday');
-```
+## Notes
 
-### Accepted Formats
+**Accepted date formats:** DateTime objects, ISO 8601 (`2024-01-15`), common formats (`01/15/2024`), Unix timestamps, anything parseable by `strtotime()`.
 
-- DateTime objects
-- ISO 8601 format: `2024-01-15`
-- Common formats: `01/15/2024`, `January 15, 2024`
-- Unix timestamps
-- Any format parseable by `strtotime()`
-
-### Error Message
-
-Default: `"{field} is not a valid date"`
-
----
-
-## dateFormat
-
-Validates that the field matches a specific date format.
-
-### Parameters
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `format` | string | Yes | PHP date format string |
-
-### Basic Usage
-
-```php
-$v->rule('dateFormat', 'birthday', 'Y-m-d');
-```
-
-### Common Formats
+**Common format strings:**
 
 | Format | Example |
 |--------|---------|
@@ -53,123 +30,67 @@ $v->rule('dateFormat', 'birthday', 'Y-m-d');
 | `d/m/Y` | 15/01/2024 |
 | `m/d/Y` | 01/15/2024 |
 | `Y-m-d H:i:s` | 2024-01-15 14:30:00 |
-| `d-M-Y` | 15-Jan-2024 |
 
-### Error Message
-
-Default: `"{field} must be a valid date in the format {0}"`
+**Security:** `past` and `future` reject relative strings like `+1 week` or `tomorrow`.
 
 ---
 
-## dateBefore
+## Complete Examples
 
-Validates that the field is a date before a specified date.
+Valicomb supports two syntax styles: **rule-based** (map rules to fields) and **field-based** (map fields to rules).
 
-### Parameters
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `date` | string\|DateTime | Yes | The comparison date |
-
-### Basic Usage
+### Rule-Based Array Syntax
 
 ```php
-$v->rule('dateBefore', 'start_date', '2024-12-31');
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($data);
+
+$v->rules([
+    'date' => [
+        ['birth_date'],
+        ['hire_date']
+    ],
+    'dateFormat' => [
+        ['birth_date', 'Y-m-d'],
+        ['event_time', 'Y-m-d H:i:s']
+    ],
+    'dateBefore' => [
+        ['birth_date', '2010-01-01'],
+        ['start_date', '2025-12-31']
+    ],
+    'dateAfter' => [
+        ['end_date', '2024-01-01'],
+        ['hire_date', '2000-01-01']
+    ],
+    'past' => [
+        ['birth_date'],
+        ['graduation_date']
+    ],
+    'future' => [
+        ['appointment_date'],
+        ['delivery_date']
+    ]
+]);
+
+$v->validate();
 ```
 
-### Using DateTime Objects
+### Field-Based Mapping
 
 ```php
-$deadline = new DateTime('2024-12-31');
-$v->rule('dateBefore', 'submission_date', $deadline);
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($data);
+
+$v->mapManyFieldsToRules([
+    'birth_date' => ['required', 'date', ['dateFormat', 'Y-m-d'], 'past'],
+    'start_date' => ['required', 'date', ['dateBefore', '2025-12-31']],
+    'end_date' => ['required', 'date', ['dateAfter', '2024-01-01']],
+    'appointment_date' => ['required', 'date', 'future'],
+    'event_datetime' => ['optional', ['dateFormat', 'Y-m-d H:i:s']],
+    'graduation_date' => ['optional', 'date', 'past']
+]);
+
+$v->validate();
 ```
-
-### Error Message
-
-Default: `"{field} must be a date before {0}"`
-
----
-
-## dateAfter
-
-Validates that the field is a date after a specified date.
-
-### Parameters
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `date` | string\|DateTime | Yes | The comparison date |
-
-### Basic Usage
-
-```php
-$v->rule('dateAfter', 'end_date', '2024-01-01');
-```
-
-### Error Message
-
-Default: `"{field} must be a date after {0}"`
-
----
-
-## past
-
-Validates that the field is a date in the past.
-
-### Parameters
-
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `reference` | string\|DateTime | No | `now` | Reference date to compare against |
-
-### Basic Usage
-
-```php
-// Must be before current date/time
-$v->rule('past', 'birthday');
-```
-
-### With Reference Date
-
-```php
-// Must be before a specific date
-$v->rule('past', 'start_date', '2024-06-01');
-```
-
-### Error Message
-
-Default: `"{field} must be a date in the past"`
-
----
-
-## future
-
-Validates that the field is a date in the future.
-
-### Parameters
-
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `reference` | string\|DateTime | No | `now` | Reference date to compare against |
-
-### Basic Usage
-
-```php
-// Must be after current date/time
-$v->rule('future', 'appointment_date');
-```
-
-### With Reference Date
-
-```php
-// Must be after a specific date
-$v->rule('future', 'delivery_date', '2024-06-01');
-```
-
-### Security Note
-
-For security, relative date strings like `+1 week` or `tomorrow` are rejected. Only absolute dates are accepted.
-
-### Error Message
-
-Default: `"{field} must be a date in the future"`

@@ -174,7 +174,7 @@ $v->rule('length', 'settings.preferences.language', 2);
 
 ## Error Keys
 
-Errors are keyed by the full field path:
+Errors are keyed by the field path pattern (including wildcards):
 
 ```php
 $data = [
@@ -190,11 +190,17 @@ $v->validate();
 
 $errors = $v->errors();
 // [
-//     'users.1.email' => ['users.1.email is not a valid email address']
+//     'users.*.email' => ['Users.*.email is not a valid email address']
 // ]
 ```
 
+:::note
+Error keys use the original field pattern with wildcards, not the specific array index. This means all errors for `users.*.email` are grouped under a single key.
+:::
+
 ### Using Labels with Nested Fields
+
+Labels must match the field pattern used in rules:
 
 ```php
 $v->labels([
@@ -202,11 +208,13 @@ $v->labels([
     'users.*.name' => 'User Name'
 ]);
 
-// Or more specific
-$v->labels([
-    'users.0.email' => 'Primary Contact Email',
-    'users.1.email' => 'Secondary Contact Email'
-]);
+$v->rule('email', 'users.*.email');
+$v->validate();
+
+$errors = $v->errors();
+// [
+//     'users.*.email' => ['User Email is not a valid email address']
+// ]
 ```
 
 ---
@@ -264,7 +272,7 @@ if (!$v->validate()) {
 
 ---
 
-## Best Practices
+## Important Notes
 
 1. **Use Descriptive Labels**: Nested field names can be long; use labels for cleaner errors
 2. **Validate Parent Arrays**: Use `array` rule on parent before validating children

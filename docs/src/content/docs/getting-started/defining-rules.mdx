@@ -1,0 +1,108 @@
+---
+title: Defining Rules
+description: Learn the three ways to define validation rules in Valicomb
+---
+
+Valicomb provides three syntaxes for defining validation rules. Choose based on your use case.
+
+## Quick Comparison
+
+| Syntax | Best For | Method |
+|--------|----------|--------|
+| **Fluent** | Readability, custom messages per rule | `rule()` |
+| **Rule-Based Array** | Applying same rule to many fields | `rules()` |
+| **Field-Based Array** | Grouping all rules by field | `mapManyFieldsToRules()` |
+
+---
+
+## 1. Fluent Syntax
+
+Chain rules with `->rule()`. Best for readability and adding custom messages.
+
+```php
+$v = new Validator($_POST);
+$v->rule('required', 'email')
+  ->message('We need your email!')
+  ->label('Email Address')
+  ->rule('email', 'email')
+  ->rule('lengthMin', 'password', 8);
+```
+
+---
+
+## 2. Rule-Based Array Syntax
+
+Group by rule type with `->rules()`. Best when applying the same rule to many fields.
+
+```php
+$v = new Validator($_POST);
+$v->rules([
+    'required' => ['name', 'email', 'password'],
+    'email' => 'email',
+    'lengthMin' => [
+        ['username', 3],
+        ['password', 8, 'message' => 'Password too short']
+    ]
+]);
+```
+
+---
+
+## 3. Field-Based Array Syntax
+
+Group by field with `->mapManyFieldsToRules()`. Best when each field has multiple rules.
+
+```php
+$v = new Validator($_POST);
+$v->mapManyFieldsToRules([
+    'email' => ['required', 'email', ['lengthMax', 254]],
+    'password' => [
+        'required',
+        ['lengthMin', 8, 'message' => 'Password too short']
+    ]
+]);
+```
+
+For a single field, use `mapOneFieldToRules()`:
+
+```php
+$v->mapOneFieldToRules('email', ['required', 'email']);
+```
+
+---
+
+## Custom Messages
+
+All syntaxes support inline custom messages using the `'message'` key:
+
+```php
+// Array syntaxes
+['lengthMin', 8, 'message' => 'Password too short']
+
+// Fluent syntax
+$v->rule('lengthMin', 'password', 8)->message('Password too short');
+```
+
+See [Error Messages](/valicomb/guides/error-messages/) for placeholders, labels, and more options.
+
+---
+
+## Applying Rules to Multiple Fields
+
+All syntaxes support applying one rule to multiple fields:
+
+```php
+// Fluent
+$v->rule('required', ['email', 'name', 'password']);
+
+// Array
+$v->rules(['required' => ['email', 'name', 'password']]);
+```
+
+---
+
+## Next Steps
+
+- [Error Messages](/valicomb/guides/error-messages/) - Custom messages, labels, and placeholders
+- [Custom Rules](/valicomb/guides/custom-rules/) - Create your own validation rules
+- [Validation Rules](/valicomb/rules/overview/) - Explore all 53 built-in rules

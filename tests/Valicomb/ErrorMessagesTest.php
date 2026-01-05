@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Frostybee\Valicomb\Tests;
 
+use DateTime;
 use Frostybee\Valicomb\Validator;
 
 class ErrorMessagesTest extends BaseTestCase
@@ -222,7 +223,7 @@ class ErrorMessagesTest extends BaseTestCase
      */
     public function testValuePlaceholderWithDateTime(): void
     {
-        $date = new \DateTime('2024-01-15 14:30:00');
+        $date = new DateTime('2024-01-15 14:30:00');
         $v = new Validator([]);
         $v->error('field', 'Value {value} is not valid', [], $date);
         $errors = $v->errors('field');

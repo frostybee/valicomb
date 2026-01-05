@@ -13,8 +13,11 @@ use InvalidArgumentException;
 use function is_array;
 use function is_int;
 use function is_string;
+use function max;
 use function mb_check_encoding;
 use function mb_detect_encoding;
+use function mb_strlen;
+use function min;
 
 use const PREG_BACKTRACK_LIMIT_ERROR;
 use const PREG_BAD_UTF8_ERROR;
@@ -34,6 +37,7 @@ use function str_contains;
 use function str_ends_with;
 use function str_starts_with;
 use function stripos;
+use function strlen;
 use function strtolower;
 
 /**
@@ -496,12 +500,12 @@ trait StringValidatorsTrait
      * @param array $params Configuration options:
      *                      - int: Simple usage, sets minScore (e.g., 7)
      *                      - array: Full configuration with keys:
-     *                        - minScore (int): Minimum strength score 1-10 (default: 6)
-     *                        - minLength (int): Minimum password length (default: 8)
-     *                        - requireUppercase (bool): Must contain A-Z (default: false)
-     *                        - requireLowercase (bool): Must contain a-z (default: false)
-     *                        - requireNumber (bool): Must contain 0-9 (default: false)
-     *                        - requireSymbol (bool): Must contain special char (default: false)
+     *                      - minScore (int): Minimum strength score 1-10 (default: 6)
+     *                      - minLength (int): Minimum password length (default: 8)
+     *                      - requireUppercase (bool): Must contain A-Z (default: false)
+     *                      - requireLowercase (bool): Must contain a-z (default: false)
+     *                      - requireNumber (bool): Must contain 0-9 (default: false)
+     *                      - requireSymbol (bool): Must contain special char (default: false)
      *
      * @return bool True if password meets strength requirements, false otherwise.
      *

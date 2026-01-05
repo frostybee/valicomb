@@ -1,10 +1,20 @@
 /* Custom styles for Starlight documentation */
 
-/* Code block background colors */
-:root[data-theme='light'] .expressive-code pre {
-  background: #f6f8fa !important;
+/* Monospace font for code blocks */
+:root {
+  --sl-font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
 }
 
-:root[data-theme='dark'] .expressive-code pre {
-  background: #24292e !important;
+/* Disable ligatures in code blocks */
+code, pre, .expressive-code {
+  font-variant-ligatures: none;
+}
+
+/* Code block background colors */
+:root[data-theme='light'] {
+  --fb-code-block-bg-color: #f0f3f6;
+}
+
+:root[data-theme='dark'] {
+  --fb-code-block-bg-color: #24292e;
 }
