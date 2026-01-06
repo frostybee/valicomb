@@ -47,6 +47,27 @@ Without country: validates 7-15 digits. With country: country-specific format.
 
 Valicomb supports two syntax styles: **rule-based** (map rules to fields) and **field-based** (map fields to rules).
 
+### Field-Based Mapping
+
+```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($data);
+
+$v->forFields([
+    'email' => ['required', 'email'],
+    'backup_email' => ['optional', 'emailDNS'],
+    'website' => ['optional', 'urlStrict'],
+    'api_callback' => ['required', 'urlActive'],
+    'phone' => ['required', ['phone', 'US']],
+    'fax' => ['optional', 'phone'],
+    'server_ip' => ['required', 'ipv4'],
+    'client_ip' => ['optional', 'ip']
+]);
+
+$v->validate();
+```
+
 ### Rule-Based Array Syntax
 
 ```php
@@ -86,27 +107,6 @@ $v->rules([
         ['mobile_phone'],
         ['office_phone', 'US']
     ]
-]);
-
-$v->validate();
-```
-
-### Field-Based Mapping
-
-```php
-use Frostybee\Valicomb\Validator;
-
-$v = new Validator($data);
-
-$v->mapManyFieldsToRules([
-    'email' => ['required', 'email'],
-    'backup_email' => ['optional', 'emailDNS'],
-    'website' => ['optional', 'urlStrict'],
-    'api_callback' => ['required', 'urlActive'],
-    'phone' => ['required', ['phone', 'US']],
-    'fax' => ['optional', 'phone'],
-    'server_ip' => ['required', 'ipv4'],
-    'client_ip' => ['optional', 'ip']
 ]);
 
 $v->validate();

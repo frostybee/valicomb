@@ -44,6 +44,27 @@ Valid acceptance values: `'yes'`, `'on'`, `1`, `'1'`, `true`
 
 Valicomb supports two syntax styles: **rule-based** (map rules to fields) and **field-based** (map fields to rules).
 
+### Field-Based Mapping
+
+```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($data);
+
+$v->forFields([
+    'username' => ['required', ['lengthBetween', 3, 20]],
+    'email' => ['required', 'email'],
+    'email_confirmation' => ['required', ['equals', 'email']],
+    'password' => ['required', ['lengthMin', 8]],
+    'password_confirmation' => ['required', ['equals', 'password']],
+    'new_password' => ['required', ['different', 'current_password']],
+    'terms_of_service' => ['accepted'],
+    'newsletter' => ['optional', 'accepted']
+]);
+
+$v->validate();
+```
+
 ### Rule-Based Array Syntax
 
 ```php
@@ -70,27 +91,6 @@ $v->rules([
         ['terms_of_service'],
         ['privacy_policy']
     ]
-]);
-
-$v->validate();
-```
-
-### Field-Based Mapping
-
-```php
-use Frostybee\Valicomb\Validator;
-
-$v = new Validator($data);
-
-$v->mapManyFieldsToRules([
-    'username' => ['required', ['lengthBetween', 3, 20]],
-    'email' => ['required', 'email'],
-    'email_confirmation' => ['required', ['equals', 'email']],
-    'password' => ['required', ['lengthMin', 8]],
-    'password_confirmation' => ['required', ['equals', 'password']],
-    'new_password' => ['required', ['different', 'current_password']],
-    'terms_of_service' => ['accepted'],
-    'newsletter' => ['optional', 'accepted']
 ]);
 
 $v->validate();

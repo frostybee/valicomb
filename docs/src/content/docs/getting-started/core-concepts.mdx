@@ -3,9 +3,13 @@ title: Core Concepts
 description: Understand the fundamental concepts of Valicomb validation
 ---
 
-This page explains the core concepts that will help you use Valicomb effectively.
+This page covers Valicomb's core concepts, progressing from basic usage to advanced patterns.
 
-## The Validator Instance
+---
+
+## Basics
+
+### The Validator Instance
 
 The `Validator` class is your main entry point. Create an instance with your data, then configure rules:
 
@@ -19,7 +23,7 @@ $v = new Validator([
 ]);
 ```
 
-### Constructor Parameters
+#### Constructor Parameters
 
 ```php
 new Validator(
@@ -30,7 +34,7 @@ new Validator(
 );
 ```
 
-## Rules and Parameters
+### Rules and Parameters
 
 Validation rules are added using the `rule()` method:
 
@@ -48,7 +52,7 @@ $v->rule('lengthBetween', 'username', 3, 20);
 $v->rule('required', ['email', 'name', 'password']);
 ```
 
-## Validation Flow
+### Validation Flow
 
 The validation process follows these steps:
 
@@ -72,7 +76,27 @@ if ($v->validate()) {                // Step 3 & 4
 }
 ```
 
-## Required vs Optional Fields
+### Error Structure
+
+Errors are returned as an associative array keyed by field name:
+
+```php
+$errors = $v->errors();
+// [
+//     'email' => ['Email is required', 'Email is not valid'],
+//     'age' => ['Age must be an integer']
+// ]
+
+// Get errors for specific field
+$emailErrors = $v->errors('email');
+// ['Email is required', 'Email is not valid']
+```
+
+---
+
+## Intermediate
+
+### Required vs Optional Fields
 
 By default, empty fields skip validation unless marked as `required`:
 
@@ -88,7 +112,7 @@ $v->rule('required', 'name');
 $v->rule('alpha', 'name');
 ```
 
-### The Optional Rule
+#### The Optional Rule
 
 Use `optional` to validate a field only when it's present:
 
@@ -97,7 +121,7 @@ $v->rule('optional', 'middle_name');
 $v->rule('alpha', 'middle_name'); // Only validated if present
 ```
 
-## Stop on First Failure
+### Stop on First Failure
 
 By default, all rules are checked. Enable `stopOnFirstFail` for performance:
 
@@ -108,25 +132,13 @@ $v->rule('required', ['email', 'password']);
 // Stops as soon as first rule fails
 ```
 
-## Error Structure
+---
 
-Errors are returned as an associative array:
+## Advanced
 
-```php
-$errors = $v->errors();
-// [
-//     'email' => ['Email is required', 'Email is not valid'],
-//     'age' => ['Age must be an integer']
-// ]
+### Reusing Validators
 
-// Get errors for specific field
-$emailErrors = $v->errors('email');
-// ['Email is required', 'Email is not valid']
-```
-
-## Reusing Validators
-
-Create a base validator and reuse it with different data:
+Define validation rules once, then apply them to multiple datasets using `withData()`:
 
 ```php
 // Define validation rules once
@@ -136,10 +148,58 @@ $baseValidator->rule('required', 'email')
 
 // Validate different datasets
 $v1 = $baseValidator->withData(['email' => 'user1@example.com']);
-$v1->validate();
+$v1->validate(); // true
 
-$v2 = $baseValidator->withData(['email' => 'user2@example.com']);
-$v2->validate();
+$v2 = $baseValidator->withData(['email' => 'invalid']);
+$v2->validate(); // false
+```
+
+#### Why Use `withData()`
+
+- **Form validation**: Define field rules once, validate on each form submission
+- **API endpoints**: Same validation for POST/PUT requests with different payloads
+- **Batch processing**: Validate multiple records with identical rules
+- **Testing**: Reuse validators across test cases
+
+#### How It Works
+
+`withData()` returns a **new validator instance** with the same rules but fresh data. The original validator remains unchanged:
+
+```php
+$base = new Validator([]);
+$base->rule('required', 'name');
+
+$v1 = $base->withData(['name' => 'Alice']);
+$v2 = $base->withData(['name' => 'Bob']);
+
+// $base, $v1, and $v2 are separate instances
+$v1->validate(); // Doesn't affect $base or $v2
+```
+
+#### Complete Example
+
+```php
+// Define reusable user validation
+$userValidator = new Validator([]);
+$userValidator->forFields([
+    'email' => ['required', 'email'],
+    'name' => ['required', ['lengthBetween', 2, 50]],
+    'age' => ['optional', 'integer', ['min', 18]]
+]);
+
+// Validate batch of users
+$users = [
+    ['email' => 'alice@example.com', 'name' => 'Alice', 'age' => 25],
+    ['email' => 'bob@example.com', 'name' => 'Bob'],
+    ['email' => 'invalid', 'name' => 'X', 'age' => 15],
+];
+
+foreach ($users as $userData) {
+    $v = $userValidator->withData($userData);
+    if (!$v->validate()) {
+        print_r($v->errors());
+    }
+}
 ```
 
 ## Next Steps

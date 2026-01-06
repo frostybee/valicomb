@@ -65,6 +65,25 @@ $v->rule('creditCard', 'card_number', $clientType, ['visa', 'mastercard']);
 
 Valicomb supports two syntax styles: **rule-based** (map rules to fields) and **field-based** (map fields to rules).
 
+### Field-Based Mapping
+
+```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($data);
+
+$v->forFields([
+    'card_number' => ['required', 'creditCard'],
+    'visa_card' => ['optional', ['creditCard', 'visa']],
+    'payment_card' => ['required', ['creditCard', ['visa', 'mastercard', 'amex']]],
+    'created_at' => ['required', ['instanceOf', \DateTime::class]],
+    'user' => ['required', ['instanceOf', User::class]],
+    'config' => ['optional', ['instanceOf', ConfigInterface::class]]
+]);
+
+$v->validate();
+```
+
 ### Rule-Based Array Syntax
 
 ```php
@@ -83,25 +102,6 @@ $v->rules([
         ['card_number'],
         ['backup_card', ['visa', 'mastercard']]
     ]
-]);
-
-$v->validate();
-```
-
-### Field-Based Mapping
-
-```php
-use Frostybee\Valicomb\Validator;
-
-$v = new Validator($data);
-
-$v->mapManyFieldsToRules([
-    'card_number' => ['required', 'creditCard'],
-    'visa_card' => ['optional', ['creditCard', 'visa']],
-    'payment_card' => ['required', ['creditCard', ['visa', 'mastercard', 'amex']]],
-    'created_at' => ['required', ['instanceOf', \DateTime::class]],
-    'user' => ['required', ['instanceOf', User::class]],
-    'config' => ['optional', ['instanceOf', ConfigInterface::class]]
 ]);
 
 $v->validate();

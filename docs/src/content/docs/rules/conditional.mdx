@@ -52,6 +52,28 @@ $v->rule('requiredWithout', 'phone', 'email');
 
 Valicomb supports two syntax styles: **rule-based** (map rules to fields) and **field-based** (map fields to rules).
 
+### Field-Based Mapping
+
+```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($data);
+
+$v->forFields([
+    'email' => [['requiredWithout', 'phone'], 'email'],
+    'phone' => [['requiredWithout', 'email'], 'phone'],
+    'parent_id' => ['nullable', 'integer'],
+    'bio' => ['optional', ['lengthMin', 10], ['lengthMax', 500]],
+    'website' => ['optional', 'url'],
+    'shipping_street' => [['requiredWith', 'use_different_shipping']],
+    'shipping_city' => [['requiredWith', 'use_different_shipping']],
+    'shipping_zip' => [['requiredWith', 'use_different_shipping']],
+    'card_cvv' => [['requiredWith', 'card_number'], ['length', 3]]
+]);
+
+$v->validate();
+```
+
 ### Rule-Based Array Syntax
 
 ```php
@@ -79,28 +101,6 @@ $v->rules([
         ['email', 'phone'],
         ['phone', 'email']
     ]
-]);
-
-$v->validate();
-```
-
-### Field-Based Mapping
-
-```php
-use Frostybee\Valicomb\Validator;
-
-$v = new Validator($data);
-
-$v->mapManyFieldsToRules([
-    'email' => [['requiredWithout', 'phone'], 'email'],
-    'phone' => [['requiredWithout', 'email'], 'phone'],
-    'parent_id' => ['nullable', 'integer'],
-    'bio' => ['optional', ['lengthMin', 10], ['lengthMax', 500]],
-    'website' => ['optional', 'url'],
-    'shipping_street' => [['requiredWith', 'use_different_shipping']],
-    'shipping_city' => [['requiredWith', 'use_different_shipping']],
-    'shipping_zip' => [['requiredWith', 'use_different_shipping']],
-    'card_cvv' => [['requiredWith', 'card_number'], ['length', 3]]
 ]);
 
 $v->validate();

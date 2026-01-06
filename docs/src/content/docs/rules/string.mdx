@@ -69,6 +69,26 @@ $v->rule('passwordStrength', 'password', [
 
 Valicomb supports two syntax styles: **rule-based** (map rules to fields) and **field-based** (map fields to rules).
 
+### Field-Based Mapping
+
+```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($data);
+
+$v->forFields([
+    'username' => ['required', 'alphaNum', ['lengthBetween', 3, 20]],
+    'first_name' => ['required', 'alpha'],
+    'last_name' => ['required', 'alpha'],
+    'bio' => ['optional', ['contains', 'developer']],
+    'password' => ['required', ['passwordStrength', 7]],
+    'website' => ['optional', ['startsWith', 'https://']],
+    'work_email' => ['required', 'email', ['endsWith', '@company.com']]
+]);
+
+$v->validate();
+```
+
 ### Rule-Based Array Syntax
 
 ```php
@@ -128,24 +148,4 @@ $v->rules([
         ]]
     ]
 ]);
-```
-
-### Field-Based Mapping
-
-```php
-use Frostybee\Valicomb\Validator;
-
-$v = new Validator($data);
-
-$v->mapManyFieldsToRules([
-    'username' => ['required', 'alphaNum', ['lengthBetween', 3, 20]],
-    'first_name' => ['required', 'alpha'],
-    'last_name' => ['required', 'alpha'],
-    'bio' => ['optional', ['contains', 'developer']],
-    'password' => ['required', ['passwordStrength', 7]],
-    'website' => ['optional', ['startsWith', 'https://']],
-    'work_email' => ['required', 'email', ['endsWith', '@company.com']]
-]);
-
-$v->validate();
 ```

@@ -58,7 +58,7 @@ class MapRulesTest extends BaseTestCase
         $v = new Validator([
             'username' => 'john',
         ]);
-        $v->mapManyFieldsToRules($rules);
+        $v->forFields($rules);
 
         $this->assertFalse($v->validate());
         $this->assertFalse($v->errors('username'));
@@ -96,7 +96,7 @@ class MapRulesTest extends BaseTestCase
             'phone' => '555',
         ]);
 
-        $v->mapManyFieldsToRules($rules);
+        $v->forFields($rules);
         $this->assertFalse($v->validate());
 
         $emailErrors = $v->errors('email');

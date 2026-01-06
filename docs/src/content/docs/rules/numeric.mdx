@@ -47,6 +47,26 @@ $v->rule('integer', 'age', true); // rejects "+27"
 
 Valicomb supports two syntax styles: **rule-based** (map rules to fields) and **field-based** (map fields to rules).
 
+### Field-Based Mapping
+
+```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($data);
+
+$v->forFields([
+    'price' => ['required', 'numeric', 'positive', ['decimalPlaces', 2]],
+    'quantity' => ['required', 'integer', ['min', 1], ['max', 100]],
+    'discount_percent' => ['optional', 'numeric', ['between', 0, 100]],
+    'rating' => ['required', 'integer', ['between', 1, 5]],
+    'tax_rate' => ['required', 'numeric', ['decimalPlaces', 4]],
+    'is_featured' => ['optional', 'boolean'],
+    'stock_count' => ['required', 'integer', 'positive']
+]);
+
+$v->validate();
+```
+
 ### Rule-Based Array Syntax
 
 ```php
@@ -87,26 +107,6 @@ $v->rules([
         ['price', 2],
         ['tax_rate', 4]
     ]
-]);
-
-$v->validate();
-```
-
-### Field-Based Mapping
-
-```php
-use Frostybee\Valicomb\Validator;
-
-$v = new Validator($data);
-
-$v->mapManyFieldsToRules([
-    'price' => ['required', 'numeric', 'positive', ['decimalPlaces', 2]],
-    'quantity' => ['required', 'integer', ['min', 1], ['max', 100]],
-    'discount_percent' => ['optional', 'numeric', ['between', 0, 100]],
-    'rating' => ['required', 'integer', ['between', 1, 5]],
-    'tax_rate' => ['required', 'numeric', ['decimalPlaces', 4]],
-    'is_featured' => ['optional', 'boolean'],
-    'stock_count' => ['required', 'integer', 'positive']
 ]);
 
 $v->validate();

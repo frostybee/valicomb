@@ -39,6 +39,25 @@ Date validation rules check date formats and date comparisons.
 
 Valicomb supports two syntax styles: **rule-based** (map rules to fields) and **field-based** (map fields to rules).
 
+### Field-Based Mapping
+
+```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($data);
+
+$v->forFields([
+    'birth_date' => ['required', 'date', ['dateFormat', 'Y-m-d'], 'past'],
+    'start_date' => ['required', 'date', ['dateBefore', '2025-12-31']],
+    'end_date' => ['required', 'date', ['dateAfter', '2024-01-01']],
+    'appointment_date' => ['required', 'date', 'future'],
+    'event_datetime' => ['optional', ['dateFormat', 'Y-m-d H:i:s']],
+    'graduation_date' => ['optional', 'date', 'past']
+]);
+
+$v->validate();
+```
+
 ### Rule-Based Array Syntax
 
 ```php
@@ -71,25 +90,6 @@ $v->rules([
         ['appointment_date'],
         ['delivery_date']
     ]
-]);
-
-$v->validate();
-```
-
-### Field-Based Mapping
-
-```php
-use Frostybee\Valicomb\Validator;
-
-$v = new Validator($data);
-
-$v->mapManyFieldsToRules([
-    'birth_date' => ['required', 'date', ['dateFormat', 'Y-m-d'], 'past'],
-    'start_date' => ['required', 'date', ['dateBefore', '2025-12-31']],
-    'end_date' => ['required', 'date', ['dateAfter', '2024-01-01']],
-    'appointment_date' => ['required', 'date', 'future'],
-    'event_datetime' => ['optional', ['dateFormat', 'Y-m-d H:i:s']],
-    'graduation_date' => ['optional', 'date', 'past']
 ]);
 
 $v->validate();

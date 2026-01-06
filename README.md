@@ -3,9 +3,7 @@
 [![PHP Version](https://img.shields.io/badge/php-%3E%3D8.2-blue.svg)](https://php.net/)
 [![License](https://img.shields.io/badge/license-BSD--3--Clause-green.svg)](LICENSE)
 
-**Valicomb** is a simple, minimal PHP validation library with **zero dependencies**. Completely rewritten for PHP 8.2+ with security-first design, strict type safety, and modern PHP features.
-
-> **Note:** This is a modernized and actively maintained fork of [vlucas/valitron](https://github.com/vlucas/valitron)
+**Valicomb** is a simple, minimal PHP validation library with **zero dependencies**. A modernized fork of [vlucas/valitron](https://github.com/vlucas/valitron) for PHP 8.2+ with security-first design, strict type safety, and modern PHP features.
 
 ## Features
 
@@ -37,11 +35,19 @@ composer require frostybee/valicomb
 ```php
 use Frostybee\Valicomb\Validator;
 
-// Basic validation
-$v = new Validator(['email' => 'test@example.com', 'age' => '25']);
-$v->rule('required', ['email', 'age']);
-$v->rule('email', 'email');
-$v->rule('integer', 'age');
+// Create validator with data
+$v = new Validator([
+    'username' => 'frostybee',
+    'email'    => 'bee@example.com',
+    'password' => 'Secret123!'
+]);
+
+// Define rules by field
+$v->forFields([
+    'username' => ['required', ['lengthBetween', 3, 20]],
+    'email'    => ['required', 'email'],
+    'password' => ['required', ['lengthMin', 8]]
+]);
 
 if ($v->validate()) {
     echo "Validation passed!";
@@ -50,9 +56,29 @@ if ($v->validate()) {
 }
 ```
 
+## Reusing Validators
+
+Define validation rules once, then validate multiple datasets with `withData()`:
+
+```php
+use Frostybee\Valicomb\Validator;
+
+$baseValidator = new Validator([]);
+$baseValidator->rule('required', 'email')->rule('email', 'email');
+
+// Validate different datasets
+$v1 = $baseValidator->withData(['email' => 'user1@example.com']);
+$v1->validate(); // true
+
+$v2 = $baseValidator->withData(['email' => 'invalid']);
+$v2->validate(); // false
+```
+
+This is useful for form validation, API endpoints, and batch processing where the same rules apply to different data.
+
 ## Built-in Validation Rules
 
-**For detailed usage examples of each rule, see [EXAMPLES.md](EXAMPLES.md)**
+**For detailed usage examples of each rule, see the [documentation](https://frostybee.github.io/valicomb/rules/overview/)**
 
 ### String Validators
 
@@ -145,7 +171,21 @@ recommended.
 
 Valicomb provides three flexible ways to define validation rules:
 
-#### 1. Fluent/Chained syntax (most explicit)
+#### 1. Field-based array (recommended)
+
+Group rules by field - reads naturally as "for this field, apply these rules":
+
+```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($_POST);
+$v->forFields([
+    'name' => ['required', ['lengthMin', 2]],
+    'email' => ['required', 'email', ['lengthMax', 254]]
+]);
+```
+
+#### 2. Fluent/Chained syntax (best for custom messages)
 
 ```php
 use Frostybee\Valicomb\Validator;
@@ -156,7 +196,7 @@ $v->rule('required', 'email')
   ->rule('lengthMin', 'email', 5);
 ```
 
-#### 2. Rule-based array (best when applying the same rule to many fields)
+#### 3. Rule-based array (best when applying the same rule to many fields)
 
 ```php
 use Frostybee\Valicomb\Validator;
@@ -169,18 +209,6 @@ $v->rules([
         ['name', 1, 100],
         ['bio', 10, 500]
     ]
-]);
-```
-
-#### 3. Field-based array (best when organizing by field)
-
-```php
-use Frostybee\Valicomb\Validator;
-
-$v = new Validator($_POST);
-$v->mapManyFieldsToRules([
-    'name' => ['required', ['lengthMin', 2]],
-    'email' => ['required', 'email', ['lengthMax', 254]]
 ]);
 ```
 
@@ -441,23 +469,6 @@ use Frostybee\Valicomb\Validator;
 
 $v = new Validator(['date' => new DateTime()]);
 $v->rule('instanceOf', 'date', DateTime::class);
-```
-
-### Reusing Validators
-
-```php
-use Frostybee\Valicomb\Validator;
-
-$baseValidator = new Validator([]);
-$baseValidator->rule('required', 'email')
-              ->rule('email', 'email');
-
-// Use with different data
-$v1 = $baseValidator->withData(['email' => 'test@example.com']);
-$v1->validate();
-
-$v2 = $baseValidator->withData(['email' => 'another@example.com']);
-$v2->validate();
 ```
 
 ## Error Handling

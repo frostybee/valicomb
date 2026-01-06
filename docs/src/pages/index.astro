@@ -6,13 +6,16 @@ import { Icon } from '@astrojs/starlight/components';
 const codeExample = `use Frostybee\\Valicomb\\Validator;
 
 $v = new Validator([
-    'email' => 'test@example.com',
-    'age'   => '25'
+    'username' => 'frostybee',
+    'email'    => 'bee@example.com',
+    'password' => 'Secret123!'
 ]);
 
-$v->rule('required', ['email', 'age']);
-$v->rule('email', 'email');
-$v->rule('integer', 'age');
+$v->forFields([
+    'username' => ['required', ['lengthBetween', 3, 20]],
+    'email'    => ['required', 'email'],
+    'password' => ['required', ['lengthMin', 8]]
+]);
 
 if ($v->validate()) {
     echo "Validation passed!";
@@ -308,7 +311,7 @@ if ($v->validate()) {
   /* Hero */
   .hero {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1.4fr;
     gap: 4rem;
     align-items: center;
     padding: 5rem 0;
@@ -438,7 +441,7 @@ if ($v->validate()) {
     min-width: 0;
     justify-self: end;
     width: 100%;
-    max-width: 28rem;
+    max-width: 45rem;
   }
 
   .code-block {

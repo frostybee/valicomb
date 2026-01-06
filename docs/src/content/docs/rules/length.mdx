@@ -31,6 +31,25 @@ All length rules use `mb_strlen()` for accurate Unicode character counting:
 
 Valicomb supports two syntax styles: **rule-based** (map rules to fields) and **field-based** (map fields to rules).
 
+### Field-Based Mapping
+
+```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($data);
+
+$v->forFields([
+    'username' => ['required', ['lengthBetween', 3, 20]],
+    'password' => ['required', ['lengthMin', 8], ['lengthMax', 128]],
+    'pin_code' => ['required', ['length', 4]],
+    'bio' => ['optional', ['lengthMax', 500]],
+    'title' => ['required', ['lengthBetween', 5, 100]],
+    'country_code' => ['required', ['length', 2]]
+]);
+
+$v->validate();
+```
+
 ### Rule-Based Array Syntax
 
 ```php
@@ -56,25 +75,6 @@ $v->rules([
         ['bio', 500],
         ['tweet', 280]
     ]
-]);
-
-$v->validate();
-```
-
-### Field-Based Mapping
-
-```php
-use Frostybee\Valicomb\Validator;
-
-$v = new Validator($data);
-
-$v->mapManyFieldsToRules([
-    'username' => ['required', ['lengthBetween', 3, 20]],
-    'password' => ['required', ['lengthMin', 8], ['lengthMax', 128]],
-    'pin_code' => ['required', ['length', 4]],
-    'bio' => ['optional', ['lengthMax', 500]],
-    'title' => ['required', ['lengthBetween', 5, 100]],
-    'country_code' => ['required', ['length', 2]]
 ]);
 
 $v->validate();

@@ -3,21 +3,44 @@ title: Defining Rules
 description: Learn the three ways to define validation rules in Valicomb
 ---
 
-Valicomb provides three syntaxes for defining validation rules. Choose based on your use case.
+Valicomb provides three syntaxes for defining validation rules. This page progresses from basic usage to advanced patterns.
 
 ## Quick Comparison
 
 | Syntax | Best For | Method |
 |--------|----------|--------|
-| **Fluent** | Readability, custom messages per rule | `rule()` |
+| **Field-Based Array** (recommended) | Grouping all rules by field | `forFields()` |
+| **Fluent** | Adding custom messages per rule | `rule()` |
 | **Rule-Based Array** | Applying same rule to many fields | `rules()` |
-| **Field-Based Array** | Grouping all rules by field | `mapManyFieldsToRules()` |
 
 ---
 
-## 1. Fluent Syntax
+## Basics
 
-Chain rules with `->rule()`. Best for readability and adding custom messages.
+### Field-Based Array Syntax (Recommended)
+
+Group by field with `->forFields()`. This reads naturally as "for this field, apply these rules":
+
+```php
+$v = new Validator($_POST);
+$v->forFields([
+    'email' => ['required', 'email', ['lengthMax', 254]],
+    'password' => [
+        'required',
+        ['lengthMin', 8, 'message' => 'Password too short']
+    ]
+]);
+```
+
+For a single field, use `mapOneFieldToRules()`:
+
+```php
+$v->mapOneFieldToRules('email', ['required', 'email']);
+```
+
+### Fluent Syntax
+
+Chain rules with `->rule()`. Best for adding custom messages and labels inline.
 
 ```php
 $v = new Validator($_POST);
@@ -28,9 +51,19 @@ $v->rule('required', 'email')
   ->rule('lengthMin', 'password', 8);
 ```
 
----
+#### Chaining Multiple Rules
 
-## 2. Rule-Based Array Syntax
+Chain as many rules as needed on a single field:
+
+```php
+$v = new Validator(['email' => 'test@example.com']);
+$v->rule('required', 'email')
+  ->rule('email', 'email')
+  ->rule('lengthMax', 'email', 254);
+$v->validate();
+```
+
+### Rule-Based Array Syntax
 
 Group by rule type with `->rules()`. Best when applying the same rule to many fields.
 
@@ -48,30 +81,9 @@ $v->rules([
 
 ---
 
-## 3. Field-Based Array Syntax
+## Intermediate
 
-Group by field with `->mapManyFieldsToRules()`. Best when each field has multiple rules.
-
-```php
-$v = new Validator($_POST);
-$v->mapManyFieldsToRules([
-    'email' => ['required', 'email', ['lengthMax', 254]],
-    'password' => [
-        'required',
-        ['lengthMin', 8, 'message' => 'Password too short']
-    ]
-]);
-```
-
-For a single field, use `mapOneFieldToRules()`:
-
-```php
-$v->mapOneFieldToRules('email', ['required', 'email']);
-```
-
----
-
-## Custom Messages
+### Custom Messages
 
 All syntaxes support inline custom messages using the `'message'` key:
 
@@ -85,9 +97,7 @@ $v->rule('lengthMin', 'password', 8)->message('Password too short');
 
 See [Error Messages](/valicomb/guides/error-messages/) for placeholders, labels, and more options.
 
----
-
-## Applying Rules to Multiple Fields
+### Applying Rules to Multiple Fields
 
 All syntaxes support applying one rule to multiple fields:
 
@@ -97,6 +107,43 @@ $v->rule('required', ['email', 'name', 'password']);
 
 // Array
 $v->rules(['required' => ['email', 'name', 'password']]);
+```
+
+---
+
+## Advanced
+
+### Mixing Syntaxes
+
+You can combine array and fluent syntaxes in the same validator:
+
+```php
+$v = new Validator($_POST);
+
+// Start with array syntax
+$v->rules([
+    'required' => ['name', 'email'],
+    'email' => 'email'
+]);
+
+// Add more rules with fluent syntax
+$v->rule('lengthMin', 'name', 2)
+  ->rule('min', 'age', 18);
+```
+
+### Valitron Compatibility
+
+For developers migrating from Valitron, these method aliases are available:
+
+```php
+// Single field mapping (alias for mapOneFieldToRules)
+$v->mapFieldRules('email', ['required', 'email']);
+
+// Multiple fields mapping (alias for forFields)
+$v->mapFieldsRules([
+    'email' => ['required', 'email'],
+    'password' => ['required', ['lengthMin', 8]]
+]);
 ```
 
 ---

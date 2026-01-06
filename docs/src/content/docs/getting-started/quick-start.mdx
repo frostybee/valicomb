@@ -7,7 +7,7 @@ This guide will get you up and running with Valicomb in just a few minutes.
 
 ## Basic Validation
 
-The core workflow is simple: create a Validator with your data, add rules for each field, and call `validate()`. If validation fails, you can retrieve the error messages.
+The core workflow is simple: create a Validator with your data, define rules for each field, and call `validate()`. If validation fails, you can retrieve the error messages.
 
 ```php
 use Frostybee\Valicomb\Validator;
@@ -15,10 +15,11 @@ use Frostybee\Valicomb\Validator;
 // Create validator with data
 $v = new Validator(['email' => 'test@example.com', 'age' => '25']);
 
-// Add validation rules
-$v->rule('required', ['email', 'age']);
-$v->rule('email', 'email');
-$v->rule('integer', 'age');
+// Define rules by field
+$v->forFields([
+    'email' => ['required', 'email'],
+    'age' => ['required', 'integer']
+]);
 
 // Run validation
 if ($v->validate()) {
@@ -28,8 +29,8 @@ if ($v->validate()) {
 }
 ```
 
-:::tip[Learn More About Rule Syntaxes]
-Valicomb provides three flexible syntaxes for defining rules: fluent, rule-based array, and field-based array. See [Defining Rules](/valicomb/getting-started/defining-rules/) for detailed examples of each approach.
+:::tip[Alternative Syntaxes]
+Valicomb also supports fluent chaining (`$v->rule('email', 'email')`) and rule-based arrays. See [Defining Rules](/valicomb/getting-started/defining-rules/) for all options.
 :::
 
 ## Handling Form Data

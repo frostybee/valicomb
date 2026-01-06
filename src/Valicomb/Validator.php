@@ -1077,10 +1077,10 @@ class Validator
     }
 
     /**
-     * Map validation rules to multiple fields at once
+     * Define validation rules for multiple fields at once
      *
      * Allows you to define validation rules for multiple fields at once using a structured array.
-     * This is the most organized way to define all validation rules in one place.
+     * This is the recommended way to define all validation rules in one place.
      *
      * The array structure:
      * - Keys: field names
@@ -1088,10 +1088,12 @@ class Validator
      *
      * @param array $rules Associative array where keys are field names and values are rule configurations.
      *
-     * @example Mapping rules for multiple fields:
+     * @return self Returns $this for method chaining.
+     *
+     * @example Defining rules for multiple fields:
      * ```php
      * $v = new Validator($data);
-     * $v->mapManyFieldsToRules([
+     * $v->forFields([
      *     'email' => [
      *         ['required'],
      *         ['email'],
@@ -1108,11 +1110,24 @@ class Validator
      * ]);
      * ```
      */
-    public function mapManyFieldsToRules(array $rules): void
+    public function forFields(array $rules): self
     {
         foreach (array_keys($rules) as $field) {
             $this->mapOneFieldToRules($field, $rules[$field]);
         }
+
+        return $this;
+    }
+
+    /**
+     * @deprecated Use forFields() instead. This method will be removed in a future version.
+     * @see forFields()
+     *
+     * @param array $rules Associative array where keys are field names and values are rule configurations.
+     */
+    public function mapManyFieldsToRules(array $rules): void
+    {
+        $this->forFields($rules);
     }
 
     /**

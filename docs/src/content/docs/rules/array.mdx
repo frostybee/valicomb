@@ -42,6 +42,25 @@ Only checks key existence, not value validity.
 
 Valicomb supports two syntax styles: **rule-based** (map rules to fields) and **field-based** (map fields to rules).
 
+### Field-Based Mapping
+
+```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($data);
+
+$v->forFields([
+    'status' => ['required', ['in', ['draft', 'published', 'archived']]],
+    'tags' => ['required', 'array', 'containsUnique', ['subset', ['php', 'javascript', 'python', 'go']]],
+    'permissions' => ['required', 'array', ['listContains', 'read']],
+    'username' => ['required', ['notIn', ['admin', 'root', 'moderator']]],
+    'address' => ['required', 'array', ['arrayHasKeys', ['street', 'city', 'country']]],
+    'categories' => ['optional', 'array', ['subset', ['tech', 'news', 'lifestyle']]]
+]);
+
+$v->validate();
+```
+
 ### Rule-Based Array Syntax
 
 ```php
@@ -78,25 +97,6 @@ $v->rules([
         ['address', ['street', 'city', 'zip']],
         ['payment', ['method', 'amount']]
     ]
-]);
-
-$v->validate();
-```
-
-### Field-Based Mapping
-
-```php
-use Frostybee\Valicomb\Validator;
-
-$v = new Validator($data);
-
-$v->mapManyFieldsToRules([
-    'status' => ['required', ['in', ['draft', 'published', 'archived']]],
-    'tags' => ['required', 'array', 'containsUnique', ['subset', ['php', 'javascript', 'python', 'go']]],
-    'permissions' => ['required', 'array', ['listContains', 'read']],
-    'username' => ['required', ['notIn', ['admin', 'root', 'moderator']]],
-    'address' => ['required', 'array', ['arrayHasKeys', ['street', 'city', 'country']]],
-    'categories' => ['optional', 'array', ['subset', ['tech', 'news', 'lifestyle']]]
 ]);
 
 $v->validate();

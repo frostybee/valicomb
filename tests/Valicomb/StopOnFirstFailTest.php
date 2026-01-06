@@ -22,7 +22,7 @@ class StopOnFirstFailTest extends BaseTestCase
             'website' => 'short',
         ]);
 
-        $v->mapManyFieldsToRules($rules);
+        $v->forFields($rules);
         $v->stopOnFirstFail(true);
         $this->assertFalse($v->validate());
 

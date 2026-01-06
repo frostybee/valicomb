@@ -213,6 +213,31 @@ $v->rule('required', ['user_email', 'user_pass']);
 $v->rule('email', 'user_email');
 ```
 
+### Labels with Custom Messages
+
+The `{field}` placeholder in custom messages uses the label if one is set:
+
+```php
+$v->rule('required', 'name')
+  ->message('{field} is required')
+  ->label('Full Name');
+// Error: "Full Name is required"
+```
+
+### Labels in Comparison Rules
+
+For rules like `equals` that compare two fields, use `{field1}` for the second field:
+
+```php
+$v->labels([
+    'password' => 'Password',
+    'password_confirm' => 'Password Confirmation'
+]);
+$v->rule('equals', 'password', 'password_confirm')
+  ->message('{field} must match {field1}');
+// Error: "Password must match Password Confirmation"
+```
+
 ---
 
 ## Hiding Field Labels
