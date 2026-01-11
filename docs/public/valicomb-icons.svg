@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120">
+  <!-- Option 1: V with integrated checkmark -->
+  <g transform="translate(10, 10)">
+    <rect width="100" height="100" fill="#1a1a2e" rx="12"/>
+    <path d="M25 30 L50 75 L75 30" stroke="#6ba3c7" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M40 55 L50 65 L70 40" stroke="#22c55e" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Option 2: Shield with V -->
+  <g transform="translate(140, 10)">
+    <rect width="100" height="100" fill="#1a1a2e" rx="12"/>
+    <path d="M50 15 L80 25 L80 55 C80 75 50 90 50 90 C50 90 20 75 20 55 L20 25 Z" fill="none" stroke="#6ba3c7" stroke-width="4"/>
+    <path d="M35 45 L50 65 L65 35" stroke="#22c55e" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Option 3: Abstract V checkmark -->
+  <g transform="translate(270, 10)">
+    <rect width="100" height="100" fill="#1a1a2e" rx="12"/>
+    <path d="M20 35 L50 80 L80 35" stroke="#6ba3c7" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="50" cy="80" r="6" fill="#22c55e"/>
+  </g>
+</svg>

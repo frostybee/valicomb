@@ -10,7 +10,10 @@ use Frostybee\Valicomb\Validator;
 
 class MapRulesTest extends BaseTestCase
 {
-    public function testMapSingleFieldRules(): void
+    /**
+     * @deprecated Tests backwards compatibility for deprecated mapOneFieldToRules() method.
+     */
+    public function testDeprecatedMapOneFieldToRules(): void
     {
         $rules = [
             'required',
@@ -35,8 +38,8 @@ class MapRulesTest extends BaseTestCase
                 ['threshold' => 90],
             ],
         ]);
-        $v->mapOneFieldToRules('settings.*.threshold', [
-            ['max', 50],
+        $v->forFields([
+            'settings.*.threshold' => [['max', 50]],
         ]);
 
         $this->assertFalse($v->validate());
@@ -67,14 +70,14 @@ class MapRulesTest extends BaseTestCase
 
     public function testCustomMessageSingleField(): void
     {
-        $rules = [
-            ['lengthMin', 14, 'message' => 'Credit card number must be at least 14 digits'],
-        ];
-
         $v = new Validator([
             'card_number' => '12345',
         ]);
-        $v->mapOneFieldToRules('card_number', $rules);
+        $v->forFields([
+            'card_number' => [
+                ['lengthMin', 14, 'message' => 'Credit card number must be at least 14 digits'],
+            ],
+        ]);
         $this->assertFalse($v->validate());
         $errors = $v->errors('card_number');
         $this->assertEquals('Credit card number must be at least 14 digits', $errors[0]);

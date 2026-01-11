@@ -10,6 +10,7 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: 'Valicomb',
+            favicon: '/favicon.svg',
 			customCss: ['./src/styles/custom.css'],
 			head: [
 				{
@@ -61,6 +62,7 @@ export default defineConfig({
 						{ label: 'Quick Start', slug: 'getting-started/quick-start' },
 						{ label: 'Core Concepts', slug: 'getting-started/core-concepts' },
 						{ label: 'Defining Rules', slug: 'getting-started/defining-rules' },
+						{ label: 'Fluent API', slug: 'getting-started/fluent-api' },
 					],
 				},
 				{

@@ -1,0 +1,394 @@
+---
+title: Fluent API
+description: Chain validation rules with IDE autocomplete support
+---
+
+The Fluent API provides a per-field, chainable interface for defining validation rules. It offers full IDE autocomplete support, making it easy to discover and apply validation rules.
+
+## Basic Usage
+
+Start with `field()` to target a field, then chain validation methods:
+
+```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($_POST);
+$v->field('email')
+    ->required()
+    ->email()
+    ->lengthMax(254);
+
+if ($v->validate()) {
+    echo "Valid!";
+}
+```
+
+### Multiple Fields
+
+Use separate `field()` calls for each field - this keeps your code clean and scannable:
+
+```php
+$v->field('email')
+    ->required()
+    ->email();
+
+$v->field('password')
+    ->required()
+    ->lengthMin(8);
+
+$v->field('age')
+    ->required()
+    ->integer()
+    ->min(18);
+```
+
+### Returning to Validator
+
+Use `end()` when you need to return to the Validator instance to continue with other methods:
+
+```php
+$v->field('price')
+    ->required()
+    ->numeric()
+    ->positive()
+    ->end()  // Return to Validator
+    ->field('quantity')
+    ->required()
+    ->integer()
+    ->min(1)
+    ->end()  // Return to Validator
+    ->validate();
+```
+
+You can also use `end()` to mix with other syntaxes in a single chain:
+
+```php
+$v->field('discount_code')
+    ->optional()
+    ->alphaNum()
+    ->length(8)
+    ->end()
+    ->forFields([
+        'shipping_date' => ['required', 'date', 'future'],
+    ])
+    ->validate();
+```
+
+---
+
+## Stop on First Failure
+
+By default, all rules are checked and all errors collected. Enable `stopOnFirstFail()` for better performance when you only need to know if validation failed:
+
+```php
+$v = new Validator($_POST);
+$v->stopOnFirstFail(true);
+
+$v->field('email')->required()->email();
+$v->field('password')->required()->lengthMin(8);
+$v->field('age')->required()->integer()->min(18);
+
+$v->validate(); // Stops as soon as first rule fails
+```
+
+See [Core Concepts](/valicomb/getting-started/core-concepts/#stop-on-first-failure) for more details.
+
+---
+
+## Custom Messages & Labels
+
+### Setting Custom Messages
+
+Add `message()` after any rule to customize its error message:
+
+```php
+$v->field('email')
+    ->required()->message('We need your email address')
+    ->email()->message('Please enter a valid email');
+```
+
+### Setting Field Labels
+
+Use `label()` to set human-readable names for error messages:
+
+```php
+$v->field('dob')
+    ->label('Date of Birth')
+    ->required()
+    ->date()
+    ->past();
+
+// Error: "Date of Birth is required" instead of "Dob is required"
+```
+
+---
+
+## Custom Rules with `rule()`
+
+Use `rule()` to add named rules or custom callables:
+
+### Named Rules
+
+```php
+$v->field('username')
+    ->rule('lengthBetween', 3, 20);
+```
+
+### Custom Callable
+
+```php
+$v->field('coupon')
+    ->optional()
+    ->rule(fn($field, $value) => in_array($value, $validCoupons))
+    ->message('Invalid coupon code');
+```
+
+---
+
+## Mixing with Other Syntaxes
+
+The Fluent API can be combined with other syntaxes in the same validator:
+
+```php
+$v = new Validator($_POST);
+
+// Use forFields() for simple fields
+$v->forFields([
+    'name' => ['required', ['lengthBetween', 2, 50]],
+]);
+
+// Use Fluent API for fields needing custom messages
+$v->field('email')
+    ->required()->message('Email is required for account recovery')
+    ->email()->message('Please enter a valid email address');
+
+$v->field('password')
+    ->required()
+    ->lengthMin(8)->message('Password must be at least 8 characters')
+    ->passwordStrength(3)->message('Password is too weak');
+```
+
+---
+
+## Reusing Validators
+
+Define validation rules once with the Fluent API, then apply them to multiple datasets using `withData()`:
+
+```php
+// Define rules once
+$productValidator = new Validator([]);
+$productValidator->field('price')
+    ->required()
+    ->numeric()
+    ->positive();
+
+$productValidator->field('quantity')
+    ->required()
+    ->integer()
+    ->min(1);
+
+// Validate different products
+$v1 = $productValidator->withData(['price' => 29.99, 'quantity' => 5]);
+$v1->validate(); // true
+
+$v2 = $productValidator->withData(['price' => -10, 'quantity' => 0]);
+$v2->validate(); // false
+```
+
+See [Core Concepts](/valicomb/getting-started/core-concepts/#reusing-validators) for more details on this pattern.
+
+---
+
+## Complete Example
+
+A registration form with comprehensive validation:
+
+```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($_POST);
+
+$v->field('username')
+    ->label('Username')
+    ->required()
+    ->alphaNum()->message('Username can only contain letters and numbers')
+    ->lengthBetween(3, 20)
+    ->notIn(['admin', 'root', 'system'])->message('This username is reserved');
+
+$v->field('email')
+    ->label('Email Address')
+    ->required()
+    ->email()
+    ->lengthMax(254);
+
+$v->field('password')
+    ->label('Password')
+    ->required()
+    ->lengthMin(8)
+    ->passwordStrength(['min' => 8, 'uppercase' => 1, 'number' => 1]);
+
+$v->field('password_confirm')
+    ->label('Password Confirmation')
+    ->required()
+    ->equals('password')->message('Passwords do not match');
+
+$v->field('age')
+    ->label('Age')
+    ->required()
+    ->integer()
+    ->between(13, 120);
+
+$v->field('website')
+    ->optional()
+    ->url();
+
+$v->field('terms')
+    ->accepted()->message('You must accept the terms of service');
+
+if ($v->validate()) {
+    // Process registration
+} else {
+    $errors = $v->errors();
+}
+```
+
+---
+
+## Available Methods
+
+The Fluent API provides direct methods for all built-in validation rules.
+
+### Infrastructure Methods
+
+| Method | Description |
+|--------|-------------|
+| `field(string $name)` | Switch to validating a different field |
+| `rule(string\|callable $rule, mixed ...$params)` | Add a custom or named rule |
+| `message(string $msg)` | Set custom error message for the last rule |
+| `label(string $label)` | Set human-readable field label |
+| `end()` | Return to the Validator instance |
+
+### Conditional Rules
+
+| Method | Description |
+|--------|-------------|
+| `required(bool $allowEmpty = false)` | Field must be present and not empty |
+| `optional()` | Only validate if field is present |
+| `nullable()` | Allow null values, skip other rules if null |
+| `requiredWith(string\|array $fields, bool $strict = false)` | Required if other field(s) are present |
+| `requiredWithout(string\|array $fields, bool $strict = false)` | Required if other field(s) are absent |
+
+See [Conditional Rules](/valicomb/rules/conditional/) for details.
+
+### String Rules
+
+| Method | Description |
+|--------|-------------|
+| `alpha()` | Alphabetic characters only |
+| `alphaNum()` | Alphanumeric characters only |
+| `ascii()` | ASCII characters only |
+| `slug()` | URL slug format (a-z, 0-9, -, _) |
+| `contains(string $str, bool $strict = false)` | Contains substring |
+| `regex(string $pattern)` | Matches regex pattern |
+| `startsWith(string\|array $prefix, bool $caseSensitive = false)` | Starts with prefix |
+| `endsWith(string\|array $suffix, bool $caseSensitive = false)` | Ends with suffix |
+| `uuid(?int $version = null)` | Valid UUID (optionally specific version) |
+| `passwordStrength(int\|array $config)` | Password strength requirements |
+
+See [String Rules](/valicomb/rules/string/) for details.
+
+### Length Rules
+
+| Method | Description |
+|--------|-------------|
+| `length(int $len)` | Exact length |
+| `lengthBetween(int $min, int $max)` | Length within range |
+| `lengthMin(int $min)` | Minimum length |
+| `lengthMax(int $max)` | Maximum length |
+
+See [Length Rules](/valicomb/rules/length/) for details.
+
+### Numeric Rules
+
+| Method | Description |
+|--------|-------------|
+| `numeric()` | Must be numeric |
+| `integer(bool $strict = false)` | Must be integer |
+| `min(int\|float $min)` | Minimum value |
+| `max(int\|float $max)` | Maximum value |
+| `between(int\|float $min, int\|float $max)` | Value within range |
+| `boolean()` | Must be boolean |
+| `positive()` | Must be positive number |
+| `decimalPlaces(int $places)` | Specific decimal places |
+
+See [Numeric Rules](/valicomb/rules/numeric/) for details.
+
+### Date Rules
+
+| Method | Description |
+|--------|-------------|
+| `date()` | Valid date |
+| `dateFormat(string $format)` | Matches date format |
+| `dateBefore(string $date)` | Before specific date |
+| `dateAfter(string $date)` | After specific date |
+| `past()` | Date in the past |
+| `future()` | Date in the future |
+
+See [Date Rules](/valicomb/rules/date/) for details.
+
+### Network Rules
+
+| Method | Description |
+|--------|-------------|
+| `ip()` | Valid IP address |
+| `ipv4()` | Valid IPv4 address |
+| `ipv6()` | Valid IPv6 address |
+| `email()` | Valid email address |
+| `emailDNS()` | Valid email with DNS verification |
+| `url()` | Valid URL |
+| `urlActive()` | Valid URL that is reachable |
+| `urlStrict()` | Valid URL with strict checking |
+| `phone(?string $country = null)` | Valid phone number |
+
+See [Network Rules](/valicomb/rules/network/) for details.
+
+### Array Rules
+
+| Method | Description |
+|--------|-------------|
+| `array()` | Must be an array |
+| `in(array $values)` | Value is in allowed list |
+| `notIn(array $values)` | Value is not in disallowed list |
+| `listContains(mixed $value, bool $strict = false)` | Array contains value |
+| `subset(array $values)` | Array is subset of allowed values |
+| `containsUnique()` | Array contains unique values |
+| `arrayHasKeys(array $keys)` | Array has required keys |
+
+See [Array Rules](/valicomb/rules/array/) for details.
+
+### Comparison Rules
+
+| Method | Description |
+|--------|-------------|
+| `equals(string $otherField)` | Must equal another field's value |
+| `different(string $otherField)` | Must differ from another field's value |
+| `accepted()` | Must be accepted (true, "yes", "on", "1") |
+
+See [Comparison Rules](/valicomb/rules/comparison/) for details.
+
+### Type Rules
+
+| Method | Description |
+|--------|-------------|
+| `instanceOf(string $class)` | Must be instance of class |
+| `creditCard(string\|array\|null $type = null, ?array $allowedTypes = null)` | Valid credit card number |
+
+See [Type Rules](/valicomb/rules/type/) for details.
+
+---
+
+## Next Steps
+
+- [Defining Rules](/valicomb/getting-started/defining-rules/) - Compare all four syntax options
+- [Error Messages](/valicomb/guides/error-messages/) - Customize error messages and placeholders
+- [Validation Rules](/valicomb/rules/overview/) - Explore all 54 built-in rules

@@ -1020,36 +1020,11 @@ class Validator
     }
 
     /**
-     * Map multiple validation rules to a single field
-     *
-     * Allows you to define multiple validation rules for a single field using an array structure.
-     * Each rule can include parameters and custom error messages.
-     *
-     * The array structure for rules:
-     * - Each element is a rule configuration
-     * - First element: rule name
-     * - Additional elements: rule parameters
-     * - Optional 'message' key: custom error message
+     * @deprecated Use forFields() instead. This method will be removed in a future version.
+     * @see forFields()
      *
      * @param string $field The field name to apply rules to.
      * @param array $rules Array of rule configurations.
-     *
-     * @example Basic field rules:
-     * ```php
-     * $v = new Validator($data);
-     * $v->mapOneFieldToRules('email', [
-     *     ['required'],
-     *     ['email'],
-     *     ['lengthMax', 254]
-     * ]);
-     * ```
-     * @example With custom messages:
-     * ```php
-     * $v->mapOneFieldToRules('password', [
-     *     ['required', 'message' => 'Password is required'],
-     *     ['lengthMin', 8, 'message' => 'Password must be at least 8 characters']
-     * ]);
-     * ```
      */
     public function mapOneFieldToRules(string $field, array $rules): void
     {
@@ -1128,6 +1103,40 @@ class Validator
     public function mapManyFieldsToRules(array $rules): void
     {
         $this->forFields($rules);
+    }
+
+    /**
+     * Start a fluent field builder for the specified field.
+     *
+     * Creates a FieldBuilder instance that provides a fluent, chainable interface
+     * for defining validation rules with IDE autocomplete support.
+     *
+     * @param string $fieldName The name of the field to validate.
+     *
+     * @return FieldBuilder A new FieldBuilder instance for the specified field.
+     *
+     * @example Basic fluent validation:
+     * ```php
+     * $v = new Validator($data);
+     * $v->field('email')->required()->email()->lengthMax(254)
+     *   ->field('password')->required()->lengthMin(8);
+     * ```
+     * @example With labels and custom messages:
+     * ```php
+     * $v->field('username')
+     *     ->label('Username')
+     *     ->required()->message('Please enter a username')
+     *     ->alphaNum()->message('Only letters and numbers allowed');
+     * ```
+     * @example Mixed with traditional syntax:
+     * ```php
+     * $v->field('email')->required()->email();
+     * $v->forFields(['name' => [['required'], ['alpha']]]);
+     * ```
+     */
+    public function field(string $fieldName): FieldBuilder
+    {
+        return new FieldBuilder($this, $fieldName);
     }
 
     /**

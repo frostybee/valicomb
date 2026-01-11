@@ -1,16 +1,17 @@
 ---
 title: Defining Rules
-description: Learn the three ways to define validation rules in Valicomb
+description: Learn the four ways to define validation rules in Valicomb
 ---
 
-Valicomb provides three syntaxes for defining validation rules. This page progresses from basic usage to advanced patterns.
+Valicomb provides four syntaxes for defining validation rules. This page progresses from basic usage to advanced patterns.
 
 ## Quick Comparison
 
 | Syntax | Best For | Method |
 |--------|----------|--------|
-| **Field-Based Array** (recommended) | Grouping all rules by field | `forFields()` |
-| **Fluent** | Adding custom messages per rule | `rule()` |
+| **Field-Based Array** | Grouping all rules by field | `forFields()` |
+| **Fluent Field Builder** | IDE autocomplete, per-field context | `field()` |
+| **Fluent Rule Chain** | Adding custom messages per rule | `rule()` |
 | **Rule-Based Array** | Applying same rule to many fields | `rules()` |
 
 ---
@@ -32,13 +33,35 @@ $v->forFields([
 ]);
 ```
 
-For a single field, use `mapOneFieldToRules()`:
+### Fluent Field Builder
+
+Chain validation methods directly on fields with full IDE autocomplete support:
 
 ```php
-$v->mapOneFieldToRules('email', ['required', 'email']);
+$v = new Validator($_POST);
+
+$v->field('email')
+    ->required()
+    ->email()
+    ->lengthMax(254);
+
+$v->field('password')
+    ->required()
+    ->lengthMin(8);
 ```
 
-### Fluent Syntax
+Use `message()` and `label()` for customization:
+
+```php
+$v->field('email')
+    ->label('Email Address')
+    ->required()->message('We need your email')
+    ->email();
+```
+
+See the [Fluent API](/valicomb/getting-started/fluent-api/) page for the complete method reference.
+
+### Fluent Rule Chain Syntax
 
 Chain rules with `->rule()`. Best for adding custom messages and labels inline.
 
@@ -133,17 +156,13 @@ $v->rule('lengthMin', 'name', 2)
 
 ### Valitron Compatibility
 
-For developers migrating from Valitron, these method aliases are available:
+For developers migrating from Valitron, these deprecated method aliases are available:
 
 ```php
-// Single field mapping (alias for mapOneFieldToRules)
+// Deprecated - use forFields() instead
 $v->mapFieldRules('email', ['required', 'email']);
-
-// Multiple fields mapping (alias for forFields)
-$v->mapFieldsRules([
-    'email' => ['required', 'email'],
-    'password' => ['required', ['lengthMin', 8]]
-]);
+$v->mapFieldsRules([...]);
+$v->mapOneFieldToRules('email', [...]);
 ```
 
 ---

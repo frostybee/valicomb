@@ -1,7 +1,14 @@
-# Valicomb: Simple, Modern PHP Validation
+<p align="center">
+  <img src="valicomb-icon.svg" alt="Valicomb" width="80" height="80">
+</p>
 
-[![PHP Version](https://img.shields.io/badge/php-%3E%3D8.2-blue.svg)](https://php.net/)
-[![License](https://img.shields.io/badge/license-BSD--3--Clause-green.svg)](LICENSE)
+<h1 align="center">Valicomb</h1>
+<p align="center"><strong>Simple, Modern PHP Validation</strong></p>
+
+<p align="center">
+  <a href="https://php.net/"><img src="https://img.shields.io/badge/php-%3E%3D8.2-blue.svg" alt="PHP Version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-BSD--3--Clause-green.svg" alt="License"></a>
+</p>
 
 **Valicomb** is a simple, minimal PHP validation library with **zero dependencies**. A modernized fork of [vlucas/valitron](https://github.com/vlucas/valitron) for PHP 8.2+ with security-first design, strict type safety, and modern PHP features.
 
@@ -12,7 +19,7 @@
 * **Thoroughly tested**, with over 430 tests making sure things behave the way they should.
 * **No external dependencies**, other than the standard `ext-mbstring` extension.
 * **Clean and straightforward API** that's easy to read and chain together.
-* **Built-in i18n support**, offering 22 languages out of the box.
+* **Built-in i18n support**, offering 33 languages out of the box.
 * **54 ready-to-use validation rules** covering the most common validation needs.
 * **Easy to extend**, so you can add your own custom validation rules when needed.
 * **Clean, modern codebase**, fully passing PHPStan Level 8 checks.
@@ -169,7 +176,7 @@ recommended.
 
 ### Defining Validation Rules
 
-Valicomb provides three flexible ways to define validation rules:
+Valicomb provides four flexible ways to define validation rules:
 
 #### 1. Field-based array (recommended)
 
@@ -210,6 +217,34 @@ $v->rules([
         ['bio', 10, 500]
     ]
 ]);
+```
+
+#### 4. Fluent Field Builder (IDE autocomplete)
+
+Chain validation methods directly on fields with full IDE autocomplete support:
+
+```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($_POST);
+
+$v->field('email')
+    ->required()
+    ->email()
+    ->lengthMax(254);
+
+$v->field('password')
+    ->required()
+    ->lengthMin(8);
+```
+
+Add custom messages and labels inline:
+
+```php
+$v->field('email')
+    ->label('Email Address')
+    ->required()->message('We need your email')
+    ->email()->message('Please enter a valid email');
 ```
 
 ### Field Labels
@@ -405,7 +440,7 @@ $v->rule('integer', 'num', true); // Works correctly (strict mode)
 
 ## Internationalization
 
-Valicomb supports 22 languages out of the box:
+Valicomb supports 33 languages out of the box:
 
 ```php
 use Frostybee\Valicomb\Validator;
@@ -417,7 +452,7 @@ Validator::lang('es'); // Spanish
 $v = new Validator($data, [], 'fr'); // French
 ```
 
-Available languages: ar, cs, da, de, en, es, fa, fi, fr, hu, id, it, ja, nl, no, pl, pt, ru, sv, tr, uk, zh
+Available languages: ar, az, bg, cs, da, de, el, en, es, fa, fi, fr, hu, id, it, ja, ko, lt, lv, nb, nl, nn, no, pl, pt, pt-br, ro, ru, sk, sl, sv, th, tr, uk, vi, zh-cn, zh-tw
 
 ## Advanced Features
 

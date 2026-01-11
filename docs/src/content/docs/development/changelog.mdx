@@ -64,6 +64,40 @@ Complete rewrite of the Valitron validation library for modern PHP.
 - Strict equality comparisons (no type juggling)
 - Path traversal protection in language loading
 
+### Security & Quality Fixes
+
+19 issues from the original Valitron library were addressed:
+
+#### Security
+- Hardened regex patterns against ReDoS attacks
+- Validated paths in language file loading
+- Replaced `rand()` with `random_int()`
+- Enforced strict equality (`===`) everywhere
+
+#### Validation Rules
+- Fixed integer regex pattern
+- Fixed `instanceof` implementation
+- RFC 5321 compliant email validation with length limits
+- Fixed slug regex pattern
+- Improved date parsing and edge case handling
+- Added credit card maximum length check
+- Fixed array subset comparison logic
+- Corrected ASCII validator return type
+- Boolean now accepts string representations (`"true"`, `"false"`)
+
+#### Modernization
+- Fixed method name typos
+- Added Unicode support in alpha validation
+- Using `str_starts_with()`, `str_ends_with()`, `str_contains()`
+- Replaced switch statements with match expressions
+- Using array spread operator throughout
+
+### Infrastructure
+
+- Updated composer.json to PHP 8.1+, PHPUnit 10, PHPStan
+- Configured PHPStan level 8 static analysis
+- Rewrote Validator.php (1882 lines) with strict types, typed properties, and type hints on all public methods
+
 ---
 
 ## Upgrade Notes
@@ -90,8 +124,9 @@ If you're migrating from vlucas/valitron:
    - Ensure your data types are correct
 
 4. **Deprecated methods**
-   - `mapFieldRules()` → Use `mapOneFieldToRules()`
-- `mapFieldsRules()` → Use `mapManyFieldsToRules()`
+   - `mapFieldRules()` → Use `forFields()`
+   - `mapFieldsRules()` → Use `forFields()`
+   - `mapOneFieldToRules()` → Use `forFields()`
 
 ---
 

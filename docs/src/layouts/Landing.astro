@@ -16,7 +16,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://valicomb
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <title>{title}</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/valicomb/favicon.svg" />
     <link rel="canonical" href={canonicalURL} />
 
     <!-- Open Graph / Facebook -->
@@ -103,5 +103,17 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://valicomb
 
   code {
     font-family: var(--font-mono);
+  }
+
+  /* Focus styles for accessibility */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  button:focus-visible,
+  a:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
   }
 </style>

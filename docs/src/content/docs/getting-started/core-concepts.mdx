@@ -11,7 +11,9 @@ This page covers Valicomb's core concepts, progressing from basic usage to advan
 
 ### The Validator Instance
 
-The `Validator` class is your main entry point. Create an instance with your data, then configure rules:
+The `Validator` class is your main entry point for all validation operations. It holds your data, manages validation rules, and collects error messages.
+
+Create an instance with your data, then configure rules:
 
 ```php
 use Frostybee\Valicomb\Validator;
@@ -35,6 +37,8 @@ new Validator(
 ```
 
 ### Rules and Parameters
+
+Rules are the building blocks of validation. Each rule checks a specific condition on a field's value, and many rules accept parameters to customize their behavior.
 
 Validation rules are added using the `rule()` method:
 
@@ -96,6 +100,8 @@ $emailErrors = $v->errors('email');
 
 ## Intermediate
 
+Now that you understand the basics, let's explore how to control when validation runs and optimize performance.
+
 ### Required vs Optional Fields
 
 By default, empty fields skip validation unless marked as `required`:
@@ -135,6 +141,8 @@ $v->rule('required', ['email', 'password']);
 ---
 
 ## Advanced
+
+These patterns help you write cleaner, more maintainable validation code in larger applications.
 
 ### Reusing Validators
 

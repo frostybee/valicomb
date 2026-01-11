@@ -3,13 +3,7 @@ import Landing from '../layouts/Landing.astro';
 import { Code } from 'astro:components';
 import { Icon } from '@astrojs/starlight/components';
 
-const codeExample = `use Frostybee\\Valicomb\\Validator;
-
-$v = new Validator([
-    'username' => 'frostybee',
-    'email'    => 'bee@example.com',
-    'password' => 'Secret123!'
-]);
+const codeArrayStyle = `$v = new Validator($_POST);
 
 $v->forFields([
     'username' => ['required', ['lengthBetween', 3, 20]],
@@ -18,9 +12,49 @@ $v->forFields([
 ]);
 
 if ($v->validate()) {
-    echo "Validation passed!";
-} else {
-    print_r($v->errors());
+    // Success
+}`;
+
+const codeFluentStyle = `$v = new Validator($_POST);
+
+$v->field('username')
+    ->required()
+    ->lengthBetween(3, 20);
+
+$v->field('email')
+    ->required()
+    ->email();
+
+$v->field('password')
+    ->required()
+    ->lengthMin(8);
+
+if ($v->validate()) {
+    // Success
+}`;
+
+const codeRulesStyle = `$v = new Validator($_POST);
+
+$v->rules([
+    'required'      => ['username', 'email', 'password'],
+    'email'         => 'email',
+    'lengthBetween' => [['username', 3, 20]],
+    'lengthMin'     => [['password', 8]]
+]);
+
+if ($v->validate()) {
+    // Success
+}`;
+
+const codeRuleStyle = `$v = new Validator($_POST);
+
+$v->rule('required', ['username', 'email', 'password'])
+  ->rule('email', 'email')
+  ->rule('lengthBetween', 'username', 3, 20)
+  ->rule('lengthMin', 'password', 8);
+
+if ($v->validate()) {
+    // Success
 }`;
 ---
 
@@ -28,7 +62,14 @@ if ($v->validate()) {
   <div class="page">
     <!-- Header -->
     <header class="header">
-      <a href="/valicomb" class="logo">Valicomb</a>
+      <a href="/valicomb" class="logo">
+        <svg width="28" height="28" viewBox="0 0 100 100">
+          <rect width="100" height="100" fill="#1a1a2e" rx="12"/>
+          <path d="M50 15 L80 25 L80 55 C80 75 50 90 50 90 C50 90 20 75 20 55 L20 25 Z" fill="none" stroke="#6ba3c7" stroke-width="4"/>
+          <path d="M35 45 L50 65 L65 35" stroke="#22c55e" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Valicomb
+      </a>
       <nav class="nav">
         <a href="/valicomb/getting-started/installation/" class="nav-link">Docs</a>
         <a href="https://github.com/frostybee/valicomb" class="nav-link" target="_blank" rel="noopener noreferrer">
@@ -80,22 +121,95 @@ if ($v->validate()) {
           </a>
         </div>
       </div>
-      <div class="hero-code">
-        <div class="code-block">
-          <div class="code-header">
-            <div class="code-dots">
-              <span></span>
-              <span></span>
-              <span></span>
+    </section>
+
+    <!-- Comparison -->
+    <section class="comparison">
+      <div class="section-header">
+        <span class="section-label">Syntax</span>
+        <h2 class="section-title">Four ways to validate</h2>
+        <p class="section-subtitle">Choose the syntax that fits your coding style</p>
+      </div>
+      <div class="comparison-grid">
+        <div class="comparison-column">
+          <span class="comparison-label">Field-based Mapping </span>
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <span class="code-filename">Fields to Rules</span>
             </div>
-            <span class="code-filename">Quick Example</span>
+            <div class="code-dark">
+              <Code code={codeArrayStyle} lang="php" theme="github-dark-high-contrast" />
+            </div>
+            <div class="code-light">
+              <Code code={codeArrayStyle} lang="php" theme="light-plus" />
+            </div>
           </div>
-          <div class="code-dark">
-            <Code code={codeExample} lang="php" theme="github-dark-high-contrast" />
+          <p class="comparison-desc">Group rules by field. Best for organized, field-centric validation.</p>
+        </div>
+        <div class="comparison-column">
+          <span class="comparison-label">Fluent Rules</span>
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <span class="code-filename">Fluent Builder API</span>
+            </div>
+            <div class="code-dark">
+              <Code code={codeFluentStyle} lang="php" theme="github-dark-high-contrast" />
+            </div>
+            <div class="code-light">
+              <Code code={codeFluentStyle} lang="php" theme="light-plus" />
+            </div>
           </div>
-          <div class="code-light">
-            <Code code={codeExample} lang="php" theme="light-plus" />
+          <p class="comparison-desc">Chainable builder with IDE autocomplete. Great for complex validations.</p>
+        </div>
+        <div class="comparison-column">
+          <span class="comparison-label">Rule-based Mapping </span>
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <span class="code-filename">Rules to Fields</span>
+            </div>
+            <div class="code-dark">
+              <Code code={codeRulesStyle} lang="php" theme="github-dark-high-contrast" />
+            </div>
+            <div class="code-light">
+              <Code code={codeRulesStyle} lang="php" theme="light-plus" />
+            </div>
           </div>
+          <p class="comparison-desc">Group fields by rule type. Ideal when applying the same rule to many fields.</p>
+        </div>
+        <div class="comparison-column">
+          <span class="comparison-label">Chaining Syntax</span>
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <span class="code-filename">Fluent Chain</span>
+            </div>
+            <div class="code-dark">
+              <Code code={codeRuleStyle} lang="php" theme="github-dark-high-contrast" />
+            </div>
+            <div class="code-light">
+              <Code code={codeRuleStyle} lang="php" theme="light-plus" />
+            </div>
+          </div>
+          <p class="comparison-desc">Chain rules one at a time. Perfect for dynamic or conditional rules.</p>
         </div>
       </div>
     </section>
@@ -213,6 +327,18 @@ if ($v->validate()) {
 </Landing>
 
 <style>
+  /* Keyframe Animations */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   .page {
     max-width: 72rem;
     margin: 0 auto;
@@ -233,9 +359,16 @@ if ($v->validate()) {
   }
 
   .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-size: 1.25rem;
     font-weight: 700;
     letter-spacing: -0.02em;
+  }
+
+  .logo svg {
+    border-radius: 6px;
   }
 
   .nav {
@@ -310,16 +443,16 @@ if ($v->validate()) {
 
   /* Hero */
   .hero {
-    display: grid;
-    grid-template-columns: 1fr 1.4fr;
-    gap: 4rem;
+    display: flex;
+    flex-direction: column;
     align-items: center;
+    text-align: center;
     padding: 5rem 0;
     border-bottom: 1px solid var(--color-border);
   }
 
   .hero-content {
-    text-align: left;
+    max-width: 40rem;
   }
 
   .hero-badge {
@@ -333,6 +466,7 @@ if ($v->validate()) {
     background: var(--color-accent-bg);
     border-radius: 100px;
     margin-bottom: 1.5rem;
+    animation: fadeInUp 0.6s ease-out both;
   }
 
   .hero-title {
@@ -341,6 +475,7 @@ if ($v->validate()) {
     letter-spacing: -0.03em;
     line-height: 1;
     margin-bottom: 1rem;
+    animation: fadeInUp 0.6s ease-out 0.1s both;
   }
 
   .hero-tagline {
@@ -348,6 +483,7 @@ if ($v->validate()) {
     color: var(--color-text-muted);
     line-height: 1.5;
     margin-bottom: 2rem;
+    animation: fadeInUp 0.6s ease-out 0.2s both;
   }
 
   .install-command {
@@ -360,6 +496,7 @@ if ($v->validate()) {
     border-radius: 0.5rem;
     margin-bottom: 1.5rem;
     font-family: var(--font-mono);
+    animation: fadeInUp 0.6s ease-out 0.3s both;
   }
 
   .install-command code {
@@ -400,8 +537,10 @@ if ($v->validate()) {
 
   .hero-actions {
     display: flex;
+    justify-content: center;
     gap: 1rem;
     flex-wrap: wrap;
+    animation: fadeInUp 0.6s ease-out 0.4s both;
   }
 
   .btn {
@@ -413,6 +552,15 @@ if ($v->validate()) {
     font-weight: 500;
     border-radius: 0.5rem;
     border: 1px solid transparent;
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .btn:active {
+    transform: translateY(0);
   }
 
   .btn-primary {
@@ -436,19 +584,21 @@ if ($v->validate()) {
     border-color: var(--color-text-muted);
   }
 
-  /* Hero Code Block */
-  .hero-code {
-    min-width: 0;
-    justify-self: end;
-    width: 100%;
-    max-width: 45rem;
-  }
-
+  /* Code Block */
   .code-block {
     border: 1px solid var(--color-border);
     border-radius: 0.75rem;
     overflow: hidden;
     background: var(--color-bg-alt);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .code-block:hover {
+    border-color: var(--color-accent);
+  }
+
+  :global([data-theme="dark"]) .code-block:hover {
+    box-shadow: 0 0 20px rgba(107, 163, 199, 0.15);
   }
 
   .code-header {
@@ -555,6 +705,43 @@ if ($v->validate()) {
     letter-spacing: -0.02em;
   }
 
+  .section-subtitle {
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    margin-top: 0.5rem;
+  }
+
+  /* Comparison */
+  .comparison {
+    padding: 5rem 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+
+  .comparison-column {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .comparison-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    margin-bottom: 0.75rem;
+  }
+
+  .comparison-desc {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin-top: 1rem;
+    line-height: 1.5;
+  }
+
   /* Features */
   .features {
     padding: 5rem 0;
@@ -572,7 +759,26 @@ if ($v->validate()) {
     background: var(--color-card-bg);
     border: 1px solid var(--color-border);
     border-radius: 0.75rem;
+    animation: fadeInUp 0.5s ease-out both;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   }
+
+  .feature-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-accent);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  :global([data-theme="dark"]) .feature-card:hover {
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+  }
+
+  .feature-card:nth-child(1) { animation-delay: 0.1s; }
+  .feature-card:nth-child(2) { animation-delay: 0.15s; }
+  .feature-card:nth-child(3) { animation-delay: 0.2s; }
+  .feature-card:nth-child(4) { animation-delay: 0.25s; }
+  .feature-card:nth-child(5) { animation-delay: 0.3s; }
+  .feature-card:nth-child(6) { animation-delay: 0.35s; }
 
   .feature-icon {
     display: flex;
@@ -640,21 +846,11 @@ if ($v->validate()) {
   /* Mobile adjustments */
   @media (max-width: 900px) {
     .hero {
-      grid-template-columns: 1fr;
-      gap: 3rem;
       padding: 4rem 0;
     }
 
-    .hero-content {
-      text-align: center;
-    }
-
-    .hero-actions {
-      justify-content: center;
-    }
-
-    .hero-code {
-      justify-self: center;
+    .comparison-grid {
+      grid-template-columns: 1fr;
     }
   }
 
@@ -681,6 +877,10 @@ if ($v->validate()) {
       width: 100%;
       max-width: 16rem;
       justify-content: center;
+    }
+
+    .comparison {
+      padding: 3.5rem 0;
     }
 
     .features {
