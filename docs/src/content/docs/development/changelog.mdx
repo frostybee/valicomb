@@ -9,6 +9,49 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ---
 
+## [1.2.0] - 2026-01-11
+
+### Highlights
+
+**Fluent Field Builder** - Chain validation methods with full IDE autocomplete:
+
+```php
+$v->field('email')
+    ->required()
+    ->email()
+    ->lengthMax(254);
+```
+
+**Simplified API** - Use `forFields()` for both single and multiple field validation:
+
+```php
+$v->forFields([
+    'email' => ['required', 'email'],
+    'password' => ['required', ['lengthMin', 8]],
+]);
+```
+
+### Added
+
+- `field()` method for fluent validation with IDE autocomplete support
+- Documentation website using Astro Starlight
+- Strict mode for stricter validation behavior
+- Inline custom messages support for per-rule error messages
+- New validation rules: `urlStrict`, `uuid`, `startsWith`, `endsWith`, `decimalPlaces`, `positive`, `past`, `future`, `phone`, `requiredWith`, `requiredWithout`, `IPv4`, `IPv6`, `ASCII`, `arrayHasKeys`
+- Case-insensitive option for string matching rules
+
+### Deprecated
+
+- `mapOneFieldToRules()` → Use `forFields()` instead
+- `mapFieldRules()` → Use `forFields()` instead
+- `mapFieldsRules()` → Use `forFields()` instead
+
+### Fixed
+
+- Resolved multiple issues from the original Valitron library
+
+---
+
 ## [1.1.0] - 2026-01-04
 
 ### Added

@@ -7,6 +7,8 @@ The Fluent API provides a per-field, chainable interface for defining validation
 
 ## Basic Usage
 
+The Fluent API centers around the `field()` method, which returns a `FieldBuilder` instance for the specified field. From there, you can chain any validation rule as a method call, with your IDE suggesting available options as you type.
+
 Start with `field()` to target a field, then chain validation methods:
 
 ```php
@@ -24,6 +26,8 @@ if ($v->validate()) {
 ```
 
 ### Multiple Fields
+
+When validating multiple fields, each call to `field()` starts a new chain for that field. This keeps your validation rules readable and organized.
 
 Use separate `field()` calls for each field - this keeps your code clean and scannable:
 
@@ -43,6 +47,8 @@ $v->field('age')
 ```
 
 ### Returning to Validator
+
+The `field()` method returns a `FieldBuilder`, not the `Validator`. If you need to call `Validator` methods like `validate()` at the end of a chain, use `end()` to switch back.
 
 Use `end()` when you need to return to the Validator instance to continue with other methods:
 
@@ -78,6 +84,8 @@ $v->field('discount_code')
 
 ## Stop on First Failure
 
+When validating forms, you might want to stop as soon as the first error is found rather than collecting all errors. This improves performance and can provide a better user experience in some scenarios.
+
 By default, all rules are checked and all errors collected. Enable `stopOnFirstFail()` for better performance when you only need to know if validation failed:
 
 ```php
@@ -96,6 +104,8 @@ See [Core Concepts](/valicomb/getting-started/core-concepts/#stop-on-first-failu
 ---
 
 ## Custom Messages & Labels
+
+Error messages are more helpful when they speak the user's language. The Fluent API makes it easy to customize both the error messages and the field names that appear in them.
 
 ### Setting Custom Messages
 
@@ -125,6 +135,8 @@ $v->field('dob')
 
 ## Custom Rules with `rule()`
 
+While the Fluent API provides direct methods for all built-in rules, sometimes you need to apply a custom validation or use a rule with specific parameters. The `rule()` method gives you full flexibility within the fluent chain.
+
 Use `rule()` to add named rules or custom callables:
 
 ### Named Rules
@@ -146,6 +158,8 @@ $v->field('coupon')
 ---
 
 ## Mixing with Other Syntaxes
+
+You don't have to choose just one approach. The Fluent API works seamlessly alongside `forFields()` and `rules()`, letting you use the best syntax for each situation within the same validator.
 
 The Fluent API can be combined with other syntaxes in the same validator:
 
@@ -171,6 +185,8 @@ $v->field('password')
 ---
 
 ## Reusing Validators
+
+When you need to validate multiple records with the same rules (like batch processing or API endpoints), you can define the validation once and reuse it. The `withData()` method creates a fresh validator instance with your rules applied to new data.
 
 Define validation rules once with the Fluent API, then apply them to multiple datasets using `withData()`:
 
@@ -201,7 +217,7 @@ See [Core Concepts](/valicomb/getting-started/core-concepts/#reusing-validators)
 
 ## Complete Example
 
-A registration form with comprehensive validation:
+Here's a real-world registration form showing how the Fluent API handles multiple fields with custom messages, labels, and various validation rules working together.
 
 ```php
 use Frostybee\Valicomb\Validator;
@@ -256,7 +272,7 @@ if ($v->validate()) {
 
 ## Available Methods
 
-The Fluent API provides direct methods for all built-in validation rules.
+Below is a quick reference of all methods available on the `FieldBuilder` class. Each validation method returns `$this`, allowing you to chain as many rules as needed. For detailed usage and examples, follow the links to the rule-specific documentation.
 
 ### Infrastructure Methods
 
