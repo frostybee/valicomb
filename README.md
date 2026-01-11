@@ -8,6 +8,7 @@
 <p align="center">
   <a href="https://php.net/"><img src="https://img.shields.io/badge/php-%3E%3D8.2-blue.svg" alt="PHP Version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-BSD--3--Clause-green.svg" alt="License"></a>
+  <a href="https://frostybee.github.io/valicomb/"><img src="https://img.shields.io/badge/docs-online-orange.svg" alt="Documentation"></a>
 </p>
 
 **Valicomb** is a simple, minimal PHP validation library with **zero dependencies**. A modernized fork of [vlucas/valitron](https://github.com/vlucas/valitron) for PHP 8.2+ with security-first design, strict type safety, and modern PHP features.
