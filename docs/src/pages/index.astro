@@ -4,58 +4,79 @@ import { Code } from 'astro:components';
 import { Icon } from '@astrojs/starlight/components';
 import logo from '../assets/logo.svg';
 
-const codeArrayStyle = `$v = new Validator($_POST);
+const codeArrayStyle = `$order = [
+    'drink'    => 'Cappuccino',
+    'size'     => 'large',
+    'quantity' => 2
+];
 
+$v = new Validator($order);
 $v->forFields([
-    'username' => ['required', ['lengthBetween', 3, 20]],
-    'email'    => ['required', 'email'],
-    'password' => ['required', ['lengthMin', 8]]
+    'drink'    => ['required', ['lengthMax', 50]],
+    'size'     => ['required', ['in', ['small', 'medium', 'large']]],
+    'quantity' => ['required', 'integer', ['between', 1, 10]]
 ]);
 
 if ($v->validate()) {
-    // Success
+    // Brew that coffee!
 }`;
 
-const codeFluentStyle = `$v = new Validator($_POST);
+const codeFluentStyle = `$order = [
+    'drink'    => 'Flat White',
+    'size'     => 'medium',
+    'quantity' => 3
+];
 
-$v->field('username')
+$v = new Validator($order);
+$v->field('drink')
     ->required()
-    ->lengthBetween(3, 20);
+    ->lengthMax(50);
 
-$v->field('email')
+$v->field('size')
     ->required()
-    ->email();
+    ->in(['small', 'medium', 'large']);
 
-$v->field('password')
+$v->field('quantity')
     ->required()
-    ->lengthMin(8);
+    ->integer()
+    ->between(1, 10);
 
 if ($v->validate()) {
-    // Success
+    // Brew that coffee!
 }`;
 
-const codeRulesStyle = `$v = new Validator($_POST);
+const codeRulesStyle = `$order = [
+    'drink'    => 'Mocha',
+    'size'     => 'small',
+    'quantity' => 1
+];
 
+$v = new Validator($order);
 $v->rules([
-    'required'      => ['username', 'email', 'password'],
-    'email'         => 'email',
-    'lengthBetween' => [['username', 3, 20]],
-    'lengthMin'     => [['password', 8]]
+    'required'  => ['drink', 'size', 'quantity'],
+    'integer'   => 'quantity',
+    'in'        => [['size', ['small', 'medium', 'large']]],
+    'between'   => [['quantity', 1, 10]]
 ]);
 
 if ($v->validate()) {
-    // Success
+    // Brew that coffee!
 }`;
 
-const codeRuleStyle = `$v = new Validator($_POST);
+const codeRuleStyle = `$order = [
+    'drink'    => 'Latte',
+    'size'     => 'large',
+    'quantity' => 2
+];
 
-$v->rule('required', ['username', 'email', 'password'])
-  ->rule('email', 'email')
-  ->rule('lengthBetween', 'username', 3, 20)
-  ->rule('lengthMin', 'password', 8);
+$v = new Validator($order);
+$v->rule('required', ['drink', 'size', 'quantity'])
+  ->rule('in', 'size', ['small', 'medium', 'large'])
+  ->rule('integer', 'quantity')
+  ->rule('between', 'quantity', 1, 10);
 
 if ($v->validate()) {
-    // Success
+    // Brew that coffee!
 }`;
 ---
 
@@ -65,7 +86,7 @@ if ($v->validate()) {
     <header class="header">
       <a href="/valicomb" class="logo">
         <img src={logo.src} alt="Valicomb" width="42" height="42" />
-        Valicombs
+        Valicomb
       </a>
       <nav class="nav">
         <a href="/valicomb/getting-started/installation/" class="nav-link">Docs</a>
@@ -95,11 +116,11 @@ if ($v->validate()) {
           <h1 class="hero-title">Valicomb</h1>
           <div class="hero-badge">PHP 8.2+</div>
         </div>
-        <p class="hero-tagline">
-          A zero-dependency, security-first PHP validation library
-        </p>
         <p class="hero-name-explanation">
           <em>Vali</em>dation + honey<em>comb</em>
+        </p>
+        <p class="hero-tagline">
+          A zero-dependency, security-first PHP validation library
         </p>
         <div class="install-command">
           <code>$ composer require frostybee/valicomb</code>
@@ -882,6 +903,19 @@ if ($v->validate()) {
 
     .comparison-grid {
       grid-template-columns: 1fr;
+    }
+
+    .code-block pre,
+    .code-block :global(pre) {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-x: visible;
+    }
+
+    .code-block code,
+    .code-block :global(code) {
+      white-space: pre-wrap;
+      word-break: break-word;
     }
   }
 

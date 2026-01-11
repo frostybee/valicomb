@@ -14,11 +14,16 @@ Start with `field()` to target a field, then chain validation methods:
 ```php
 use Frostybee\Valicomb\Validator;
 
-$v = new Validator($_POST);
-$v->field('email')
+$order = [
+    'drink'    => 'Cappuccino',
+    'size'     => 'large',
+    'quantity' => 2
+];
+
+$v = new Validator($order);
+$v->field('drink')
     ->required()
-    ->email()
-    ->lengthMax(254);
+    ->lengthMax(50);
 
 if ($v->validate()) {
     echo "Valid!";
