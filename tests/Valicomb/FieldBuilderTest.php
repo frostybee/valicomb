@@ -1333,7 +1333,6 @@ class FieldBuilderTest extends TestCase
             'status' => 'active',
         ]);
 
-
         $v->field('email')
             ->label('Email Address')
             ->required()->message('Email is required')
