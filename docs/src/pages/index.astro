@@ -2,6 +2,7 @@
 import Landing from '../layouts/Landing.astro';
 import { Code } from 'astro:components';
 import { Icon } from '@astrojs/starlight/components';
+import logo from '../assets/logo.svg';
 
 const codeArrayStyle = `$v = new Validator($_POST);
 
@@ -63,12 +64,8 @@ if ($v->validate()) {
     <!-- Header -->
     <header class="header">
       <a href="/valicomb" class="logo">
-        <svg width="28" height="28" viewBox="0 0 100 100">
-          <rect width="100" height="100" fill="#1a1a2e" rx="12"/>
-          <path d="M50 15 L80 25 L80 55 C80 75 50 90 50 90 C50 90 20 75 20 55 L20 25 Z" fill="none" stroke="#6ba3c7" stroke-width="4"/>
-          <path d="M35 45 L50 65 L65 35" stroke="#22c55e" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Valicomb
+        <img src={logo.src} alt="Valicomb" width="42" height="42" />
+        Valicombs
       </a>
       <nav class="nav">
         <a href="/valicomb/getting-started/installation/" class="nav-link">Docs</a>
@@ -93,10 +90,16 @@ if ($v->validate()) {
     <!-- Hero -->
     <section class="hero">
       <div class="hero-content">
-        <div class="hero-badge">PHP 8.2+</div>
-        <h1 class="hero-title">Valicomb</h1>
+        <img src={logo.src} alt="Valicomb" class="hero-logo" width="80" height="80" />
+        <div class="hero-title-row">
+          <h1 class="hero-title">Valicomb</h1>
+          <div class="hero-badge">PHP 8.2+</div>
+        </div>
         <p class="hero-tagline">
           A zero-dependency, security-first PHP validation library
+        </p>
+        <p class="hero-name-explanation">
+          <em>Vali</em>dation + honey<em>comb</em>
         </p>
         <div class="install-command">
           <code>$ composer require frostybee/valicomb</code>
@@ -353,7 +356,7 @@ if ($v->validate()) {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 0;
+    padding: 1.25rem 0;
     background: var(--color-bg);
     border-bottom: 1px solid var(--color-border);
   }
@@ -367,7 +370,9 @@ if ($v->validate()) {
     letter-spacing: -0.02em;
   }
 
-  .logo svg {
+  .logo img {
+    width: 42px;
+    height: 42px;
     border-radius: 6px;
   }
 
@@ -455,6 +460,15 @@ if ($v->validate()) {
     max-width: 40rem;
   }
 
+  .hero-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    animation: fadeInUp 0.6s ease-out 0.1s both;
+  }
+
   .hero-badge {
     display: inline-block;
     padding: 0.375rem 0.875rem;
@@ -465,8 +479,13 @@ if ($v->validate()) {
     color: var(--color-accent);
     background: var(--color-accent-bg);
     border-radius: 100px;
-    margin-bottom: 1.5rem;
-    animation: fadeInUp 0.6s ease-out both;
+  }
+
+  .hero-logo {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 1rem;
+    animation: fadeInUp 0.6s ease-out 0.05s both;
   }
 
   .hero-title {
@@ -474,16 +493,28 @@ if ($v->validate()) {
     font-weight: 700;
     letter-spacing: -0.03em;
     line-height: 1;
-    margin-bottom: 1rem;
-    animation: fadeInUp 0.6s ease-out 0.1s both;
+    margin: 0;
   }
 
   .hero-tagline {
     font-size: clamp(1.125rem, 2vw, 1.25rem);
     color: var(--color-text-muted);
     line-height: 1.5;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     animation: fadeInUp 0.6s ease-out 0.2s both;
+  }
+
+  .hero-name-explanation {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1.5rem;
+    animation: fadeInUp 0.6s ease-out 0.25s both;
+  }
+
+  .hero-name-explanation em {
+    color: var(--color-accent);
+    font-style: normal;
+    font-weight: 600;
   }
 
   .install-command {
