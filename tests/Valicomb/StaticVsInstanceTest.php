@@ -30,7 +30,8 @@ class StaticVsInstanceTest extends BaseTestCase
         $customMessage = 'custom message';
         $ruleName = 'customRule';
         $fieldName = 'fieldName';
-        Validator::addRule($ruleName, function (): void {}, $customMessage);
+        Validator::addRule($ruleName, function (): void {
+        }, $customMessage);
         $v = new Validator([$fieldName => $fieldName]);
         $v->rule($ruleName, $fieldName);
         $v->validate();
