@@ -6,6 +6,7 @@ namespace Frostybee\Valicomb\Tests\Rules;
 
 use Frostybee\Valicomb\Tests\BaseTestCase;
 use Frostybee\Valicomb\Validator;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class MiscellaneousValidationTest extends BaseTestCase
 {
@@ -292,9 +293,7 @@ class MiscellaneousValidationTest extends BaseTestCase
         $this->assertEquals(['password' => ["Password must be the same as 'Password Confirm'"]], $v->errors());
     }
 
-    /**
-     * @dataProvider dataProviderFor_testError
-     */
+    #[DataProvider('dataProviderFor_testError')]
     public function testError(string $expected, string|array $input, array $test, string $message): void
     {
         $v = new Validator(['test' => $input]);

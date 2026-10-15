@@ -8,6 +8,7 @@ use DateTime;
 use Frostybee\Valicomb\Tests\BaseTestCase;
 use Frostybee\Valicomb\Validator;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\Group;
 
 class DateValidationTest extends BaseTestCase
 {
@@ -55,9 +56,7 @@ class DateValidationTest extends BaseTestCase
         $this->assertFalse($v->validate());
     }
 
-    /**
-     * @group issue-13
-     */
+    #[Group('issue-13')]
     public function testDateValidWhenEmptyButNotRequired(): void
     {
         $v = new Validator(['date' => '']);
