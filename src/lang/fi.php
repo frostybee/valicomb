@@ -12,7 +12,7 @@ return [
     'length' => "on lyhyempi kuin %d",
     'min' => "ei ole vähintään %s",
     'max' => "ei ole enintään %s",
-    'between' => "ei ole sallitulla välillä",
+    'between' => "ei ole välillä %s-%s",
     'listContains' => "sisältää virheellisen arvon",
     'in' => "sisältää virheellisen arvon",
     'notIn' => "sisältää virheellisen arvon",

@@ -12,7 +12,7 @@ return [
     'length' => "musí byť dlhý aspoň %d",
     'min' => "musí byť dlhý minimálne %s",
     'max' => "musí byť maximálne %s",
-    'between' => "musí byť v povolenom rozsahu",
+    'between' => "musí byť medzi %s a %s",
     'listContains' => "obsahuje nepovolenú hodnotu",
     'in' => "obsahuje nepovolenú hodnotu",
     'notIn' => "obsahuje nepovolenú hodnotu",

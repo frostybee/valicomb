@@ -12,7 +12,7 @@ return [
     'length' => "må være %d tegn",
     'min' => "må være minst %s",
     'max' => "må ikke være mer enn %s",
-    'between' => "må være innanfor det tillatne området",
+    'between' => "må vere mellom %s og %s",
     'listContains' => "inneholder ugyldig verdi",
     'in' => "inneholder ugyldig verdi",
     'notIn' => "inneholder ugyldig verdi",

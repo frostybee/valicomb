@@ -11,7 +11,7 @@ return [
     'length' => "turi būti %d ženklų ilgio",
     'min' => "turi būti bent %s",
     'max' => "turi būti ne daugiau kaip %s",
-    'between' => "turi būti leistinose ribose",
+    'between' => "turi būti nuo %s iki %s",
     'listContains' => "turi neteisingą vertę",
     'in' => "turi neteisingą vertę",
     'notIn' => "turi neteisingą vertę",

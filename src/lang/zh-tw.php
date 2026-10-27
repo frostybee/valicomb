@@ -12,7 +12,7 @@ return [
   'length' => "長度必須大於 %d",
   'min' => "必須大於 %s",
   'max' => "必須小於 %s",
-  'between' => "必須在允許的範圍內",
+  'between' => "必須介於 %s 和 %s 之間",
   'listContains' => "無效的值",
   'in' => "無效的值",
   'notIn' => "無效的值",

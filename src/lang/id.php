@@ -12,7 +12,7 @@ return [
     'length' => "harus lebih panjang dari %d",
     'min' => "harus lebih besar dari %s",
     'max' => "harus kurang dari %s",
-    'between' => "harus berada dalam rentang yang diizinkan",
+    'between' => "harus di antara %s dan %s",
     'listContains' => "berisi nilai/value yang tidak valid",
     'in' => "berisi nilai/value yang tidak valid",
     'notIn' => "berisi nilai/value yang tidak valid",

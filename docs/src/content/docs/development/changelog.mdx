@@ -9,6 +9,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- `between` accepts its bounds as two parameters (`rule('between', 'age', 18, 65)`), like `lengthBetween`. The `[min, max]` array form still works
+- Default messages for `array`, `ascii`, `between` and `emailDNS`
+
+### Changed
+
+- The `between` error message shows its bounds: "Age must be between 18 and 65"
+- A message missing from a translation falls back to English
+
+### Fixed
+
+- 16 bundled languages could not be loaded and threw "Invalid language": `az`, `bg`, `el`, `ko`, `lt`, `lv`, `nb`, `nn`, `pt-br`, `ro`, `sk`, `sl`, `th`, `vi`, `zh-cn` and `zh-tw`
+- Rules without a translated message showed "Invalid". All 33 languages now translate every rule
+- Slovenian messages printed `% s` and `% d` instead of the rule parameters
+- `['between', 0, 100]` in `forFields()` and `rules()` failed for every value
+
+---
+
 ## [1.2.0] - 2026-01-11
 
 ### Highlights

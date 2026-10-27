@@ -12,7 +12,7 @@ return [
     'length' => "phải dài hơn %d",
     'min' => "ít nhất %s",
     'max' => "tối đa %s",
-    'between' => "phải nằm trong phạm vi cho phép",
+    'between' => "phải nằm trong khoảng từ %s đến %s",
     'listContains' => "chứa giá trị không hợp lệ",
     'in' => "chứa giá trị không hợp lệ",
     'notIn' => "chứa giá trị không hợp lệ",

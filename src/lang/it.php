@@ -12,7 +12,7 @@ return [
     'length' => "deve avere una lunghezza di %d",
     'min' => "deve essere superiore a %s",
     'max' => "deve essere inferiore a %s",
-    'between' => "deve rientrare nell'intervallo consentito",
+    'between' => "deve essere compreso tra %s e %s",
     'listContains' => "contiene un valore non valido",
     'in' => "contiene un valore non valido",
     'notIn' => "contiene un valore non valido",

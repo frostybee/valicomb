@@ -12,7 +12,7 @@ return [
     'length' => "%d qədər uzunluğu olmalıdır",
     'min' => "minimum %s qədər olmalıdır",
     'max' => "maksimum %s qədər olmalıdır",
-    'between' => "icazə verilən aralıqda olmalıdır",
+    'between' => "%s ilə %s arasında olmalıdır",
     'listContains' => "yalnış dəyər ehtiva edir",
     'in' => "yalnış dəyər ehtiva edir",
     'notIn' => "yalnış dəyər ehtiva edir",

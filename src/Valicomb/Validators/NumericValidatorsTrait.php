@@ -14,7 +14,6 @@ use const FILTER_VALIDATE_INT;
 use function filter_var;
 use function function_exists;
 use function in_array;
-use function is_array;
 use function is_int;
 use function is_numeric;
 use function is_string;
@@ -209,20 +208,20 @@ trait NumericValidatorsTrait
      * decimal comparison capabilities via bccomp() when available.
      *
      * Both bounds are inclusive, meaning values equal to either the minimum or maximum pass
-     * validation. For example, with param [[5, 10]]:
+     * validation. For example, with bounds 5 and 10:
      * - 4.99 fails
      * - 5 passes
      * - 7.5 passes
      * - 10 passes
      * - 10.01 fails
      *
-     * Important: This method has a unique parameter structure - the first parameter must be
-     * an array containing exactly two elements: [min, max]. Invalid parameter structures
-     * (missing array, wrong element count) will cause validation to fail.
+     * The bounds can be given as two params (`rule('between', 'field', 5, 10)`) or as one
+     * array (`rule('between', 'field', [5, 10])`). Validator::rule() stores both forms as
+     * two params. Missing or non-numeric bounds cause validation to fail.
      *
      * @param string $field The field name being validated.
      * @param mixed $value The value to validate (should be numeric).
-     * @param array $params Range constraint: [0] => [minimum, maximum] (must be 2-element array).
+     * @param array $params Range constraint: [0] => minimum, [1] => maximum.
      *
      * @return bool True if value is numeric and between min/max (inclusive), false otherwise or if params invalid.
      */
@@ -232,11 +231,11 @@ trait NumericValidatorsTrait
             return false;
         }
 
-        if (!isset($params[0]) || !is_array($params[0]) || count($params[0]) !== 2) {
+        if (count($params) !== 2 || !is_numeric($params[0] ?? null) || !is_numeric($params[1] ?? null)) {
             return false;
         }
 
-        [$min, $max] = $params[0];
+        [$min, $max] = $params;
 
         return $this->validateMin($field, $value, [$min]) && $this->validateMax($field, $value, [$max]);
     }

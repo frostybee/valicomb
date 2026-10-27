@@ -12,7 +12,7 @@ return [
     'length' => "moet minstens %d karakters lang zijn",
     'min' => "moet minstens %s zijn",
     'max' => "mag niet meer zijn dan %s",
-    'between' => "moet binnen het toegestane bereik liggen",
+    'between' => "moet tussen %s en %s liggen",
     'listContains' => "bevat een ongeldige waarde",
     'in' => "bevat een ongeldige waarde",
     'notIn' => "bevat een ongeldige waarde",

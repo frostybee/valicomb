@@ -12,7 +12,7 @@ return [
     'length' => "kann nicht länger als %d sein",
     'min' => "muss größer als %s sein",
     'max' => "muss kleiner als %s sein",
-    'between' => "muss innerhalb des erlaubten Bereichs liegen",
+    'between' => "muss zwischen %s und %s liegen",
     'listContains' => "enthält einen ungültigen Wert",
     'in' => "enthält einen ungültigen Wert",
     'notIn' => "enthält einen ungültigen Wert",

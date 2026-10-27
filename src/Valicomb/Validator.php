@@ -877,6 +877,12 @@ class Validator
                     "Rule '$rule' has not been registered with " . static::class . "::addRule().",
                 );
             }
+
+            // `between` accepts [min, max] as one array or as two params; store it as
+            // two params so validation and message placeholders see plain values.
+            if ($rule === 'between' && count($params) === 1 && is_array($params[0]) && count($params[0]) === 2) {
+                $params = array_values($params[0]);
+            }
         }
 
         // Ensure rule has an accompanying message

@@ -776,7 +776,7 @@ class FieldBuilder
      */
     public function between(int|float $min, int|float $max): self
     {
-        $this->validator->rule('between', $this->fieldName, [$min, $max]);
+        $this->validator->rule('between', $this->fieldName, $min, $max);
 
         return $this;
     }

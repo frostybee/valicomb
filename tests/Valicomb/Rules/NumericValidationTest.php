@@ -326,6 +326,65 @@ class NumericValidationTest extends BaseTestCase
         $v = new Validator(['num' => 3]);
         $v->rule('between', 'num', [5]);
         $this->assertFalse($v->validate());
+
+        $v = new Validator(['num' => 3]);
+        $v->rule('between', 'num', 'a', 'b');
+        $this->assertFalse($v->validate());
+    }
+
+    public function testBetweenSeparateBounds(): void
+    {
+        $v = new Validator(['num' => 5]);
+        $v->rule('between', 'num', 3, 7);
+        $this->assertTrue($v->validate());
+
+        $v = new Validator(['num' => 8]);
+        $v->rule('between', 'num', 3, 7);
+        $this->assertFalse($v->validate());
+    }
+
+    public function testBetweenInFieldBasedArray(): void
+    {
+        $v = new Validator(['num' => 3]);
+        $v->forFields(['num' => [['between', 1, 5]]]);
+        $this->assertTrue($v->validate());
+
+        $v = new Validator(['num' => 3]);
+        $v->forFields(['num' => [['between', [1, 5]]]]);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testBetweenMessageShowsBounds(): void
+    {
+        $v = new Validator(['num' => 3]);
+        $v->rule('between', 'num', [5, 10]);
+        $v->validate();
+        $this->assertEquals('Num must be between 5 and 10', $v->errors('num')[0]);
+
+        $v = new Validator(['num' => 3]);
+        $v->rule('between', 'num', 5, 10);
+        $v->validate();
+        $this->assertEquals('Num must be between 5 and 10', $v->errors('num')[0]);
+
+        $v = new Validator(['num' => 11]);
+        $v->rule('between', 'num', [10.1, 10.9]);
+        $v->validate();
+        $this->assertEquals('Num must be between 10.1 and 10.9', $v->errors('num')[0]);
+    }
+
+    public function testCustomBetweenRuleReceivesOriginalParams(): void
+    {
+        $received = null;
+        $v = new Validator(['num' => 3]);
+        $v->addInstanceRule('between', function (string $field, mixed $value, array $params) use (&$received): bool {
+            $received = $params;
+
+            return true;
+        });
+        $v->rule('between', 'num', [1, 5]);
+        $v->validate();
+
+        $this->assertSame([[1, 5]], $received);
     }
 
     // Special Numeric Edge Cases

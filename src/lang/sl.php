@@ -12,7 +12,7 @@ return [
     'length' => "ne sme biti daljši od %d",
     'min' => "mora biti večji od %s",
     'max' => "mora biti manjši od %s",
-    'between' => "mora biti znotraj dovoljenega obsega",
+    'between' => "mora biti med %s in %s",
     'listContains' => "vsebuje neveljavno vrednost",
     'in' => "vsebuje neveljavno vrednost",
     'notIn' => "vsebuje neveljavno vrednost",
