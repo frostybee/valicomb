@@ -36,7 +36,7 @@ $v->rule('between', 'age', 18, 65);
 
 ### Fixed
 
-- 16 bundled languages could not be loaded and threw "Invalid language": `az`, `bg`, `el`, `ko`, `lt`, `lv`, `nb`, `nn`, `pt-br`, `ro`, `sk`, `sl`, `th`, `vi`, `zh-cn` and `zh-tw`
+- 16 bundled languages could not be loaded and threw "Invalid language": `az`, `bg`, `el`, `ko`, `lt`, `lv`, `nb`, `nn`, `pt-br`, `ro`, `sk`, `sl`, `th`, `vi`, `zh-cn` and `zh-tw` ([#1](https://github.com/frostybee/valicomb/issues/1))
 - Rules without a translated message showed "Invalid". All 33 languages now translate every rule
 - Slovenian messages printed `% s` and `% d` instead of the rule parameters
 - `['between', 0, 100]` in `forFields()` and `rules()` failed for every value
