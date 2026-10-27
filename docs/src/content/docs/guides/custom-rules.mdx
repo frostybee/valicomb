@@ -88,14 +88,13 @@ $v->rule('strongPassword', 'password');
 
 ```php
 // Register rule that accepts parameters
-Validator::addRule('between', function($field, $value, $params) {
-    $min = $params[0];
-    $max = $params[1];
-    return $value >= $min && $value <= $max;
-}, '{field} must be between %d and %d');
+Validator::addRule('divisibleBy', function($field, $value, $params) {
+    return filter_var($value, FILTER_VALIDATE_INT) !== false && (int) $value % $params[0] === 0;
+}, '{field} must be divisible by %d');
 
 // Use with parameters
-$v->rule('between', 'age', 18, 65);
+$v->rule('divisibleBy', 'quantity', 5);
+// Error: "Quantity must be divisible by 5"
 ```
 
 ---
@@ -134,12 +133,13 @@ Error messages in custom rules can include dynamic placeholders that get replace
 Custom rule error messages support placeholders like `{field}`, `{value}`, `%s`, and `%d`. For complete documentation, see [Error Messages - Message Placeholders](/valicomb/guides/error-messages/#message-placeholders).
 
 ```php
-Validator::addRule('divisibleBy', function($field, $value, $params) {
-    return $value % $params[0] === 0;
-}, '{field} must be divisible by %d');
+Validator::addRule('maxWords', function($field, $value, $params) {
+    return str_word_count((string) $value) <= $params[0];
+}, '{field} "{value}" has more than %d words');
 
-$v->rule('divisibleBy', 'quantity', 5);
-// Error: "Quantity must be divisible by 5"
+$v = new Validator(['title' => 'A title that is far too long']);
+$v->rule('maxWords', 'title', 5);
+// Error: 'Title "A title that is far too long" has more than 5 words'
 ```
 
 ---
