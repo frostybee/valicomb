@@ -12,8 +12,6 @@ Valicomb includes built-in support for 33 languages, making it easy to display v
 | `ar` | Arabic |
 | `az` | Azerbaijani |
 | `bg` | Bulgarian |
-| `cs` | Czech |
-| `da` | Danish |
 | `de` | German |
 | `el` | Greek |
 | `en` | English (default) |
@@ -21,7 +19,6 @@ Valicomb includes built-in support for 33 languages, making it easy to display v
 | `fa` | Persian (Farsi) |
 | `fi` | Finnish |
 | `fr` | French |
-| `hu` | Hungarian |
 | `id` | Indonesian |
 | `it` | Italian |
 | `ja` | Japanese |
@@ -33,7 +30,6 @@ Valicomb includes built-in support for 33 languages, making it easy to display v
 | `nn` | Norwegian Nynorsk |
 | `no` | Norwegian |
 | `pl` | Polish |
-| `pt` | Portuguese |
 | `pt-br` | Portuguese (Brazil) |
 | `ro` | Romanian |
 | `ru` | Russian |
@@ -166,7 +162,7 @@ $acceptLang = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? 'en';
 $lang = substr($acceptLang, 0, 2); // Get first 2 chars
 
 // Fallback if not supported
-$supported = ['en', 'es', 'fr', 'de', 'pt'];
+$supported = ['en', 'es', 'fr', 'de', 'it'];
 if (!in_array($lang, $supported)) {
     $lang = 'en';
 }

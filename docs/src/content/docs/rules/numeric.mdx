@@ -13,7 +13,7 @@ Numeric validation rules check numeric values and their constraints. These rules
 | `integer` | `strict?` | `$v->rule('integer', 'field')` | `{field} must be an integer` |
 | `min` | `min` | `$v->rule('min', 'field', 10)` | `{field} must be at least %s` |
 | `max` | `max` | `$v->rule('max', 'field', 100)` | `{field} must be no more than %s` |
-| `between` | `min`, `max` | `$v->rule('between', 'field', 1, 10)` | `{field} must be between {0} and {1}` |
+| `between` | `[min, max]` | `$v->rule('between', 'field', [1, 10])` | `{field} must be within the allowed range` |
 | `boolean` | — | `$v->rule('boolean', 'field')` | `{field} must be a boolean` |
 | `positive` | — | `$v->rule('positive', 'field')` | `{field} must be a positive number` |
 | `decimalPlaces` | `places` | `$v->rule('decimalPlaces', 'field', 2)` | `{field} must have at most %d decimal places` |
@@ -57,8 +57,8 @@ $v = new Validator($data);
 $v->forFields([
     'price' => ['required', 'numeric', 'positive', ['decimalPlaces', 2]],
     'quantity' => ['required', 'integer', ['min', 1], ['max', 100]],
-    'discount_percent' => ['optional', 'numeric', ['between', 0, 100]],
-    'rating' => ['required', 'integer', ['between', 1, 5]],
+    'discount_percent' => ['optional', 'numeric', ['between', [0, 100]]],
+    'rating' => ['required', 'integer', ['between', [1, 5]]],
     'tax_rate' => ['required', 'numeric', ['decimalPlaces', 4]],
     'is_featured' => ['optional', 'boolean'],
     'stock_count' => ['required', 'integer', 'positive']
@@ -92,8 +92,8 @@ $v->rules([
         ['rating', 5]
     ],
     'between' => [
-        ['age', 18, 120],
-        ['percentage', 0, 100]
+        ['age', [18, 120]],
+        ['percentage', [0, 100]]
     ],
     'boolean' => [
         ['is_active'],

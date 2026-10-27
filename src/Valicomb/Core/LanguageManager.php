@@ -35,9 +35,15 @@ class LanguageManager
      * Allowed language codes for validation messages.
      */
     private const ALLOWED_LANGUAGES = [
-        'ar', 'cs', 'da', 'de', 'en', 'es', 'fa', 'fi', 'fr', 'hu',
-        'id', 'it', 'ja', 'nl', 'no', 'pl', 'pt', 'ru', 'sv', 'tr', 'uk', 'zh',
+        'ar', 'az', 'bg', 'de', 'el', 'en', 'es', 'fa', 'fi', 'fr', 'id',
+        'it', 'ja', 'ko', 'lt', 'lv', 'nb', 'nl', 'nn', 'no', 'pl', 'pt-br',
+        'ro', 'ru', 'sk', 'sl', 'sv', 'th', 'tr', 'uk', 'vi', 'zh-cn', 'zh-tw',
     ];
+
+    /**
+     * Built-in English messages, used as the fallback for untranslated rules.
+     */
+    private static ?array $fallbackMessages = null;
 
     /**
      * Current language for validation messages.
@@ -136,8 +142,11 @@ class LanguageManager
             throw new InvalidArgumentException("Language file must return an array");
         }
 
-        // Merge with existing messages
-        self::$ruleMessages = [...self::$ruleMessages, ...$langMessages];
+        // Merge with existing messages, layering the built-in English messages
+        // underneath so a rule missing from this language falls back to English
+        // instead of to a message left over from a previously loaded language.
+        self::$fallbackMessages ??= include dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR . 'en.php';
+        self::$ruleMessages = [...self::$ruleMessages, ...self::$fallbackMessages, ...$langMessages];
 
         return $langMessages;
     }

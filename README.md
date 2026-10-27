@@ -453,7 +453,7 @@ Validator::lang('es'); // Spanish
 $v = new Validator($data, [], 'fr'); // French
 ```
 
-Available languages: ar, az, bg, cs, da, de, el, en, es, fa, fi, fr, hu, id, it, ja, ko, lt, lv, nb, nl, nn, no, pl, pt, pt-br, ro, ru, sk, sl, sv, th, tr, uk, vi, zh-cn, zh-tw
+Available languages: ar, az, bg, de, el, en, es, fa, fi, fr, id, it, ja, ko, lt, lv, nb, nl, nn, no, pl, pt-br, ro, ru, sk, sl, sv, th, tr, uk, vi, zh-cn, zh-tw
 
 ## Advanced Features
 
