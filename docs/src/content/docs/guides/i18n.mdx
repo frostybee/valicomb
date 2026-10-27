@@ -116,14 +116,16 @@ Language files are PHP files returning an associative array:
 ```php
 // lang/en.php
 return [
-    'required' => '{field} is required',
-    'email' => '{field} is not a valid email address',
-    'min' => '{field} must be at least {0}',
-    'max' => '{field} must be at most {0}',
-    'between' => '{field} must be between {0} and {1}',
+    'required' => "is required",
+    'email' => "is not a valid email address",
+    'min' => "must be at least %s",
+    'max' => "must be no more than %s",
+    'lengthBetween' => "must be between %d and %d characters",
     // ... more rules
 ];
 ```
+
+Valicomb prepends the field label to a message that doesn't contain `{field}`. Rule parameters fill the `sprintf` placeholders (`%s`, `%d`) in order.
 
 ### Creating Custom Translations
 
@@ -133,11 +135,11 @@ return [
 4. Use `langDir()` to point to your directory
 
 ```php
-// my-translations/pt-BR.php
+// my-translations/pt-br.php
 return [
-    'required' => '{field} é obrigatório',
-    'email' => '{field} não é um endereço de e-mail válido',
-    'min' => '{field} deve ser pelo menos {0}',
+    'required' => "é obrigatório",
+    'email' => "não é um email válido",
+    'min' => "deve ser maior que %s",
     // ...
 ];
 ```
@@ -176,7 +178,7 @@ $v = new Validator($data, [], $lang);
 
 ## Message Placeholders
 
-All languages support the same placeholders (`{field}`, `{0}`, `{1}`, etc.). These work consistently across all translations. For complete placeholder documentation, see [Error Messages - Message Placeholders](/valicomb/guides/error-messages/#message-placeholders).
+All languages support the same placeholders: `{field}`, `{value}`, and `sprintf` placeholders such as `%s` and `%d` for rule parameters. For complete placeholder documentation, see [Error Messages - Message Placeholders](/valicomb/guides/error-messages/#message-placeholders).
 
 ---
 
@@ -207,6 +209,7 @@ To contribute a new language or improve existing translations:
 4. Submit a pull request
 
 Guidelines:
-- Keep placeholders exactly as they are: `{field}`, `{0}`, `{1}`, etc.
+- Keep placeholders exactly as they are: `%s`, `%d`, `{field}`, and `{value}`
+- Keep `sprintf` placeholders in the same order as in the English version
 - Match the tone and style of the English version
 - Test your translations with actual validation

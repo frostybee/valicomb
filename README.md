@@ -550,6 +550,30 @@ $v->rule('required', 'email')->message('We need your email!');
 $v->rule('email', 'email')->message('That doesn\'t look like a valid email');
 ```
 
+To set a custom message in `forFields()`, write the rule in array form and add a `'message'` key. Rules written as plain strings keep their default message.
+
+```php
+use Frostybee\Valicomb\Validator;
+
+$v = new Validator($_POST);
+$v->forFields([
+    'username' => [
+        ['required', 'message' => 'Please choose a username'],
+        ['lengthBetween', 3, 20, 'message' => 'Username must be between %d and %d characters'],
+    ],
+    'email' => [
+        'required',
+        ['email', 'message' => '{field} is not a valid address'],
+    ],
+    'password' => [
+        'required',
+        ['lengthMin', 8, 'message' => 'Password needs at least %d characters'],
+    ],
+]);
+```
+
+A custom message replaces the default message entirely, and the field name is not prepended. Include `{field}` to show the field's label. The rule's parameters fill `sprintf` placeholders such as `%d` in order.
+
 ### Message Placeholders
 
 ```php
@@ -557,7 +581,8 @@ use Frostybee\Valicomb\Validator;
 
 $v = new Validator($_POST);
 $v->rule('lengthBetween', 'username', 3, 20)
-  ->message('Username must be between {0} and {1} characters');
+  ->message('Username must be between %d and %d characters');
+// Error: "Username must be between 3 and 20 characters"
 ```
 
 ## 🙏 Credits

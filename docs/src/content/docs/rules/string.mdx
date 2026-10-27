@@ -9,16 +9,16 @@ String validation rules check the content and format of string values. All rules
 
 | Rule | Parameters | Example | Error Message |
 |------|------------|---------|---------------|
-| `alpha` | — | `$v->rule('alpha', 'field')` | `{field} must contain only letters` |
-| `alphaNum` | — | `$v->rule('alphaNum', 'field')` | `{field} must contain only letters and numbers` |
+| `alpha` | — | `$v->rule('alpha', 'field')` | `{field} must contain only letters a-z` |
+| `alphaNum` | — | `$v->rule('alphaNum', 'field')` | `{field} must contain only letters a-z and/or numbers 0-9` |
 | `ascii` | — | `$v->rule('ascii', 'field')` | `{field} must contain only ASCII characters` |
-| `slug` | — | `$v->rule('slug', 'field')` | `{field} must contain only letters, numbers, dashes and underscores` |
-| `contains` | `substring`, `strict?` | `$v->rule('contains', 'field', 'text')` | `{field} must contain {0}` |
-| `regex` | `pattern` | `$v->rule('regex', 'field', '/pattern/')` | `{field} is not valid` |
-| `startsWith` | `prefix`, `caseSensitive?` | `$v->rule('startsWith', 'field', 'pre')` | `{field} must start with {0}` |
-| `endsWith` | `suffix`, `caseSensitive?` | `$v->rule('endsWith', 'field', 'suf')` | `{field} must end with {0}` |
+| `slug` | — | `$v->rule('slug', 'field')` | `{field} must contain only letters a-z, numbers 0-9, dashes and underscores` |
+| `contains` | `substring`, `strict?` | `$v->rule('contains', 'field', 'text')` | `{field} must contain %s` |
+| `regex` | `pattern` | `$v->rule('regex', 'field', '/pattern/')` | `{field} contains invalid characters` |
+| `startsWith` | `prefix`, `caseSensitive?` | `$v->rule('startsWith', 'field', 'pre')` | `{field} must start with '%s'` |
+| `endsWith` | `suffix`, `caseSensitive?` | `$v->rule('endsWith', 'field', 'suf')` | `{field} must end with '%s'` |
 | `uuid` | `version?` | `$v->rule('uuid', 'field')` | `{field} must be a valid UUID` |
-| `passwordStrength` | `minScore` or `config[]` | `$v->rule('passwordStrength', 'field', 6)` | `{field} must be a stronger password` |
+| `passwordStrength` | `minScore` or `config[]` | `$v->rule('passwordStrength', 'field', 6)` | `{field} must be a stronger password (minimum strength: %d/10)` |
 
 > **Note:** Parameters marked with `?` are optional.
 

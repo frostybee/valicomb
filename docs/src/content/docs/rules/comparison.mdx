@@ -10,8 +10,8 @@ Comparison validation rules check field presence and compare values between fiel
 | Rule | Parameters | Example | Error Message |
 |------|------------|---------|---------------|
 | `required` | `allowEmpty?` | `$v->rule('required', 'field')` | `{field} is required` |
-| `equals` | `otherField` | `$v->rule('equals', 'field', 'other')` | `{field} must match {0}` |
-| `different` | `otherField` | `$v->rule('different', 'field', 'other')` | `{field} must be different from {0}` |
+| `equals` | `otherField` | `$v->rule('equals', 'field', 'other')` | `{field} must be the same as '%s'` |
+| `different` | `otherField` | `$v->rule('different', 'field', 'other')` | `{field} must be different than '%s'` |
 | `accepted` | — | `$v->rule('accepted', 'field')` | `{field} must be accepted` |
 
 > **Note:** Parameters marked with `?` are optional.

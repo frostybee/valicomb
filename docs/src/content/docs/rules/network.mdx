@@ -9,15 +9,15 @@ Network validation rules check IP addresses, email addresses, URLs, and phone nu
 
 | Rule | Parameters | Example | Error Message |
 |------|------------|---------|---------------|
-| `ip` | — | `$v->rule('ip', 'field')` | `{field} must be a valid IP address` |
-| `ipv4` | — | `$v->rule('ipv4', 'field')` | `{field} must be a valid IPv4 address` |
-| `ipv6` | — | `$v->rule('ipv6', 'field')` | `{field} must be a valid IPv6 address` |
+| `ip` | — | `$v->rule('ip', 'field')` | `{field} is not a valid IP address` |
+| `ipv4` | — | `$v->rule('ipv4', 'field')` | `{field} is not a valid IPv4 address` |
+| `ipv6` | — | `$v->rule('ipv6', 'field')` | `{field} is not a valid IPv6 address` |
 | `email` | — | `$v->rule('email', 'field')` | `{field} is not a valid email address` |
 | `emailDNS` | — | `$v->rule('emailDNS', 'field')` | `{field} must be a valid email address with an active DNS record` |
 | `url` | — | `$v->rule('url', 'field')` | `{field} is not a valid URL` |
-| `urlActive` | — | `$v->rule('urlActive', 'field')` | `{field} must be an active URL` |
+| `urlActive` | — | `$v->rule('urlActive', 'field')` | `{field} must be an active domain` |
 | `urlStrict` | — | `$v->rule('urlStrict', 'field')` | `{field} is not a valid public URL` |
-| `phone` | `country?` | `$v->rule('phone', 'field', 'US')` | `{field} is not a valid phone number` |
+| `phone` | `country?` | `$v->rule('phone', 'field', 'US')` | `{field} must be a valid phone number` |
 
 > **Note:** Parameters marked with `?` are optional.
 

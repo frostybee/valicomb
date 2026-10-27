@@ -9,10 +9,10 @@ Length validation rules check string length. All rules use multibyte-aware chara
 
 | Rule | Parameters | Example | Error Message |
 |------|------------|---------|---------------|
-| `length` | `length` | `$v->rule('length', 'field', 4)` | `{field} must be exactly {0} characters long` |
-| `lengthBetween` | `min`, `max` | `$v->rule('lengthBetween', 'field', 3, 20)` | `{field} must be between {0} and {1} characters long` |
-| `lengthMin` | `min` | `$v->rule('lengthMin', 'field', 8)` | `{field} must be at least {0} characters long` |
-| `lengthMax` | `max` | `$v->rule('lengthMax', 'field', 255)` | `{field} must be at most {0} characters long` |
+| `length` | `length` | `$v->rule('length', 'field', 4)` | `{field} must be %d characters long` |
+| `lengthBetween` | `min`, `max` | `$v->rule('lengthBetween', 'field', 3, 20)` | `{field} must be between %d and %d characters` |
+| `lengthMin` | `min` | `$v->rule('lengthMin', 'field', 8)` | `{field} must be at least %d characters long` |
+| `lengthMax` | `max` | `$v->rule('lengthMax', 'field', 255)` | `{field} must not exceed %d characters` |
 
 ## Notes
 

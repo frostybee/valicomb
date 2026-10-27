@@ -10,12 +10,12 @@ Array validation rules check array structure and content.
 | Rule | Parameters | Example | Error Message |
 |------|------------|---------|---------------|
 | `array` | — | `$v->rule('array', 'field')` | `{field} must be an array` |
-| `in` | `values` | `$v->rule('in', 'field', ['a', 'b'])` | `{field} must be one of the allowed values` |
-| `notIn` | `values` | `$v->rule('notIn', 'field', ['x', 'y'])` | `{field} must not be one of the disallowed values` |
-| `listContains` | `value`, `strict?` | `$v->rule('listContains', 'field', 'val')` | `{field} must contain {0}` |
-| `subset` | `values` | `$v->rule('subset', 'field', ['a', 'b'])` | `{field} must be a subset of the allowed values` |
-| `containsUnique` | — | `$v->rule('containsUnique', 'field')` | `{field} must contain unique values` |
-| `arrayHasKeys` | `keys` | `$v->rule('arrayHasKeys', 'field', ['a'])` | `{field} must contain all required keys` |
+| `in` | `values` | `$v->rule('in', 'field', ['a', 'b'])` | `{field} contains invalid value` |
+| `notIn` | `values` | `$v->rule('notIn', 'field', ['x', 'y'])` | `{field} contains invalid value` |
+| `listContains` | `value`, `strict?` | `$v->rule('listContains', 'field', 'val')` | `{field} contains invalid value` |
+| `subset` | `values` | `$v->rule('subset', 'field', ['a', 'b'])` | `{field} contains an item that is not in the list` |
+| `containsUnique` | — | `$v->rule('containsUnique', 'field')` | `{field} must contain unique elements only` |
+| `arrayHasKeys` | `keys` | `$v->rule('arrayHasKeys', 'field', ['a'])` | `{field} does not contain all required keys` |
 
 > **Note:** Parameters marked with `?` are optional.
 

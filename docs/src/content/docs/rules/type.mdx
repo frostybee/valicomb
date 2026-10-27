@@ -9,7 +9,7 @@ Type validation rules check object types and special formats like credit cards.
 
 | Rule | Parameters | Example | Error Message |
 |------|------------|---------|---------------|
-| `instanceOf` | `class` | `$v->rule('instanceOf', 'field', DateTime::class)` | `{field} must be an instance of {0}` |
+| `instanceOf` | `class` | `$v->rule('instanceOf', 'field', DateTime::class)` | `{field} must be an instance of '%s'` |
 | `creditCard` | `type?`, `allowedTypes?` | `$v->rule('creditCard', 'field')` | `{field} must be a valid credit card number` |
 
 > **Note:** Parameters marked with `?` are optional.

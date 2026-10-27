@@ -11,12 +11,12 @@ Numeric validation rules check numeric values and their constraints. These rules
 |------|------------|---------|---------------|
 | `numeric` | — | `$v->rule('numeric', 'field')` | `{field} must be numeric` |
 | `integer` | `strict?` | `$v->rule('integer', 'field')` | `{field} must be an integer` |
-| `min` | `min` | `$v->rule('min', 'field', 10)` | `{field} must be at least {0}` |
-| `max` | `max` | `$v->rule('max', 'field', 100)` | `{field} must be at most {0}` |
+| `min` | `min` | `$v->rule('min', 'field', 10)` | `{field} must be at least %s` |
+| `max` | `max` | `$v->rule('max', 'field', 100)` | `{field} must be no more than %s` |
 | `between` | `min`, `max` | `$v->rule('between', 'field', 1, 10)` | `{field} must be between {0} and {1}` |
 | `boolean` | — | `$v->rule('boolean', 'field')` | `{field} must be a boolean` |
 | `positive` | — | `$v->rule('positive', 'field')` | `{field} must be a positive number` |
-| `decimalPlaces` | `places` | `$v->rule('decimalPlaces', 'field', 2)` | `{field} must have at most {0} decimal places` |
+| `decimalPlaces` | `places` | `$v->rule('decimalPlaces', 'field', 2)` | `{field} must have at most %d decimal places` |
 
 > **Note:** Parameters marked with `?` are optional.
 
