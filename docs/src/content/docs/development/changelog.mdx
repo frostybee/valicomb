@@ -9,7 +9,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ---
 
-## [Unreleased]
+## [1.5.0] - 2026-10-27
+
+### Highlights
+
+**`strict` works by name and in the fluent builder** for `in` and `notIn`. Before this release, a named `strict` was ignored, and the fluent methods had no way to turn it on. Without `strict`, the boolean `true` matches any non-empty string, so a JSON payload such as `{"role": true}` passed the check:
+
+```php
+$v->field('role')->in(['admin', 'user'], strict: true);
+$v->rule('in', 'role', ['admin', 'user'], strict: true);
+// {"role": true} now fails
+```
+
+If you validate JSON input with `in` or `notIn`, add `strict`.
 
 ### Added
 
