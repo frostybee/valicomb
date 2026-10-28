@@ -1134,17 +1134,19 @@ class FieldBuilder
      * Validate that the field value is in a list of allowed values.
      *
      * @param array $values Array of allowed values.
+     * @param bool $ignoreCase If true, string values are matched case-insensitively.
      *
      * @return self Returns $this for method chaining.
      *
      * @example In validation:
      * ```php
      * $v->field('status')->in(['active', 'pending', 'inactive']);
+     * $v->field('size')->in(['small', 'large'], ignoreCase: true);
      * ```
      */
-    public function in(array $values): self
+    public function in(array $values, bool $ignoreCase = false): self
     {
-        $this->validator->rule('in', $this->fieldName, $values);
+        $this->validator->rule('in', $this->fieldName, $values, ignoreCase: $ignoreCase);
 
         return $this;
     }
@@ -1153,17 +1155,19 @@ class FieldBuilder
      * Validate that the field value is NOT in a list of disallowed values.
      *
      * @param array $values Array of disallowed values.
+     * @param bool $ignoreCase If true, string values are matched case-insensitively.
      *
      * @return self Returns $this for method chaining.
      *
      * @example NotIn validation:
      * ```php
      * $v->field('username')->notIn(['admin', 'root', 'system']);
+     * $v->field('username')->notIn(['admin', 'root'], ignoreCase: true);
      * ```
      */
-    public function notIn(array $values): self
+    public function notIn(array $values, bool $ignoreCase = false): self
     {
-        $this->validator->rule('notIn', $this->fieldName, $values);
+        $this->validator->rule('notIn', $this->fieldName, $values, ignoreCase: $ignoreCase);
 
         return $this;
     }

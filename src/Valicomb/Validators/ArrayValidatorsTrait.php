@@ -15,6 +15,7 @@ use function is_int;
 use function is_null;
 use function is_scalar;
 use function is_string;
+use function mb_strtolower;
 
 use const SORT_REGULAR;
 
@@ -67,10 +68,15 @@ trait ArrayValidatorsTrait
      * - validateIn('status', 'deleted', [['active', 'pending'], false]) → false
      * - validateIn('id', '5', [[1, 2, 5], true]) → false (strict: string !== int)
      * - validateIn('id', '5', [[1, 2, 5], false]) → true (non-strict: "5" == 5)
+     * - validateIn('size', 'LARGE', [['small', 'large'], 'ignoreCase' => true]) → true (ignoreCase)
+     *
+     * Case-insensitive mode (param ['ignoreCase'] or [3] = true): string values are compared
+     * to string candidates with mb_strtolower(), so multibyte letters are folded too.
+     * Non-string values still go through the regular strict/non-strict comparison.
      *
      * @param string $field The field name being validated.
      * @param mixed $value The value to validate.
-     * @param array $params Parameters: [0] => array of allowed values, [1] => bool strict (default: false), [2] => bool forceAsAssociative (default: false).
+     * @param array $params Parameters: [0] => array of allowed values, [1] => bool strict (default: false), [2] => bool forceAsAssociative (default: false), ['ignoreCase'] or [3] => bool ignoreCase (default: false).
      *
      * @return bool True if value exists in the allowed list, false otherwise.
      */
@@ -86,6 +92,16 @@ trait ArrayValidatorsTrait
         }
 
         $strict = $params[1] ?? false;
+        $ignoreCase = (bool) ($params['ignoreCase'] ?? $params[3] ?? false);
+
+        if ($ignoreCase && is_string($value)) {
+            $needle = mb_strtolower($value);
+            foreach ($params[0] as $allowed) {
+                if (is_string($allowed) && mb_strtolower($allowed) === $needle) {
+                    return true;
+                }
+            }
+        }
 
         return in_array($value, $params[0], $strict);
     }
@@ -142,6 +158,7 @@ trait ArrayValidatorsTrait
      * - Associative array handling (checks keys only)
      * - Strict/non-strict comparison modes
      * - Force associative parameter
+     * - Case-insensitive mode
      *
      * This is useful for blacklisting values, preventing reserved keywords, or excluding
      * specific inputs that should not be accepted.
@@ -150,10 +167,11 @@ trait ArrayValidatorsTrait
      * - validateNotIn('username', 'guest', [['admin', 'root', 'guest'], false]) → false
      * - validateNotIn('username', 'john', [['admin', 'root', 'guest'], false]) → true
      * - validateNotIn('id', 0, [[0, -1], true]) → false (strict match)
+     * - validateNotIn('username', 'ADMIN', [['admin'], 'ignoreCase' => true]) → false (ignoreCase)
      *
      * @param string $field The field name being validated.
      * @param mixed $value The value to validate.
-     * @param array $params Parameters: [0] => array of disallowed values, [1] => bool strict (default: false), [2] => bool forceAsAssociative (default: false).
+     * @param array $params Parameters: [0] => array of disallowed values, [1] => bool strict (default: false), [2] => bool forceAsAssociative (default: false), ['ignoreCase'] or [3] => bool ignoreCase (default: false).
      *
      * @return bool True if value does NOT exist in the disallowed list, false if it does.
      */

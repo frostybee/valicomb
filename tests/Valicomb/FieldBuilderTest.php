@@ -1181,6 +1181,22 @@ class FieldBuilderTest extends TestCase
         $this->assertFalse($v->validate());
     }
 
+    public function testInMethodIgnoreCase(): void
+    {
+        $v = new Validator(['status' => 'Active']);
+        $v->field('status')->in(['active', 'pending'], ignoreCase: true);
+
+        $this->assertTrue($v->validate());
+    }
+
+    public function testNotInMethodIgnoreCaseFails(): void
+    {
+        $v = new Validator(['username' => 'Root']);
+        $v->field('username')->notIn(['admin', 'root'], ignoreCase: true);
+
+        $this->assertFalse($v->validate());
+    }
+
     public function testListContainsMethod(): void
     {
         $v = new Validator(['permissions' => ['read', 'write', 'admin']]);

@@ -10,8 +10,8 @@ Array validation rules check array structure and content.
 | Rule | Parameters | Example | Error Message |
 |------|------------|---------|---------------|
 | `array` | — | `$v->rule('array', 'field')` | `{field} must be an array` |
-| `in` | `values` | `$v->rule('in', 'field', ['a', 'b'])` | `{field} contains invalid value` |
-| `notIn` | `values` | `$v->rule('notIn', 'field', ['x', 'y'])` | `{field} contains invalid value` |
+| `in` | `values`, `strict?`, `forceAsAssociative?`, `ignoreCase?` | `$v->rule('in', 'field', ['a', 'b'])` | `{field} contains invalid value` |
+| `notIn` | `values`, `strict?`, `forceAsAssociative?`, `ignoreCase?` | `$v->rule('notIn', 'field', ['x', 'y'])` | `{field} contains invalid value` |
 | `listContains` | `value`, `strict?` | `$v->rule('listContains', 'field', 'val')` | `{field} contains invalid value` |
 | `subset` | `values` | `$v->rule('subset', 'field', ['a', 'b'])` | `{field} contains an item that is not in the list` |
 | `containsUnique` | — | `$v->rule('containsUnique', 'field')` | `{field} must contain unique elements only` |
@@ -20,6 +20,33 @@ Array validation rules check array structure and content.
 > **Note:** Parameters marked with `?` are optional.
 
 ## Parameter Details
+
+### in and notIn
+
+Matching is case-sensitive by default. Pass `ignoreCase` by name to compare strings case-insensitively, including accented and other non-ASCII letters (`'ÉTÉ'` matches `'été'`):
+
+```php
+// Rule-based
+$v->rule('in', 'size', ['small', 'medium', 'large'], ignoreCase: true);
+
+// Field-based array syntax
+$v->forFields([
+    'size' => [['in', ['small', 'medium', 'large'], 'ignoreCase' => true]],
+]);
+
+// Fluent
+$v->field('size')->in(['small', 'medium', 'large'], ignoreCase: true);
+$v->field('username')->notIn(['admin', 'root'], ignoreCase: true);
+```
+
+With `ignoreCase`, `'Large'` passes `in` and `'ADMIN'` fails `notIn`. Non-string values, such as integers, are still compared using the `strict` setting.
+
+The other optional parameters are positional, after `values`:
+
+- `strict` (default `false`): compares with `===`, so `'5'` does not match `5`.
+- `forceAsAssociative` (default `false`): checks the value against the array keys instead of the values. Associative arrays such as `['red' => 'Red']` always use their keys; set this option for arrays with numeric keys, such as `[3 => 'green', 2 => 'purple']`.
+
+`ignoreCase` can also be passed positionally as the fourth parameter: `rule('in', 'size', $values, false, false, true)`.
 
 ### listContains
 

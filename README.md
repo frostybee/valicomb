@@ -131,8 +131,8 @@ This is useful for form validation, API endpoints, and batch processing where th
 ### Array Validators
 
  * `array` - Must be array
- * `in` - Performs in_array check on given array values
- * `notIn` - Negation of `in` rule (not in array of values)
+ * `in` - Performs in_array check on given array values (optionally case-insensitive)
+ * `notIn` - Negation of `in` rule (not in array of values, optionally case-insensitive)
  * `listContains` - Performs in_array check on given array values (the other way round than `in`)
  * `subset` - Field is an array or a scalar and all elements are contained in the given array
  * `containsUnique` - Field is an array and contains unique values

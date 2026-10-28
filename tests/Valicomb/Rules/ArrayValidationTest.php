@@ -247,6 +247,95 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertTrue($v->validate());
     }
 
+    public function testInIsCaseSensitiveByDefault(): void
+    {
+        $v = new Validator(['color' => 'RED']);
+        $v->rule('in', 'color', ['red', 'green', 'blue']);
+        $this->assertFalse($v->validate());
+    }
+
+    public function testInIgnoreCaseValid(): void
+    {
+        $v = new Validator(['color' => 'RED']);
+        $v->rule('in', 'color', ['red', 'green', 'blue'], false, false, true);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testInIgnoreCaseMultibyteValid(): void
+    {
+        $v = new Validator(['season' => 'ÉTÉ']);
+        $v->rule('in', 'season', ['été', 'hiver'], false, false, true);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testInIgnoreCaseInvalid(): void
+    {
+        $v = new Validator(['color' => 'YELLOW']);
+        $v->rule('in', 'color', ['red', 'green', 'blue'], false, false, true);
+        $this->assertFalse($v->validate());
+    }
+
+    public function testInIgnoreCaseSearchesKeysForAssociativeArray(): void
+    {
+        $v = new Validator(['color' => 'GREEN']);
+        $v->rule('in', 'color', ['red' => 'Red', 'green' => 'Green'], false, false, true);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testInIgnoreCaseKeepsStrictTypeCheck(): void
+    {
+        $v = new Validator(['id' => '5']);
+        $v->rule('in', 'id', [1, 2, 5], true, false, true);
+        $this->assertFalse($v->validate());
+    }
+
+    public function testInIgnoreCaseAltSyntax(): void
+    {
+        $v = new Validator(['color' => 'Purple']);
+        $v->rules([
+            'in' => [
+                ['color', ['blue', 'purple'], false, false, true],
+            ],
+        ]);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testInIgnoreCaseNamedArgument(): void
+    {
+        $v = new Validator(['color' => 'RED']);
+        $v->rule('in', 'color', ['red', 'green'], ignoreCase: true);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testInIgnoreCaseNamedKeyAltSyntax(): void
+    {
+        $v = new Validator(['color' => 'Purple']);
+        $v->rules([
+            'in' => [
+                ['color', ['blue', 'purple'], 'ignoreCase' => true],
+            ],
+        ]);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testInIgnoreCaseNamedKeyFieldBasedSyntax(): void
+    {
+        $v = new Validator(['size' => 'Large', 'username' => 'ADMIN']);
+        $v->forFields([
+            'size' => [['in', ['small', 'large'], 'ignoreCase' => true]],
+            'username' => [['notIn', ['admin', 'root'], 'ignoreCase' => true, 'message' => '{field} is reserved']],
+        ]);
+        $this->assertFalse($v->validate());
+        $this->assertSame(['username' => ['Username is reserved']], $v->errors());
+    }
+
+    public function testInIgnoreCaseNamedKeyFalseStaysCaseSensitive(): void
+    {
+        $v = new Validator(['color' => 'RED']);
+        $v->rule('in', 'color', ['red'], ignoreCase: false);
+        $this->assertFalse($v->validate());
+    }
+
     // NotIn Tests
     public function testNotInValid(): void
     {
@@ -282,6 +371,20 @@ class ArrayValidationTest extends BaseTestCase
             ],
         ]);
         $this->assertFalse($v->validate());
+    }
+
+    public function testNotInIgnoreCaseInvalid(): void
+    {
+        $v = new Validator(['username' => 'ADMIN']);
+        $v->rule('notIn', 'username', ['admin', 'root'], false, false, true);
+        $this->assertFalse($v->validate());
+    }
+
+    public function testNotInIgnoreCaseValid(): void
+    {
+        $v = new Validator(['username' => 'John']);
+        $v->rule('notIn', 'username', ['admin', 'root'], false, false, true);
+        $this->assertTrue($v->validate());
     }
 
     // ListContains Tests
