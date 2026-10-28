@@ -9,12 +9,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ---
 
-## [Unreleased]
+## [1.4.0] - 2026-10-27
+
+### Highlights
+
+**`in` and `notIn` can ignore case** when you pass `ignoreCase` by name, in any syntax:
+
+```php
+$v->rule('in', 'size', ['small', 'large'], ignoreCase: true);
+$v->field('username')->notIn(['admin', 'root'], ignoreCase: true);
+// 'Large' passes `in`, 'ADMIN' fails `notIn`
+```
 
 ### Added
 
 - `in` and `notIn` accept an `ignoreCase` option for case-insensitive string matching: `rule('in', 'size', ['small', 'large'], ignoreCase: true)`, `['in', ['small', 'large'], 'ignoreCase' => true]` in array syntax, or `field('size')->in(['small', 'large'], ignoreCase: true)`. Matching stays case-sensitive by default
 - Documented the `strict` and `forceAsAssociative` parameters of `in` and `notIn`
+
+---
 
 ## [1.3.0] - 2026-10-27
 
