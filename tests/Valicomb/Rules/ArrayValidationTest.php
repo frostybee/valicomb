@@ -329,6 +329,22 @@ class ArrayValidationTest extends BaseTestCase
         $this->assertSame(['username' => ['Username is reserved']], $v->errors());
     }
 
+    public function testInStrictNamedArgument(): void
+    {
+        $v = new Validator(['id' => '1']);
+        $v->rule('in', 'id', [1, 2, 3], strict: true);
+        $this->assertFalse($v->validate());
+    }
+
+    public function testInStrictNamedKeyFieldBasedSyntax(): void
+    {
+        $v = new Validator(['id' => '1']);
+        $v->forFields([
+            'id' => [['in', [1, 2, 3], 'strict' => true]],
+        ]);
+        $this->assertFalse($v->validate());
+    }
+
     public function testInIgnoreCaseNamedKeyFalseStaysCaseSensitive(): void
     {
         $v = new Validator(['color' => 'RED']);

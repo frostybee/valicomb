@@ -1189,6 +1189,63 @@ class FieldBuilderTest extends TestCase
         $this->assertTrue($v->validate());
     }
 
+    public function testInMethodLooseByDefaultAcceptsBoolean(): void
+    {
+        $v = new Validator(['role' => true]);
+        $v->field('role')->in(['admin', 'user']);
+
+        $this->assertTrue($v->validate());
+    }
+
+    public function testInMethodStrictRejectsBoolean(): void
+    {
+        $v = new Validator(['role' => true]);
+        $v->field('role')->in(['admin', 'user'], strict: true);
+
+        $this->assertFalse($v->validate());
+    }
+
+    public function testInMethodStrictRejectsNumericStringJuggling(): void
+    {
+        $v = new Validator(['code' => '1e1']);
+        $v->field('code')->in(['10'], strict: true);
+
+        $this->assertFalse($v->validate());
+    }
+
+    public function testInMethodStrictComparesTypes(): void
+    {
+        $v = new Validator(['id' => '1']);
+        $v->field('id')->in([1, 2, 3], strict: true);
+        $this->assertFalse($v->validate());
+
+        $v = new Validator(['id' => 1]);
+        $v->field('id')->in([1, 2, 3], strict: true);
+        $this->assertTrue($v->validate());
+    }
+
+    public function testNotInMethodStrictComparesTypes(): void
+    {
+        $v = new Validator(['id' => '0']);
+        $v->field('id')->notIn([0], strict: true);
+        $this->assertTrue($v->validate());
+
+        $v = new Validator(['id' => 0]);
+        $v->field('id')->notIn([0], strict: true);
+        $this->assertFalse($v->validate());
+    }
+
+    public function testInMethodIgnoreCaseWithStrict(): void
+    {
+        $v = new Validator(['role' => 'ADMIN']);
+        $v->field('role')->in(['admin', 'user'], ignoreCase: true, strict: true);
+        $this->assertTrue($v->validate());
+
+        $v = new Validator(['role' => true]);
+        $v->field('role')->in(['admin', 'user'], ignoreCase: true, strict: true);
+        $this->assertFalse($v->validate());
+    }
+
     public function testNotInMethodIgnoreCaseFails(): void
     {
         $v = new Validator(['username' => 'Root']);

@@ -76,7 +76,7 @@ trait ArrayValidatorsTrait
      *
      * @param string $field The field name being validated.
      * @param mixed $value The value to validate.
-     * @param array $params Parameters: [0] => array of allowed values, [1] => bool strict (default: false), [2] => bool forceAsAssociative (default: false), ['ignoreCase'] or [3] => bool ignoreCase (default: false).
+     * @param array $params Parameters: [0] => array of allowed values, ['strict'] or [1] => bool strict (default: false), [2] => bool forceAsAssociative (default: false), ['ignoreCase'] or [3] => bool ignoreCase (default: false).
      *
      * @return bool True if value exists in the allowed list, false otherwise.
      */
@@ -91,7 +91,7 @@ trait ArrayValidatorsTrait
             $params[0] = array_keys($params[0]);
         }
 
-        $strict = $params[1] ?? false;
+        $strict = (bool) ($params['strict'] ?? $params[1] ?? false);
         $ignoreCase = (bool) ($params['ignoreCase'] ?? $params[3] ?? false);
 
         if ($ignoreCase && is_string($value)) {
@@ -171,7 +171,7 @@ trait ArrayValidatorsTrait
      *
      * @param string $field The field name being validated.
      * @param mixed $value The value to validate.
-     * @param array $params Parameters: [0] => array of disallowed values, [1] => bool strict (default: false), [2] => bool forceAsAssociative (default: false), ['ignoreCase'] or [3] => bool ignoreCase (default: false).
+     * @param array $params Parameters: [0] => array of disallowed values, ['strict'] or [1] => bool strict (default: false), [2] => bool forceAsAssociative (default: false), ['ignoreCase'] or [3] => bool ignoreCase (default: false).
      *
      * @return bool True if value does NOT exist in the disallowed list, false if it does.
      */

@@ -9,6 +9,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- The fluent `in()` and `notIn()` accept a `strict` option: `field('role')->in(['admin', 'user'], strict: true)`. Without it, the boolean `true` matches any non-empty string
+- `in` and `notIn` accept `strict` by name: `rule('in', 'id', [1, 2, 3], strict: true)` or `['in', [1, 2, 3], 'strict' => true]` in array syntax. A named `strict` was previously ignored
+- Documentation: a security note on loose matching in `in` and `notIn`
+
+---
+
 ## [1.4.0] - 2026-10-27
 
 ### Highlights

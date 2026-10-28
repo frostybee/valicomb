@@ -23,30 +23,40 @@ Array validation rules check array structure and content.
 
 ### in and notIn
 
-Matching is case-sensitive by default. Pass `ignoreCase` by name to compare strings case-insensitively, including accented and other non-ASCII letters (`'ÉTÉ'` matches `'été'`):
+Two options can be passed by name, in any syntax:
+
+- `ignoreCase` (default `false`): compares strings case-insensitively, including accented and other non-ASCII letters (`'ÉTÉ'` matches `'été'`). Non-string values, such as integers, are compared using the `strict` setting.
+- `strict` (default `false`): compares with `===`, so `'5'` does not match `5`.
 
 ```php
 // Rule-based
 $v->rule('in', 'size', ['small', 'medium', 'large'], ignoreCase: true);
+$v->rule('in', 'role', ['admin', 'user'], strict: true);
 
 // Field-based array syntax
 $v->forFields([
     'size' => [['in', ['small', 'medium', 'large'], 'ignoreCase' => true]],
+    'role' => [['in', ['admin', 'user'], 'strict' => true]],
 ]);
 
 // Fluent
 $v->field('size')->in(['small', 'medium', 'large'], ignoreCase: true);
-$v->field('username')->notIn(['admin', 'root'], ignoreCase: true);
+$v->field('username')->notIn(['admin', 'root'], ignoreCase: true, strict: true);
 ```
 
-With `ignoreCase`, `'Large'` passes `in` and `'ADMIN'` fails `notIn`. Non-string values, such as integers, are still compared using the `strict` setting.
+With `ignoreCase`, `'Large'` passes `in` and `'ADMIN'` fails `notIn`.
 
-The other optional parameters are positional, after `values`:
+:::caution
+Without `strict`, PHP's loose comparison applies. The boolean `true` matches any non-empty string, so a JSON payload such as `{"role": true}` passes `field('role')->in(['admin', 'user'])`. Numeric strings compare as numbers, so `'1e1'` matches `'10'`. Use `strict` when the input comes from JSON or another source that can carry booleans and numbers.
+:::
 
-- `strict` (default `false`): compares with `===`, so `'5'` does not match `5`.
-- `forceAsAssociative` (default `false`): checks the value against the array keys instead of the values. Associative arrays such as `['red' => 'Red']` always use their keys; set this option for arrays with numeric keys, such as `[3 => 'green', 2 => 'purple']`.
+The third option, `forceAsAssociative` (default `false`), is positional only. It checks the value against the array keys instead of the values. Associative arrays such as `['red' => 'Red']` always use their keys; set this option for arrays with numeric keys, such as `[3 => 'green', 2 => 'purple']`:
 
-`ignoreCase` can also be passed positionally as the fourth parameter: `rule('in', 'size', $values, false, false, true)`.
+```php
+$v->rule('in', 'color', [3 => 'green', 2 => 'purple'], false, true);
+```
+
+`strict` and `ignoreCase` can also be passed positionally, as the second and fourth parameters: `rule('in', 'size', $values, true, false, true)`.
 
 ### listContains
 

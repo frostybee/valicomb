@@ -1135,6 +1135,7 @@ class FieldBuilder
      *
      * @param array $values Array of allowed values.
      * @param bool $ignoreCase If true, string values are matched case-insensitively.
+     * @param bool $strict If true, compares with === (no type juggling).
      *
      * @return self Returns $this for method chaining.
      *
@@ -1142,11 +1143,12 @@ class FieldBuilder
      * ```php
      * $v->field('status')->in(['active', 'pending', 'inactive']);
      * $v->field('size')->in(['small', 'large'], ignoreCase: true);
+     * $v->field('role')->in(['admin', 'user'], strict: true);
      * ```
      */
-    public function in(array $values, bool $ignoreCase = false): self
+    public function in(array $values, bool $ignoreCase = false, bool $strict = false): self
     {
-        $this->validator->rule('in', $this->fieldName, $values, ignoreCase: $ignoreCase);
+        $this->validator->rule('in', $this->fieldName, $values, strict: $strict, ignoreCase: $ignoreCase);
 
         return $this;
     }
@@ -1156,6 +1158,7 @@ class FieldBuilder
      *
      * @param array $values Array of disallowed values.
      * @param bool $ignoreCase If true, string values are matched case-insensitively.
+     * @param bool $strict If true, compares with === (no type juggling).
      *
      * @return self Returns $this for method chaining.
      *
@@ -1163,11 +1166,12 @@ class FieldBuilder
      * ```php
      * $v->field('username')->notIn(['admin', 'root', 'system']);
      * $v->field('username')->notIn(['admin', 'root'], ignoreCase: true);
+     * $v->field('id')->notIn([0, -1], strict: true);
      * ```
      */
-    public function notIn(array $values, bool $ignoreCase = false): self
+    public function notIn(array $values, bool $ignoreCase = false, bool $strict = false): self
     {
-        $this->validator->rule('notIn', $this->fieldName, $values, ignoreCase: $ignoreCase);
+        $this->validator->rule('notIn', $this->fieldName, $values, strict: $strict, ignoreCase: $ignoreCase);
 
         return $this;
     }
